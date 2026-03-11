@@ -1,0 +1,34 @@
+[
+  {
+    "code": "BIC10003",
+    "lecturer": "I-sitihajara",
+    "intake": "FSKTM-1BIK",
+    "section": "S1",
+    "type_char": "K",
+    "type": "Lecture"
+  },
+  {
+    "code": "BIT21503",
+    "lecturer": "I-feresa",
+    "intake": "I-B8-T2-GS",
+    "section": "S1",
+    "type_char": "K",
+    "type": "Lecture"
+  },
+  {
+    "code": "BIT21503",
+    "lecturer": "I-feresa",
+    "intake": "I-B8-T2-GS",
+    "section": "S2",
+    "type_char": "K",
+    "type": "Lecture"
+  },
+  {
+    "code": "BIC21303",
+    "lecturer": "I-zana",
+    "intake": "FSKTM-2BIW S5 A 01",
+    "section": "S5",
+    "type_char": "A",
+    "type": "Lab/Amali"
+  }
+]

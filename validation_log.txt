@@ -1,0 +1,17 @@
+Timetable Validation Log
+========================
+Found 13 anomalies (Courses that don't match typical K/A credit logic):
+
+[BIT20803 S2] 3-credit course is missing 'A' or 'T' slot.
+[BIC31903 S7] 3-credit course is missing 'A' or 'T' slot.
+[BIC31903 S1] 3-credit course is missing 'A' or 'T' slot.
+[BIC31903 S5] 3-credit course is missing 'A' or 'T' slot.
+[BIK20703 S1] 3-credit course is missing 'A' or 'T' slot.
+[CIC10103 S1] 3-credit course is missing 'A' or 'T' slot.
+[CII10603 S1] 3-credit course is missing 'A' or 'T' slot.
+[CII10803 S1] 3-credit course is missing 'A' or 'T' slot.
+[MIC10103 S1] 3-credit course is missing 'A' or 'T' slot.
+[MIC10203 S1] 3-credit course is missing 'A' or 'T' slot.
+[MIC10303 S1] 3-credit course is missing 'A' or 'T' slot.
+[MIC10403 S1] 3-credit course is missing 'A' or 'T' slot.
+[MIC10503 S1] 3-credit course is missing 'A' or 'T' slot.

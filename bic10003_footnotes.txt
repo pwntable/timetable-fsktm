@@ -1,0 +1,5 @@
+Footnote 9 contains BIC10003: {'code': 'BIC10003', 'lecturer': 'I-sitihajara', 'intake': 'FSKTM-1BIK', 'section': 'S1', 'type_char': 'K', 'type': 'Lecture'}
+Footnote 118 contains BIC10003: {'code': 'BIC10003', 'lecturer': 'I-sitihajara', 'intake': 'FSKTM-1BIK', 'section': 'S1', 'type_char': 'T', 'type': 'Tutorial'}
+Footnote 106 contains BIC10003: {'code': 'BIC10003', 'lecturer': 'I-sitihajara', 'intake': 'FSKTM-1BIK S1 T 02', 'section': 'S1', 'type_char': 'T', 'type': 'Tutorial'}
+Footnote 107 contains BIC10003: {'code': 'BIC10003', 'lecturer': 'I-sitihajara', 'intake': '', 'section': 'S1', 'type_char': 'T', 'type': 'Tutorial'}
+Footnote 6 contains BIC10003: {'code': 'BIC10003', 'lecturer': 'I-sitihajara', 'intake': 'FSKTM-1BIK S1 K 02', 'section': 'S1', 'type_char': 'K', 'type': 'Lecture'}
