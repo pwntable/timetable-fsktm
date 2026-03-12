@@ -90,7 +90,11 @@ const DICT = {
     optOther: "Other",
     submitFeedback: "Submit Feedback",
     submitSuccess: "Terima kasih! Feedback has been sent.",
-    submitFail: "Error sending feedback. Please try again later."
+    submitFail: "Error sending feedback. Please try again later.",
+    intakePanelTitle: "Suggest by Intake",
+    intakeSuggestBtn: "Suggest Timetable",
+    intakePlaceholder: "-- Select your intake --",
+    intakeNoneFound: "No matching courses found for this intake."
   },
   ms: {
     subtitle: "Pilih subjek & section — jadual dijana serta-merta",
@@ -153,7 +157,11 @@ const DICT = {
     optOther: "Lain-lain",
     submitFeedback: "Hantar Maklum Balas",
     submitSuccess: "Terima kasih! Maklum balas anda telah dihantar.",
-    submitFail: "Ralat menghantar maklum balas. Sila cuba sebentar lagi."
+    submitFail: "Ralat menghantar maklum balas. Sila cuba sebentar lagi.",
+    intakePanelTitle: "Cadangan Mengikut Ambilan",
+    intakeSuggestBtn: "Cadang Jadual",
+    intakePlaceholder: "-- Pilih ambilan anda --",
+    intakeNoneFound: "Tiada kursus yang sepadan ditemui untuk ambilan ini."
   }
 };
 
@@ -564,59 +572,147 @@ function renderTimetable() {
   if (conflicts.length) { strip.style.display = 'block'; strip.innerHTML = `⚠ <strong>Konflik Masa:</strong> ${conflicts.join(' · ')}`; }
   else strip.style.display = 'none';
 
-  // Build grid
-  const grid = {};
-  DAYS.forEach(d => { grid[d] = {}; TIME_SLOTS.forEach((_, i) => { grid[d][i] = null; }); });
+  // Build grid data (slots organized directly by day)
+  const daySlots = {};
+  DAYS.forEach(d => daySlots[d] = []);
 
+  let lectures = 0, labs = 0;
   for (const [code, sec] of Object.entries(selected)) {
     (COURSES[code].sections[sec] || []).forEach(slot => {
+      if (slot.type === 'Lecture') lectures++; else if (slot.type === 'Lab/Amali') labs++;
+
       const startTime = (slot.time_start || '').replace('.', ':');
       const si = TIME_SLOTS.findIndex(t => t.startsWith(startTime));
       if (si === -1) return;
-      const dur = slot.duration || 1;
 
+      const dur = slot.duration || 1;
       let endTime = "Unknown";
       const endSi = si + dur - 1;
       if (endSi >= 0 && endSi < TIME_SLOTS.length) {
         endTime = TIME_SLOTS[endSi].split(' - ')[1].replace(' (eve)', '');
       }
 
-      if (grid[slot.day][si] === null) {
-        grid[slot.day][si] = { code, sec, ...slot, time_end: endTime, ci: colorMap[code], colspan: dur };
-      } else {
-        if (!Array.isArray(grid[slot.day][si])) grid[slot.day][si] = [grid[slot.day][si]];
-        grid[slot.day][si].push({ code, sec, ...slot, time_end: endTime, ci: colorMap[code], colspan: 1 });
-      }
-      for (let i = 1; i < dur; i++) {
-        if (si + i < TIME_SLOTS.length && grid[slot.day][si + i] === null)
-          grid[slot.day][si + i] = 'skip';
-      }
+      daySlots[slot.day].push({
+        code, sec, ...slot,
+        time_end: endTime,
+        ci: colorMap[code],
+        colspan: dur,
+        startIdx: si
+      });
     });
   }
 
-  let lectures = 0, labs = 0;
-  for (const [code, sec] of Object.entries(selected)) {
-    (COURSES[code].sections[sec] || []).forEach(s => {
-      if (s.type === 'Lecture') lectures++; else if (s.type === 'Lab/Amali') labs++;
+  // Pre-calculate isConflict property and tracks for overlaps
+  DAYS.forEach(day => {
+    // Determine isConflict (any overlap)
+    daySlots[day].forEach((s1, i) => {
+      s1.isConflict = false;
+      daySlots[day].forEach((s2, j) => {
+        if (i !== j) {
+          if (s1.startIdx < s2.startIdx + s2.colspan && s1.startIdx + s1.colspan > s2.startIdx) {
+            s1.isConflict = true;
+          }
+        }
+      });
     });
-  }
+
+    // Group into connected overlapping components for dynamic height splitting
+    const sorted = [...daySlots[day]].sort((a, b) => a.startIdx - b.startIdx);
+    let clusters = [];
+    sorted.forEach(s => {
+      let added = false;
+      for (let cluster of clusters) {
+        if (s.startIdx < cluster.maxEnd) {
+          cluster.slots.push(s);
+          cluster.maxEnd = Math.max(cluster.maxEnd, s.startIdx + s.colspan);
+          added = true;
+          break;
+        }
+      }
+      if (!added) clusters.push({ maxEnd: s.startIdx + s.colspan, slots: [s] });
+    });
+
+    // Assign tracks per cluster
+    clusters.forEach(cluster => {
+      const tracks = [];
+      cluster.slots.forEach(s => {
+        let placed = false;
+        for (let i = 0; i < tracks.length; i++) {
+          if (tracks[i] <= s.startIdx) {
+            s.track = i;
+            tracks[i] = s.startIdx + s.colspan;
+            placed = true;
+            break;
+          }
+        }
+        if (!placed) {
+          s.track = tracks.length;
+          tracks.push(s.startIdx + s.colspan);
+        }
+      });
+      cluster.slots.forEach(s => s.overlapCount = tracks.length);
+    });
+  });
 
   if (viewMode === 'cards') {
-    body.innerHTML = buildCardsHTML(grid) + buildStatsHTML(lectures, labs, conflicts.length) + buildLegendHTML();
+    body.innerHTML = buildCardsHTML(daySlots) + buildStatsHTML(lectures, labs, conflicts.length) + buildLegendHTML();
   } else {
-    body.innerHTML = buildTableHTML(grid) + buildStatsHTML(lectures, labs, conflicts.length) + buildLegendHTML();
+    body.innerHTML = buildTableHTML(daySlots) + buildStatsHTML(lectures, labs, conflicts.length) + buildLegendHTML();
   }
 }
 
-function buildTableHTML(grid) {
+function buildTableHTML(daySlots) {
   const t = DICT[currentLang];
   if (layoutOrientation === 'days-left') {
-    return buildTableDaysLeft(grid, t);
+    return buildTableDaysLeft(daySlots, t);
   }
-  return buildTableDaysTop(grid, t);
+  return buildTableDaysTop(daySlots, t);
 }
 
-function buildTableDaysTop(grid, t) {
+function renderSlotContent(e, ts, col, venue, durLabel, isTransposed = false) {
+  let isCompact = (e.overlapCount || 1) > 1;
+
+  if (isCompact) {
+    let tStart = e.time_start || '', tEnd = e.time_end || '';
+    let confDurLabel = `<div class="slot-dur desktop-hide" style="font-size:7px;margin-top:1px">${format12Hour(tStart)} - ${format12Hour(tEnd)}</div>`;
+
+    let pct = 100 / e.overlapCount;
+    let offset = e.track * pct;
+
+    let posStyles = isTransposed
+      ? `inset:auto; top:2px; bottom:2px; left:calc(${offset}% + 2px); width:calc(${pct}% - 4px); min-height:0;`
+      : `inset:auto; left:2px; right:2px; top:calc(${offset}% + 2px); height:calc(${pct}% - 4px); min-height:0;`;
+
+    return `<div class="slot type-${ts}" style="position:absolute; ${posStyles} border-left:3px solid ${e.isConflict ? '#f87171' : col}; background:${e.isConflict ? 'rgba(240,82,82,0.15)' : col + '22'}; color:${e.isConflict ? '#f87171' : col}; padding: 2px 4px; display:flex; flex-direction:column; justify-content:center; overflow:hidden; pointer-events:auto; z-index:${(e.track || 0) + 10};" 
+         title="${e.code} ${e.sec}&#10;${e.type}&#10;${e.day} ${format12Hour(e.time_start)}–${format12Hour(e.time_end)}&#10;${e.venue}&#10;${e.lecturer}" 
+         onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
+         <div class="slot-code" style="font-size:8px; margin-bottom:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${e.isConflict ? '⚠ ' : ''}${e.code}</div>
+         <div style="font-size:7px; opacity:.8; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ts}·${e.sec}</div>
+         ${confDurLabel}
+      </div>`;
+  }
+
+  // Full Layout
+  let inner = `
+    <div class="slot-code">${e.code}</div>
+    <div class="slot-meta">${e.sec} <span class="slot-type-badge" style="background:${col}33">${ts}</span></div>
+    ${venue ? `<div class="slot-venue">${venue}</div>` : ''}
+    ${durLabel}
+  `;
+  if (e.isConflict) {
+    inner = `<div class="slot-code"><span style="color:#f87171">⚠</span> ${e.code}</div>
+             <div class="slot-meta">${e.sec} <span class="slot-type-badge" style="background:${col}33">${ts}</span></div>
+             ${durLabel}`;
+  }
+  return `
+    <div class="slot type-${ts}" style="position:absolute; inset:2px; background:${col}22;border-left:3px solid ${e.isConflict ? '#f87171' : col};color:${e.isConflict ? '#f87171' : col}; ${e.isConflict ? 'background:rgba(240,82,82,0.1)' : ''}; pointer-events:auto; z-index: 10;" 
+         title="${e.code} ${e.sec}&#10;${e.type}&#10;${e.day} ${format12Hour(e.time_start)}–${format12Hour(e.time_end)}&#10;${e.venue}&#10;${e.lecturer}" 
+         onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
+      ${inner}
+    </div>`;
+}
+
+function buildTableDaysTop(daySlots, t) {
   // Original layout: days as rows, time as columns
   let html = `<div class="tt-scroll"><table class="tt-table"><thead><tr><th class="day-th">${t.hari}</th>`;
   TIME_SLOTS.forEach((ts) => {
@@ -625,85 +721,95 @@ function buildTableDaysTop(grid, t) {
     html += `<th>${label}</th>`;
   });
   html += `</tr></thead><tbody>`;
+
   DAYS.forEach(day => {
     html += `<tr><td class="day-td">${t.days[day]}</td>`;
-    TIME_SLOTS.forEach((time, i) => {
-      html += renderTableCell(grid[day][i], false); // <-- Add false here
-    });
+
+    if (daySlots[day].length === 0) {
+      for (let i = 0; i < TIME_SLOTS.length; i++) html += `<td></td>`;
+    } else {
+      html += `<td colspan="${TIME_SLOTS.length}" style="padding:0; position:relative; vertical-align:top;">`;
+      html += `<div style="display: grid; grid-template-columns: repeat(${TIME_SLOTS.length}, 1fr); grid-auto-rows: minmax(58px, auto); position:relative; min-height: 58px;">`;
+
+      html += `<div style="grid-column: 1 / -1; grid-row: 1 / -1; display: grid; grid-template-columns: repeat(${TIME_SLOTS.length}, 1fr); pointer-events: none; position: absolute; inset: 0; z-index: 0;">`;
+      for (let i = 0; i < TIME_SLOTS.length; i++) html += `<div style="border-right: 1px solid rgba(255, 255, 255, .03);"></div>`;
+      html += `</div>`;
+
+      daySlots[day].forEach(e => {
+        const col = getSubjectColor(e.code);
+        const ts = typeLabel(e.type);
+        const venue = (e.venue || '').replace('I-', '').substring(0, 16);
+        let durLabel = e.colspan > 1
+          ? `<div class="slot-dur">${format12Hour(e.time_start)} - ${format12Hour(e.time_end)}</div>`
+          : `<div class="slot-dur desktop-hide">${format12Hour(e.time_start)} - ${format12Hour(e.time_end)}</div>`;
+
+        const startCol = e.startIdx + 1;
+        html += `<div style="grid-column: ${startCol} / span ${e.colspan}; grid-row: 1; position: relative; z-index: 1; pointer-events: none;">
+            ${renderSlotContent(e, ts, col, venue, durLabel, false)}
+         </div>`;
+      });
+      html += `</div></td>`;
+    }
     html += `</tr>`;
   });
   return html + `</tbody></table></div>`;
 }
 
-function buildTableDaysLeft(grid, t) {
-  // Transposed: time as rows, days as columns
-  let html = `<div class="tt-scroll"><table class="tt-table tt-table-dl"><thead><tr><th class="day-th time-th">${currentLang === 'ms' ? 'Masa' : 'Time'}</th>`;
+function buildTableDaysLeft(daySlots, t) {
+  // Transposed: time as rows, days as columns. Uses CSS Grid purely to avoid rowspan HTML Table bugs.
+  let html = `<div class="tt-scroll"><table class="tt-table tt-table-dl"><thead><tr><th class="day-th time-th" style="width:80px">${currentLang === 'ms' ? 'Masa' : 'Time'}</th>`;
   DAYS.forEach(day => {
     html += `<th class="day-col-th">${t.days[day]}</th>`;
   });
-  html += `</tr></thead><tbody>`;
-  TIME_SLOTS.forEach((ts, i) => {
+  html += `</tr></thead><tbody><tr>`;
+
+  // Time labels column
+  html += `<td style="padding:0; vertical-align:top;"><div style="display: grid; grid-template-rows: repeat(${TIME_SLOTS.length}, 58px);">`;
+  TIME_SLOTS.forEach((ts) => {
     const parts = ts.replace(' (eve)', '★').split(' - ');
-    const timeLabel = `<div style="line-height:1.3;text-align:right">${parts[0]}<br><span style="opacity:0.6;font-size:8px">${parts[1] || ''}</span></div>`;
-    html += `<tr><td class="day-td time-td">${timeLabel}</td>`;
-    DAYS.forEach(day => {
-      html += renderTableCell(grid[day][i], true); // <-- Add true here
-    });
-    html += `</tr>`;
+    const label = `<div style="line-height:1.3;text-align:center;padding:10px 0;font-size:10px;font-weight:bold;color:var(--text);border-bottom: 1px solid rgba(255, 255, 255, .03);">${parts[0]}<br><span style="opacity:0.6;font-size:8px">${parts[1] || ''}</span></div>`;
+    html += `<div>${label}</div>`;
   });
-  return html + `</tbody></table></div>`;
+  html += `</div></td>`;
+
+  DAYS.forEach(day => {
+    html += `<td style="padding:0; position:relative; vertical-align:top; border-right: 1px solid var(--border);">`;
+    html += `<div style="display: grid; grid-template-rows: repeat(${TIME_SLOTS.length}, 58px); grid-auto-columns: minmax(60px, auto); position:absolute; inset:0; min-width: 100%;">`;
+
+    html += `<div style="grid-column: 1 / -1; grid-row: 1 / -1; display: grid; grid-template-rows: repeat(${TIME_SLOTS.length}, 58px); pointer-events: none; position: absolute; inset: 0; z-index: 0;">`;
+    for (let i = 0; i < TIME_SLOTS.length; i++) html += `<div style="border-bottom: 1px solid rgba(255, 255, 255, .03);"></div>`;
+    html += `</div>`;
+
+    daySlots[day].forEach(e => {
+      const col = getSubjectColor(e.code);
+      const ts = typeLabel(e.type);
+      const venue = (e.venue || '').replace('I-', '').substring(0, 16);
+      let durLabel = e.colspan > 1
+        ? `<div class="slot-dur">${format12Hour(e.time_start)} - ${format12Hour(e.time_end)}</div>`
+        : `<div class="slot-dur desktop-hide">${format12Hour(e.time_start)} - ${format12Hour(e.time_end)}</div>`;
+
+      const startRow = e.startIdx + 1;
+      html += `<div style="grid-row: ${startRow} / span ${e.colspan}; grid-column: 1; position: relative; z-index: 1; min-height: 58px; pointer-events: none;">
+          ${renderSlotContent(e, ts, col, venue, durLabel, true)}
+       </div>`;
+    });
+
+    html += `</div></td>`;
+  });
+
+  return html + `</tr></tbody></table></div>`;
 }
 
-function renderTableCell(cell, isTransposed = false) {
-  if (cell === 'skip') return '';
-  if (cell === null) return `<td></td>`;
-  if (Array.isArray(cell)) {
-    const h = Math.floor(54 / cell.length);
-    let inner = cell.map((e, idx) => {
-      const col = getSubjectColor(e.code);
-      let tStart = e.time_start || '', tEnd = e.time_end || '';
-      let confDurLabel = `<div class="slot-dur desktop-hide" style="font-size:7px;margin-top:1px">${format12Hour(tStart)} - ${format12Hour(tEnd)}</div>`;
-      return `<div class="conflict-inner" style="height:${h}px;top:${idx * (h + 2) + 2}px;border-color:${col}40;background:${col}18" onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}"><div class="slot-code" style="color:${col}">⚠ ${e.code}</div><div style="font-size:8px;opacity:.7">${typeLabel(e.type)}·${e.sec}</div>${confDurLabel}</div>`;
-    }).join('');
-    return `<td class="conflict-cell">${inner}</td>`;
-  }
-  const e = cell, ts = typeLabel(e.type);
-  const col = getSubjectColor(e.code);
-  const venue = (e.venue || '').replace('I-', '').substring(0, 16);
-  // FIX: Dynamically switch between rowspan and colspan
-  const spanAttr = isTransposed ? 'rowspan' : 'colspan';
-  const cs = e.colspan > 1 ? ` ${spanAttr}="${e.colspan}"` : '';
-  let tStart = e.time_start || '', tEnd = e.time_end || '';
-  let durLabel = e.duration > 1
-    ? `<div class="slot-dur">${format12Hour(tStart)} - ${format12Hour(tEnd)}</div>`
-    : `<div class="slot-dur desktop-hide">${format12Hour(tStart)} - ${format12Hour(tEnd)}</div>`;
-  return `<td${cs}><div class="slot type-${ts}" style="background:${col}22;border-left:3px solid ${col};color:${col}" title="${e.code} ${e.sec}&#10;${e.type}&#10;${e.day} ${e.time_start}–${e.time_end || ''}&#10;${e.venue}&#10;${e.lecturer}" onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
-    <div class="slot-code">${e.code}</div>
-    <div class="slot-meta">${e.sec} <span class="slot-type-badge" style="background:${col}33">${ts}</span></div>
-    ${venue ? `<div class="slot-venue">${venue}</div>` : ''}
-    ${durLabel}
-  </div></td>`;
-}
 
 /* ════ CARD VIEW (mobile / tablet) ════ */
-function buildCardsHTML(grid) {
+function buildCardsHTML(daySlots) {
   const t = DICT[currentLang];
   const DAY_COLORS = ['#4f8ef7', '#10b981', '#f59e0b', '#f05252', '#8b5cf6'];
   let html = '<div class="cards-view">';
 
   DAYS.forEach((day, di) => {
-    // Collect all non-null, non-skip cells for this day
-    const entries = [];
-    TIME_SLOTS.forEach((timeLabel, i) => {
-      const cell = grid[day][i];
-      if (!cell || cell === 'skip') return;
-      if (Array.isArray(cell)) {
-        // Conflict: multiple entries in the same slot
-        cell.forEach(e => entries.push({ ...e, timeIdx: i, timeLabel, isConflict: true }));
-      } else {
-        entries.push({ ...cell, timeIdx: i, timeLabel, isConflict: false });
-      }
-    });
+    // Collect all slots for this day, sort by start time
+    const entries = [...daySlots[day]].sort((a, b) => a.startIdx - b.startIdx);
 
     html += `<div class="day-section">
       <div class="day-section-hdr">
@@ -727,8 +833,8 @@ function buildCardsHTML(grid) {
         const confTag = e.isConflict ? `<span class="sc-tag is-conflict">⚠ KONFLIK</span>` : '';
         const venueTag = venue ? `<span class="sc-tag">${venue.substring(0, 22)}</span>` : '';
 
-        html += `<div class="slot-card" style="border-left-color:${col};background:${col}12" onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
-          <div class="sc-code" style="color:${col}">${e.code}</div>
+        html += `<div class="slot-card" style="border-left-color:${col};background:${col}12; ${e.isConflict ? 'border-color:#f87171; background:rgba(240,82,82,0.1)' : ''}" onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
+          <div class="sc-code" style="color:${e.isConflict ? '#f87171' : col}">${e.isConflict ? '⚠ ' : ''}${e.code}</div>
           <div class="sc-time">${timeStr}</div>
           <div class="sc-name">${name}</div>
           <div class="sc-tags">
@@ -746,6 +852,7 @@ function buildCardsHTML(grid) {
 
   return html + '</div>';
 }
+
 
 function buildStatsHTML(lectures, labs, conflictCount) {
   const cc = conflictCount > 0 ? 'var(--red)' : 'var(--green)';
@@ -1301,7 +1408,7 @@ async function submitFeedback(event) {
 function buildIntakeList() {
   // INTAKE_COURSES is loaded from intake_courses.js — authoritative map from by_batch PDF
   const sel = document.getElementById('intake-select');
-  if (!sel || typeof INTAKE_COURSES === 'Please Select Your Intake (Optional)') return;
+  if (!sel || typeof INTAKE_COURSES === 'undefined') return;
 
   sel.innerHTML = `<option value="">${DICT[currentLang].intakePlaceholder}</option>`;
   for (const [intake, codes] of Object.entries(INTAKE_COURSES)) {
@@ -1319,7 +1426,7 @@ function suggestByIntake() {
   if (!chosenIntake) return;
 
   // Get the definitive course list for this intake from INTAKE_COURSES
-  const courseCodes = (typeof INTAKE_COURSES !== 'Please Select Your Intake (Optional)' && INTAKE_COURSES[chosenIntake]) || [];
+  const courseCodes = (typeof INTAKE_COURSES !== 'undefined' && INTAKE_COURSES[chosenIntake]) || [];
   if (courseCodes.length === 0) {
     alert(DICT[currentLang].intakeNoneFound);
     return;
