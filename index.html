@@ -9,12 +9,14 @@
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=7">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
   <div class="wrap">
 
-    <!-- HEADER -->
     <header>
       <div class="hdr">
         <div class="brand">
@@ -26,22 +28,34 @@
         </div>
         <div class="toggles">
           <button class="btn-icon" id="btn-lang" onclick="toggleLang()" title="Switch Language">EN</button>
-          <button class="btn-icon" id="btn-theme" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
-            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <button class="btn-icon" id="btn-theme" onclick="toggleTheme()" title="Toggle Theme"
+            aria-label="Toggle Theme">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
           </button>
         </div>
         <div class="hdr-badge" data-i18n="semester">Sem 2 | Sesi 2025/2026</div>
       </div>
     </header>
 
-    <!-- LAYOUT -->
     <div class="layout">
 
-      <!-- SIDEBAR -->
       <div class="sidebar">
 
-        <!-- Panel 0: Saved Timetables (History) -->
         <div class="panel" id="saved-panel" style="display:none">
           <div class="panel-hdr">
             <span class="panel-title" data-i18n="savedTimetables">Jadual Disimpan</span>
@@ -50,7 +64,6 @@
           <div class="saved-area" id="saved-area"></div>
         </div>
 
-        <!-- Panel: Intake Suggestion -->
         <div class="panel intake-panel">
           <div class="panel-hdr">
             <span class="panel-title" data-i18n="intakePanelTitle">Cadangan Mengikut Ambilan</span>
@@ -67,7 +80,6 @@
           </div>
         </div>
 
-        <!-- Panel 1: Course Picker -->
         <div class="panel">
           <div class="panel-hdr">
             <span class="panel-title" data-i18n="subjectList">Senarai Subjek</span>
@@ -90,7 +102,6 @@
           <div class="clist" id="clist"></div>
         </div>
 
-        <!-- Panel 2: Selected subjects + section picker -->
         <div class="panel" id="sel-panel" style="display:none">
           <div class="panel-hdr">
             <span class="panel-title" data-i18n="subjectSection">Subjek &amp; Section</span>
@@ -118,7 +129,6 @@
 
       </div>
 
-      <!-- ── TIMETABLE (realtime render) ── -->
       <div>
         <div class="tt-wrap">
           <div class="tt-hdr">
@@ -129,7 +139,16 @@
                 title="Toggle between table and card view">⊞ Cards</button>
               <button class="btn-view-toggle active" id="btn-orient" onclick="toggleOrientation()"
                 title="Toggle orientation">↔ Days Top</button>
-              <button class="btn-sm btn-print" onclick="window.print()">🖨 Print</button>
+              <button class="btn-sm btn-print" onclick="openDownloadModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  style="margin-right:4px;">
+                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                  <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span data-i18n="printBtn">Cetak / Muat Turun</span>
+              </button>
               <button class="btn-sm btn-action" onclick="openExportModal()"
                 style="border-color:var(--border2);background:transparent;color:var(--text)">
                 📅 <span data-i18n="exportCal">Export to Calendar</span>
@@ -145,7 +164,6 @@
     <div style="height:60px"></div>
   </div>
 
-  <!-- SAVE MODAL -->
   <div class="modal" id="save-modal">
     <div class="modal-content">
       <h3 style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:12px" data-i18n="saveModalTitle">Simpan
@@ -166,7 +184,6 @@
     </div>
   </div>
 
-  <!-- SLOT DETAIL MODAL -->
   <div class="modal" id="detail-modal" onclick="if(event.target===this) closeDetailModal()">
     <div class="modal-content" style="max-width:350px;padding:20px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
@@ -201,7 +218,6 @@
     </div>
   </div>
 
-  <!-- EXPORT MODAL -->
   <div class="modal-overlay" id="export-modal">
     <div class="modal-box" role="dialog" aria-modal="true" style="text-align: left;">
       <div class="modal-icon" style="color: #60a5fa;">📅</div>
@@ -222,7 +238,6 @@
           data-i18n="exportEndDesc">Automatically set to 15 weeks from the start
           date.</div>
 
-        <!-- Disclaimer -->
         <div class="export-info-box export-disclaimer">
           <div class="info-title" data-i18n="exportDisclaimerTitle">⚠️ Disclaimer</div>
           <span data-i18n="exportDisclaimerText">Ini akan menghasilkan fail .ICS. Sila ambil perhatian:</span>
@@ -234,7 +249,6 @@
           </ul>
         </div>
 
-        <!-- Guide -->
         <div class="export-info-box export-guide">
           <div class="info-title" data-i18n="exportGuideTitle">ℹ️ Cara Penggunaan</div>
           <ol class="guide-list">
@@ -252,7 +266,70 @@
     </div>
   </div>
 
-  <!-- UPLOAD LOADER -->
+  <div class="modal-overlay" id="download-modal">
+    <div class="modal-box" role="dialog" aria-modal="true" style="text-align: left; max-width: 600px; width: 90%;">
+      <div class="modal-icon"
+        style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.25); color: #10b981;">⬇️</div>
+      <div class="modal-title" data-i18n="downloadTitle">Download Timetable</div>
+      <div class="modal-desc" data-i18n="downloadDesc">Pilih orientasi jadual anda.</div>
+
+      <div class="download-settings" style="margin-bottom: 20px;">
+        <label style="display:block; margin-bottom: 8px; font-weight: bold; color: var(--text); font-size: 13px;">Layout
+          Format:</label>
+        <div class="orientation-toggle-group" style="display:flex; gap:10px;">
+          <button id="dl-btn-landscape" class="dl-orientation-btn active" onclick="setDownloadOrientation('landscape')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
+            </svg>
+            <div>Landscape<br><small style="opacity:0.6;font-size:10px">Lebih Jelas</small></div>
+          </button>
+          <button id="dl-btn-portrait" class="dl-orientation-btn" onclick="setDownloadOrientation('portrait')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="2" width="12" height="20" rx="2" ry="2"></rect>
+            </svg>
+            <div>Portrait<br><small style="opacity:0.6;font-size:10px">Sesuai Telefon</small></div>
+          </button>
+        </div>
+      </div>
+
+      <div class="download-preview-wrapper"
+        style="width: 100%; height: 260px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+        <div id="download-preview-container"
+          style="transform-origin: center center; position: absolute; pointer-events: none;">
+        </div>
+      </div>
+
+      <div class="modal-actions" style="display: flex; gap: 10px;">
+        <button type="button" class="modal-btn cancel" onclick="closeDownloadModal()" data-i18n="cancelBtn"
+          style="flex:1;">Cancel</button>
+        <button type="button" class="modal-btn confirm" onclick="executeDownload('png', this)"
+          style="flex:1.5; background: #6366f1; border-color: #6366f1; color: white; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          Muat Turun PNG
+        </button>
+        <button type="button" class="modal-btn confirm" onclick="executeDownload('pdf', this)"
+          style="flex:1.5; background: #ef4444; border-color: #ef4444; color: white; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Muat Turun PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="loader-overlay" id="upload-loader">
     <div class="spinner"
       style="width:40px;height:40px;border:4px solid rgba(255,255,255,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px">
@@ -261,7 +338,6 @@
       Dokumen...</div>
   </div>
 
-  <!-- FEEDBACK MODAL -->
   <div class="modal-overlay" id="feedback-modal">
     <div class="modal-box" role="dialog" aria-modal="true" style="text-align: left; max-width: 400px;">
       <div class="modal-icon"

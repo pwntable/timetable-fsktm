@@ -683,13 +683,28 @@ function renderSlotContent(e, ts, col, venue, durLabel, isTransposed = false) {
       ? `inset:auto; top:2px; bottom:2px; left:calc(${offset}% + 2px); width:calc(${pct}% - 4px); min-height:0;`
       : `inset:auto; left:2px; right:2px; top:calc(${offset}% + 2px); height:calc(${pct}% - 4px); min-height:0;`;
 
-    return `<div class="slot type-${ts}" style="position:absolute; ${posStyles} border-left:3px solid ${e.isConflict ? '#f87171' : col}; background:${e.isConflict ? 'rgba(240,82,82,0.15)' : col + '22'}; color:${e.isConflict ? '#f87171' : col}; padding: 2px 4px; display:flex; flex-direction:column; justify-content:center; overflow:hidden; pointer-events:auto; z-index:${(e.track || 0) + 10};" 
-         title="${e.code} ${e.sec}&#10;${e.type}&#10;${e.day} ${format12Hour(e.time_start)}–${format12Hour(e.time_end)}&#10;${e.venue}&#10;${e.lecturer}" 
-         onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
+    let contentInner = `
+       <div class="slot-code" style="font-size:8px; margin-bottom:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${e.code}</div>
+       <div style="font-size:7px; opacity:.8; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ts}·${e.sec}</div>
+    `;
+
+    if (e.isConflict) {
+      contentInner = `
          <div class="slot-code" style="font-size:8px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:2px;">
-            <span>${e.isConflict ? '<span style="color:#f87171;">⚠</span> ' : ''}<b>${e.code}</b></span>
+            <span style="color:#f87171;">⚠</span><b>${e.code}</b>
             <span style="opacity:0.8; font-size: 7px;">· ${ts} ${e.sec}</span>
          </div>
+      `;
+    }
+
+    // Dynamic padding base on conflict to use flex-start effectively
+    let conflictPadding = e.isConflict ? '3px 4px 2px 4px' : '2px 4px';
+    let conflictJustify = e.isConflict ? 'flex-start' : 'center';
+
+    return `<div class="slot type-${ts}" style="position:absolute; ${posStyles} border-left:3px solid ${e.isConflict ? '#f87171' : col}; background:${e.isConflict ? 'rgba(240,82,82,0.15)' : col + '22'}; color:${e.isConflict ? '#f87171' : col}; padding: ${conflictPadding}; display:flex; flex-direction:column; justify-content:${conflictJustify}; overflow:hidden; pointer-events:auto; z-index:${(e.track || 0) + 10};" 
+         title="${e.code} ${e.sec}&#10;${e.type}&#10;${e.day} ${format12Hour(e.time_start)}–${format12Hour(e.time_end)}&#10;${e.venue}&#10;${e.lecturer}" 
+         onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
+         ${contentInner}
          ${confDurLabel}
       </div>`;
   }
@@ -702,9 +717,14 @@ function renderSlotContent(e, ts, col, venue, durLabel, isTransposed = false) {
     ${durLabel}
   `;
   if (e.isConflict) {
-    inner = `<div class="slot-code"><span style="color:#f87171">⚠</span> ${e.code}</div>
-             <div class="slot-meta">${e.sec} <span class="slot-type-badge" style="background:${col}33">${ts}</span></div>
-             ${durLabel}`;
+    inner = `
+      <div class="slot-code" style="display:flex; align-items:center; gap:4px; margin-bottom: 2px;">
+        <span style="color:#f87171">⚠</span>
+        <span>${e.code}</span>
+        <span style="font-size:8px; opacity:0.8; font-weight:normal; letter-spacing:0;">${ts} ${e.sec}</span>
+      </div>
+      ${durLabel}
+    `;
   }
   return `
     <div class="slot type-${ts}" style="position:absolute; inset:2px; background:${col}22;border-left:3px solid ${e.isConflict ? '#f87171' : col};color:${e.isConflict ? '#f87171' : col}; ${e.isConflict ? 'background:rgba(240,82,82,0.1)' : ''}; pointer-events:auto; z-index: 10;" 
@@ -931,8 +951,10 @@ function renderSavedList() {
         <div class="saved-meta">${subjs} ${t.stats.subj} • ${dateStr}</div>
       </div>
       <div class="saved-actions">
-        <button class="btn-sm btn-load" onclick="event.stopPropagation(); loadTimetable('${s.id}')" title="${t.loadBtn}">${t.loadBtn}</button>
-        <button class="btn-sm btn-del" onclick="event.stopPropagation(); deleteTimetable('${s.id}')" title="${t.delBtn}">✕</button>
+        <button class="btn-edit" onclick="event.stopPropagation(); loadTimetable('${s.id}')" title="Edit">Edit</button>
+        <button class="btn-del" onclick="event.stopPropagation(); deleteTimetable('${s.id}')" title="${t.delBtn}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
     </div>`;
   }
@@ -999,10 +1021,56 @@ function loadTimetable(id) {
 }
 
 function deleteTimetable(id) {
-  if (!confirm(currentLang === 'ms' ? 'Pasti memadam jadual ini?' : 'Delete this saved timetable?')) return;
-  savedTimetables = savedTimetables.filter(s => s.id !== id);
-  localStorage.setItem('uthm-tg-saved', JSON.stringify(savedTimetables));
-  renderSavedList();
+  const isMalay = currentLang === 'ms';
+  const title = isMalay ? 'Padam Jadual?' : 'Delete Timetable?';
+  const desc = isMalay
+    ? 'Jadual yang disimpan ini akan dipadam. Tindakan ini tidak boleh dibatalkan.'
+    : 'This saved timetable will be permanently deleted. This action cannot be undone.';
+  const cancelLbl = isMalay ? 'Batal' : 'Cancel';
+  const confirmLbl = isMalay ? 'Padam' : 'Delete';
+
+  let overlay = document.getElementById('delete-timetable-modal');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'delete-timetable-modal';
+    overlay.innerHTML = `
+      <div class="modal-box" role="dialog" aria-modal="true">
+        <div class="modal-icon">🗑</div>
+        <div class="modal-title"  id="del-modal-title"></div>
+        <div class="modal-desc"   id="del-modal-desc"></div>
+        <div class="modal-actions">
+          <button class="modal-btn cancel"  id="del-modal-cancel"></button>
+          <button class="modal-btn confirm danger" id="del-modal-confirm"></button>
+        </div>
+      </div>`;
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeDeleteModal(); });
+    document.addEventListener('keydown', function delEsc(e) {
+      if (e.key === 'Escape') closeDeleteModal();
+    });
+    document.body.appendChild(overlay);
+  }
+
+  document.getElementById('del-modal-title').textContent = title;
+  document.getElementById('del-modal-desc').textContent = desc;
+  document.getElementById('del-modal-cancel').textContent = cancelLbl;
+  document.getElementById('del-modal-confirm').textContent = confirmLbl;
+
+  document.getElementById('del-modal-cancel').onclick = closeDeleteModal;
+  document.getElementById('del-modal-confirm').onclick = () => {
+    closeDeleteModal();
+    savedTimetables = savedTimetables.filter(s => s.id !== id);
+    localStorage.setItem('uthm-tg-saved', JSON.stringify(savedTimetables));
+    renderSavedList();
+  };
+
+  requestAnimationFrame(() => overlay.classList.add('open'));
+  document.getElementById('del-modal-cancel').focus();
+}
+
+function closeDeleteModal() {
+  const overlay = document.getElementById('delete-timetable-modal');
+  if (overlay) overlay.classList.remove('open');
 }
 
 /* ════ MODALS ════ */
@@ -1475,7 +1543,6 @@ function suggestByIntake() {
   const srch = document.getElementById('srch');
   if (srch) srch.value = '';
   filterList();
-  renderSelArea();
   renderTimetable();
 
   // Smooth flash effect on timetable grid
@@ -1488,4 +1555,179 @@ function suggestByIntake() {
       ttWrap.style.opacity = '1';
     }, 60);
   }
+}
+
+/* ════ DOWNLOAD / PRINT MODAL ════ */
+let downloadOrientation = 'landscape';
+let isExporting = false; // Flag to prevent rapid double-clicks
+
+function openDownloadModal() {
+  document.getElementById('download-modal').classList.add('open');
+  setDownloadOrientation(downloadOrientation); // re-trigger to draw preview
+}
+
+function closeDownloadModal() {
+  document.getElementById('download-modal').classList.remove('open');
+}
+
+function setDownloadOrientation(mode) {
+  downloadOrientation = mode;
+  document.getElementById('dl-btn-landscape').classList.remove('active');
+  document.getElementById('dl-btn-portrait').classList.remove('active');
+  document.getElementById(`dl-btn-${mode}`).classList.add('active');
+  updateDownloadPreview();
+}
+
+function updateDownloadPreview() {
+  const previewContainer = document.getElementById('download-preview-container');
+  previewContainer.innerHTML = ''; // clear
+
+  const ttWrap = document.querySelector('.tt-wrap');
+  if (!ttWrap) return;
+
+  const clone = ttWrap.cloneNode(true);
+
+  // Clean up exactly what is rendered
+  const actions = clone.querySelector('.tt-actions');
+  if (actions) actions.remove();
+
+  // Set dimensions based on orientation to mimic A4 paper ratio (1:1.414)
+  const isLandscape = downloadOrientation === 'landscape';
+  const targetW = isLandscape ? 1131 : 800;
+  const targetH = isLandscape ? 800 : 1131;
+
+  clone.style.width = targetW + 'px';
+  clone.style.height = targetH + 'px';
+  clone.style.margin = '0';
+  clone.style.overflow = 'hidden'; // no scroll
+  clone.style.boxShadow = 'none';
+  clone.style.border = 'none';
+  clone.style.background = 'var(--s1)'; // Force consistent background
+
+  // Force all slots to render their desktop size
+  const slots = clone.querySelectorAll('.slot');
+  slots.forEach(s => {
+    s.style.transition = 'none';
+    s.style.transform = 'none';
+  });
+
+  // Calculate scale to fit inside our 260px tall wrapper box
+  const parentW = previewContainer.parentElement.clientWidth;
+  const parentH = 260;
+
+  const scaleW = (parentW - 40) / targetW;
+  const scaleH = (parentH - 40) / targetH;
+  const finalScale = Math.min(scaleW, scaleH);
+
+  previewContainer.style.width = targetW + 'px';
+  previewContainer.style.height = targetH + 'px';
+  previewContainer.style.transform = `scale(${finalScale})`;
+
+  previewContainer.appendChild(clone);
+}
+
+async function executeDownload(format, btnNode) {
+  if (isExporting) return; // Prevent double click loop
+
+  const originalClone = document.getElementById('download-preview-container').firstElementChild;
+  if (!originalClone) return;
+
+  // Safely grab the button reference whether passed via 'this' or window.event
+  const btn = (btnNode && btnNode.tagName === 'BUTTON') ? btnNode :
+    (window.event && window.event.currentTarget && window.event.currentTarget.tagName === 'BUTTON' ? window.event.currentTarget : null);
+
+  let prevText = '';
+  if (btn) {
+    prevText = btn.innerHTML;
+    btn.innerHTML = `<div class="spinner" style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;"></div>`;
+    btn.style.pointerEvents = 'none';
+  }
+
+  isExporting = true;
+  const isLandscape = downloadOrientation === 'landscape';
+  const targetW = isLandscape ? 1131 : 800;
+  const targetH = isLandscape ? 800 : 1131;
+
+  // Render box needs to be securely in the DOM, fully opaque, and fully visible 
+  // to avoid html2canvas skipping the element entirely (which returns data:,)
+  const renderBox = originalClone.cloneNode(true);
+  renderBox.style.width = targetW + 'px';
+  renderBox.style.height = targetH + 'px';
+  renderBox.style.position = 'fixed';
+  renderBox.style.top = '0px';
+  renderBox.style.left = '-9999px'; // Push it safely off-screen
+  renderBox.style.zIndex = '-9999';
+  renderBox.style.opacity = '1';    // IMPORTANT: Must be 1 so html2canvas renders it
+  renderBox.style.margin = '0';
+  document.body.appendChild(renderBox);
+
+  try {
+    // Wait a bit to ensure the DOM physically paints the appended block
+    await new Promise(r => setTimeout(r, 100));
+
+    // Wrap in Promise.race with a 15s timeout to guarantee UI won't hang forever
+    const canvas = await Promise.race([
+      html2canvas(renderBox, {
+        scale: 2,
+        useCORS: true,
+        width: targetW,
+        height: targetH,
+        backgroundColor: document.documentElement.getAttribute('data-theme') === 'light' ? '#ffffff' : '#0f141e'
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('html2canvas timed out')), 15000))
+    ]);
+
+    const imgData = canvas.toDataURL('image/png', 1.0);
+
+    // Improved fallback detection for corrupted/empty blocks
+    if (imgData === 'data:,' || imgData.length < 100) {
+      throw new Error("Canvas is empty. Rendering issue occurred.");
+    }
+
+    const filename = `Jadual_UTHM_${new Date().getTime()}`;
+
+    if (format === 'png') {
+      const a = document.createElement('a');
+      a.href = imgData;
+      a.download = `${filename}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else if (format === 'pdf') {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: isLandscape ? 'landscape' : 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${filename}.pdf`);
+    }
+
+  } catch (err) {
+    console.error("Error generating export:", err);
+    alert(currentLang === 'ms' ? 'Maaf, ralat berlaku semasa muat turun jadual. Pastikan browser anda menyokong ciri ini.' : 'Error generating timetable download. Please try again.');
+  } finally {
+    isExporting = false;
+    if (document.body.contains(renderBox)) {
+      document.body.removeChild(renderBox);
+    }
+    if (btn) {
+      btn.innerHTML = prevText;
+      btn.style.pointerEvents = 'auto';
+    }
+    closeDownloadModal();
+  }
+}
+
+// Close download modal when clicking outside the box
+const dlModal = document.getElementById('download-modal');
+if (dlModal) {
+  dlModal.addEventListener('click', (e) => {
+    if (e.target === dlModal) closeDownloadModal();
+  });
 }
