@@ -183,17 +183,38 @@
       <div class="modal-icon" style="color: #60a5fa;">📅</div>
       <div class="modal-title" id="export-title">Export to Calendar</div>
       <div class="modal-desc" style="margin-bottom: 20px;">
-        <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text);">Semester Start
+        <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text);" data-i18n="exportStartLabel">Semester Start
           Date:</label>
         <input type="date" id="export-start"
           style="width:100%; padding:10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid var(--border); background: var(--s1); color: var(--text); font-family: inherit;">
 
-        <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text);">End Date
+        <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text);" data-i18n="exportEndLabel">End Date
           (Generated):</label>
         <input type="date" id="export-end"
           style="width:100%; padding:10px; border-radius: 6px; border: 1px solid var(--border); background: var(--s1); color: var(--text); font-family: inherit;">
-        <div style="font-size: 11px; color: var(--muted); margin-top: 6px;">Automatically set to 15 weeks from the start
+        <div style="font-size: 11px; color: var(--muted); margin-top: 6px; margin-bottom: 20px;" data-i18n="exportEndDesc">Automatically set to 15 weeks from the start
           date.</div>
+
+        <!-- Disclaimer -->
+        <div class="export-info-box export-disclaimer">
+          <div class="info-title" data-i18n="exportDisclaimerTitle">⚠️ Disclaimer</div>
+          <span data-i18n="exportDisclaimerText">Ini akan menghasilkan fail .ICS. Sila ambil perhatian:</span>
+          <ul class="guide-list">
+            <li data-i18n="exportDisclaimerItem1">Telah diuji dan berfungsi pada <b>Outlook Calendar</b>. Google Calendar mungkin mempunyai tingkah laku berbeza.</li>
+            <li data-i18n="exportDisclaimerItem2">Eksport ini tidak boleh dibatalkan secara automatik. Anda perlu memadam acara secara manual jika perlu.</li>
+          </ul>
+        </div>
+
+        <!-- Guide -->
+        <div class="export-info-box export-guide">
+          <div class="info-title" data-i18n="exportGuideTitle">ℹ️ Cara Penggunaan</div>
+          <ol class="guide-list">
+            <li data-i18n="exportGuideStep1">Pilih tarikh mula semester (Isnin).</li>
+            <li data-i18n="exportGuideStep2">Muat turun fail <b>.ics</b>.</li>
+            <li data-i18n="exportGuideStep3">Buka aplikasi kalendar anda (cth: Outlook, Apple Calendar).</li>
+            <li data-i18n="exportGuideStep4">Import fail tersebut ke dalam kalendar pilihan anda.</li>
+          </ol>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="modal-btn cancel" onclick="closeExportModal()" data-i18n="cancelBtn">Cancel</button>

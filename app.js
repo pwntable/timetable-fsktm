@@ -66,7 +66,19 @@ const DICT = {
     uploadFailText: "Failed to extract text. Please try a clearer file.",
     uploadNoSubjText: "No subjects found. Please try a clearer file.",
     uploadSuccessText: "Upload successful! Found {count} subjects.",
-    exportCal: "Export to Calendar"
+    exportCal: "Export to Calendar",
+    exportStartLabel: "Semester Start Date:",
+    exportEndLabel: "End Date (Generated):",
+    exportEndDesc: "Automatically set to 15 weeks from the start date.",
+    exportDisclaimerTitle: "⚠️ Disclaimer",
+    exportDisclaimerText: "This will generate a .ICS file. Please note:",
+    exportDisclaimerItem1: "Tested and works on <b>Outlook Calendar</b>. Google Calendar may behave differently.",
+    exportDisclaimerItem2: "This export cannot be automatically reversed. You will need to manually delete events if needed.",
+    exportGuideTitle: "ℹ️ How to Use",
+    exportGuideStep1: "Select the semester start date (Monday).",
+    exportGuideStep2: "Download the <b>.ics</b> file.",
+    exportGuideStep3: "Open your calendar app (e.g., Outlook, Apple Calendar).",
+    exportGuideStep4: "Import the file into your preferred calendar."
   },
   ms: {
     subtitle: "Pilih subjek & section — jadual dijana serta-merta",
@@ -105,7 +117,19 @@ const DICT = {
     uploadFailText: "Gagal membaca teks. Sila cuba fail lain.",
     uploadNoSubjText: "Tiada subjek ditemui. Sila cuba fail lain.",
     uploadSuccessText: "Berjaya! Menemui {count} subjek.",
-    exportCal: "Eksport Kalendar"
+    exportCal: "Eksport Kalendar",
+    exportStartLabel: "Tarikh Mula Semester:",
+    exportEndLabel: "Tarikh Tamat (Dijana):",
+    exportEndDesc: "Ditetapkan secara automatik kepada 15 minggu dari tarikh mula.",
+    exportDisclaimerTitle: "⚠️ Disclaimer",
+    exportDisclaimerText: "Ini akan menghasilkan fail .ICS. Sila ambil perhatian:",
+    exportDisclaimerItem1: "Telah diuji dan berfungsi pada <b>Outlook Calendar</b>. Google Calendar mungkin mempunyai tingkah laku berbeza.",
+    exportDisclaimerItem2: "Eksport ini tidak boleh dibatalkan secara automatik. Anda perlu memadam acara secara manual jika perlu.",
+    exportGuideTitle: "ℹ️ Cara Penggunaan",
+    exportGuideStep1: "Pilih tarikh mula semester (Isnin).",
+    exportGuideStep2: "Muat turun fail <b>.ics</b>.",
+    exportGuideStep3: "Buka aplikasi kalendar anda (cth: Outlook, Apple Calendar).",
+    exportGuideStep4: "Import fail tersebut ke dalam kalendar pilihan anda."
   }
 };
 

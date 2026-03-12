@@ -1951,3 +1951,45 @@ header {
     transform: rotate(360deg);
   }
 }
+
+/* ════════════════════════════════
+   CALENDAR EXPORT ENHANCEMENTS
+   ════════════════════════════════ */
+.export-info-box {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  border: 1px solid transparent;
+}
+
+.export-disclaimer {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.export-guide {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.info-title {
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.guide-list {
+  padding-left: 18px;
+  margin-top: 6px;
+}
+
+.guide-list li {
+  margin-bottom: 4px;
+}
