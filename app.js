@@ -78,7 +78,19 @@ const DICT = {
     exportGuideStep1: "Select the semester start date (Monday).",
     exportGuideStep2: "Download the <b>.ics</b> file.",
     exportGuideStep3: "Open your calendar app (e.g., Outlook, Apple Calendar).",
-    exportGuideStep4: "Import the file into your preferred calendar."
+    exportGuideStep4: "Import the file into your preferred calendar.",
+    feedbackBtn: "Report Issue / Give Feedback",
+    feedbackTitle: "Report Issue / Feedback",
+    feedbackDesc: "Help us improve! Please describe the issue/suggestion below.",
+    feedbackTypeLabel: "Issue Type:",
+    feedbackMsgLabel: "Description:",
+    optMissing: "Missing Subject",
+    optWrong: "Wrong Timing/Venue",
+    optSuggestion: "Suggestion",
+    optOther: "Other",
+    submitFeedback: "Submit Feedback",
+    submitSuccess: "Terima kasih! Feedback has been sent.",
+    submitFail: "Error sending feedback. Please try again later."
   },
   ms: {
     subtitle: "Pilih subjek & section — jadual dijana serta-merta",
@@ -129,7 +141,19 @@ const DICT = {
     exportGuideStep1: "Pilih tarikh mula semester (Isnin).",
     exportGuideStep2: "Muat turun fail <b>.ics</b>.",
     exportGuideStep3: "Buka aplikasi kalendar anda (cth: Outlook, Apple Calendar).",
-    exportGuideStep4: "Import fail tersebut ke dalam kalendar pilihan anda."
+    exportGuideStep4: "Import fail tersebut ke dalam kalendar pilihan anda.",
+    feedbackBtn: "Lapor Masalah / Maklum Balas",
+    feedbackTitle: "Lapor Masalah / Maklum Balas",
+    feedbackDesc: "Bantu kami bertambah baik! Sila jelaskan masalah atau cadangan anda di bawah.",
+    feedbackTypeLabel: "Jenis Masalah:",
+    feedbackMsgLabel: "Penerangan:",
+    optMissing: "Subjek Hilang",
+    optWrong: "Masa/Lokasi Salah",
+    optSuggestion: "Cadangan",
+    optOther: "Lain-lain",
+    submitFeedback: "Hantar Maklum Balas",
+    submitSuccess: "Terima kasih! Maklum balas anda telah dihantar.",
+    submitFail: "Ralat menghantar maklum balas. Sila cuba sebentar lagi."
   }
 };
 
@@ -1206,3 +1230,66 @@ function generateICS() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+/* ════ FEEDBACK MODAL LOGIC ════ */
+function openFeedbackModal() {
+  const modal = document.getElementById('feedback-modal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeFeedbackModal() {
+  const modal = document.getElementById('feedback-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+// 1. Store the encoded string (Discord Webhook)
+const secretKey = "aHR0cHM6Ly9kaXNjb3JkYXBwLmNvbS9hcGkvd2ViaG9va3MvMTQ4MTU4NTY2MDIwNzk2MDE0Ni9MaV95YnBHM25CSWFSR1FNZE5FNFcxb3VhWk8tSFlnWUl6ampzU1l6RHE4TjBNdFVXRDRXOFRSSHd0cjdNd2RSclZCeA==";
+
+async function submitFeedback(event) {
+  event.preventDefault(); // Prevent page reload
+
+  const feedbackText = document.getElementById('feedbackInput').value;
+  const feedbackType = document.getElementById('feedbackType').value;
+  const submitBtn = document.getElementById('submitBtn');
+  const t = DICT[currentLang];
+
+  // 2. Decode the URL at the moment of submission
+  // Using atob directly as requested
+  const target = atob(secretKey);
+
+  const payload = {
+    username: "Timetable Feedback Bot",
+    embeds: [{
+      title: `📌 New Feedback: ${feedbackType}`,
+      description: feedbackText,
+      color: 3447003, // A nice blue color
+      timestamp: new Date().toISOString(),
+      footer: { text: "FSKTM Timetable System" }
+    }]
+  };
+
+  try {
+    submitBtn.disabled = true;
+    submitBtn.innerText = currentLang === 'ms' ? "Menghantar..." : "Sending...";
+
+    const response = await fetch(target, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (response.ok) {
+      alert(t.submitSuccess);
+      document.getElementById('feedbackForm').reset();
+      closeFeedbackModal();
+    } else {
+      throw new Error("Failed to send");
+    }
+  } catch (error) {
+    alert(t.submitFail);
+    console.error(error);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `<span data-i18n="submitFeedback">${t.submitFeedback}</span>`;
+  }
+}

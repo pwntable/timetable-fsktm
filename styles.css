@@ -1953,6 +1953,26 @@ header {
 }
 
 /* ════════════════════════════════
+   USER FEEDBACK FORM
+   ════════════════════════════════ */
+.btn-feedback:hover {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  background: var(--s2) !important;
+}
+
+#feedbackType:focus,
+#feedbackInput:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
+}
+
+#submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ════════════════════════════════
    CALENDAR EXPORT ENHANCEMENTS
    ════════════════════════════════ */
 .export-info-box {

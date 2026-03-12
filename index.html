@@ -83,12 +83,15 @@
           <div class="sel-area" id="sel-area"></div>
           <div class="sidebar-foot" id="sidebar-foot">
             <div class="conflict-hint" id="conflict-hint"></div>
-            <div class="actions-row" style="display:flex;gap:8px;width:100%">
+            <div class="actions-row" style="display:flex;gap:8px;width:100%;margin-bottom:12px">
               <button type="button" class="btn-reset" onclick="resetAll()" style="flex:1"><span data-i18n="resetBtn">Set
                   Semula</span></button>
               <button type="button" class="btn-save" onclick="promptSaveTimetable()" style="flex:1"><span
                   data-i18n="saveBtn">Simpan</span></button>
             </div>
+            <button type="button" class="btn-feedback" onclick="openFeedbackModal()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;padding:8px;border-radius:8px;cursor:pointer;transition:all .15s">
+              <span data-i18n="feedbackBtn">Report Issue / Give Feedback</span>
+            </button>
           </div>
         </div>
 
@@ -230,6 +233,40 @@
     </div>
     <div id="loader-text" style="font-size:14px;letter-spacing:1px;font-weight:600" data-i18n="loaderText">Membaca
       Dokumen...</div>
+  </div>
+
+  <!-- FEEDBACK MODAL -->
+  <div class="modal-overlay" id="feedback-modal">
+    <div class="modal-box" role="dialog" aria-modal="true" style="text-align: left; max-width: 400px;">
+      <div class="modal-icon" style="background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.25); color: #a78bfa;">💬</div>
+      <div class="modal-title" data-i18n="feedbackTitle">Report Issue / Feedback</div>
+      <div class="modal-desc" data-i18n="feedbackDesc">Help us improve! Please describe the issue or your suggestion below.</div>
+      
+      <form id="feedbackForm" onsubmit="submitFeedback(event)">
+        <div style="margin-bottom: 15px;">
+          <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text); font-size: 12px;" data-i18n="feedbackTypeLabel">Issue Type:</label>
+          <select id="feedbackType" style="width:100%; padding:10px; border-radius: 8px; border: 1px solid var(--border); background: var(--s1); color: var(--text); font-family: inherit; font-size: 13px; outline: none;">
+            <option value="Missing Subject" data-i18n="optMissing">Missing Subject</option>
+            <option value="Wrong Info" data-i18n="optWrong">Wrong Timing/Venue</option>
+            <option value="Suggestion" data-i18n="optSuggestion">Suggestion</option>
+            <option value="Other" data-i18n="optOther">Other</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text); font-size: 12px;" data-i18n="feedbackMsgLabel">Description:</label>
+          <textarea id="feedbackInput" required placeholder="Ex: BIC10203 Section 2 timing is wrong..." 
+            style="width:100%; height: 100px; padding:12px; border-radius: 8px; border: 1px solid var(--border); background: var(--s1); color: var(--text); font-family: inherit; font-size: 13px; outline: none; resize: vertical;"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="modal-btn cancel" onclick="closeFeedbackModal()" data-i18n="cancelBtn">Cancel</button>
+          <button type="submit" id="submitBtn" class="modal-btn confirm" style="background: #8b5cf6; border-color: #8b5cf6; color: white;">
+            <span data-i18n="submitFeedback">Submit Feedback</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="data.js?v=6"></script>
