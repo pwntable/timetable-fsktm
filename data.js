@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════
    UTHM Timetable Generator — data.js
    Automatically Generated via Python Parser
-   Total courses: 99
+   Total courses: 102
 ═══════════════════════════════════════════════ */
 
 const COURSES = {
@@ -48,10 +48,7 @@ const COURSES = {
           "section": "S1 K",
           "type": "Lecture",
           "lecturer": "I-sfadzlun",
-          "venue": "I-B8-T2-GS",
-          "intakes": [
-            "FSKTM-1BIS INTAKE II"
-          ]
+          "venue": "I-B8-T2-GS"
         },
         {
           "day": "Thursday",
@@ -60,40 +57,37 @@ const COURSES = {
           "section": "S1 A",
           "type": "Lab/Amali",
           "lecturer": "I-sfadzlun",
-          "venue": "I-BT2",
-          "intakes": [
-            "FSKTM-1BIS INTAKE II"
-          ]
+          "venue": "I-MSK-ARAS"
         }
-      ],
-      "S6": [
+      ]
+    },
+    "hasMultipleSections": false
+  },
+  "BIC10204": {
+    "name": "ALGORITMA DAN PENGATURCARAAN",
+    "sections": {
+      "S1": [
         {
           "day": "Tuesday",
           "time_start": "04:00",
           "duration": 2.0,
-          "section": "S6 A",
+          "section": "S1 A",
           "type": "Lab/Amali",
           "lecturer": "I-suriati",
-          "venue": "I-B8-T2-GS",
-          "intakes": [
-            "FSKTM-3BIW"
-          ]
+          "venue": "I-MSK-ARAS"
         },
         {
           "day": "Thursday",
           "time_start": "08:00",
-          "duration": 2.0,
-          "section": "S6 K",
+          "duration": 3.0,
+          "section": "S1 K",
           "type": "Lecture",
           "lecturer": "I-suriati",
-          "venue": "I-BT2",
-          "intakes": [
-            "FSKTM-3BIW"
-          ]
+          "venue": "I-BT1"
         }
       ]
     },
-    "hasMultipleSections": true
+    "hasMultipleSections": false
   },
   "BIC10303": {
     "name": "ALGEBRA",
@@ -290,7 +284,7 @@ const COURSES = {
           "duration": 3.0,
           "section": "S9 K",
           "type": "Lecture",
-          "lecturer": "I-yabliyu",
+          "lecturer": "I-nayef",
           "venue": "I-PERP-BT1-GS",
           "intakes": [
             "FSKTM-2BIP | FSKTM-2BIS | FSKTM-2BIW"
@@ -302,7 +296,7 @@ const COURSES = {
           "duration": 2.0,
           "section": "S9 A",
           "type": "Lab/Amali",
-          "lecturer": "I-yabliyu",
+          "lecturer": "I-nayef",
           "venue": "I-MKK-ARA",
           "intakes": [
             "FSKTM-2BIP | FSKTM-2BIS | FSKTM-2BIW"
@@ -529,7 +523,7 @@ const COURSES = {
           "section": "S1 A",
           "type": "Lab/Amali",
           "lecturer": "I-faradila",
-          "venue": "I-MFD-ARA",
+          "venue": "I-MFD-ARAS",
           "intakes": [
             "FSKTM-1BIS | FSKTM-2BIS | FSKTM-3BIS"
           ]
@@ -668,61 +662,41 @@ const COURSES = {
   "BIC21303": {
     "name": "RANGKAIAN KOMPUTER",
     "sections": {
-      "S7": [
+      "S5": [
         {
           "day": "Monday",
-          "time_start": "10:00",
-          "duration": 2.0,
-          "section": "S7 K",
-          "type": "Lecture",
-          "lecturer": "I-shamsulk",
-          "venue": "I-PERP-BT6",
-          "intakes": [
-            "FSKTM-2BIM"
-          ]
-        },
-        {
-          "day": "Friday",
-          "time_start": "10:00",
-          "duration": 2.0,
-          "section": "S7 A",
-          "type": "Lab/Amali",
-          "lecturer": "I-shamsulk",
-          "venue": "I-CISCO-ARAS"
-        }
-      ],
-      "S8": [
-        {
-          "day": "Monday",
-          "time_start": "10:00",
-          "duration": 2.0,
-          "section": "S8 K",
-          "type": "Lecture",
-          "lecturer": "I-shamsulk",
-          "venue": "I-PERP-BT6",
-          "intakes": [
-            "FSKTM-2BIM"
-          ]
-        },
-        {
-          "day": "Friday",
           "time_start": "08:00",
           "duration": 2.0,
-          "section": "S8 A",
+          "section": "S5 K",
+          "type": "Lecture",
+          "lecturer": "I-zana",
+          "venue": "I-PERP-BT6-GS",
+          "intakes": [
+            "FSKTM-2BIW | FSKTM-3BIW"
+          ]
+        },
+        {
+          "day": "Monday",
+          "time_start": "11:00",
+          "duration": 2.0,
+          "section": "S5 A",
           "type": "Lab/Amali",
-          "lecturer": "I-shamsulk",
-          "venue": "I-CISCO-ARAS"
+          "lecturer": "I-zana",
+          "venue": "I-FSKTM-BS1",
+          "intakes": [
+            "FSKTM-2BIW | FSKTM-3BIW"
+          ]
         }
       ],
       "S1": [
         {
           "day": "Monday",
-          "time_start": "10:00",
+          "time_start": "11:00",
           "duration": 2.0,
           "section": "S1 K",
           "type": "Lecture",
           "lecturer": "I-rahmi",
-          "venue": "I-PERP-BT6",
+          "venue": "I-FSKTM-BS1",
           "intakes": [
             "FSKTM-2BIS | FSKTM-3BIS"
           ]
@@ -743,12 +717,12 @@ const COURSES = {
       "S2": [
         {
           "day": "Monday",
-          "time_start": "10:00",
+          "time_start": "11:00",
           "duration": 2.0,
           "section": "S2 K",
           "type": "Lecture",
           "lecturer": "I-rahmi",
-          "venue": "I-PERP-BT6",
+          "venue": "I-FSKTM-BS1",
           "intakes": [
             "FSKTM-2BIS"
           ]
@@ -761,32 +735,6 @@ const COURSES = {
           "type": "Lab/Amali",
           "lecturer": "I-rahmi",
           "venue": "I-CISCO-ARAS"
-        }
-      ],
-      "S5": [
-        {
-          "day": "Monday",
-          "time_start": "12:00",
-          "duration": 2.0,
-          "section": "S5 A",
-          "type": "Lab/Amali",
-          "lecturer": "I-zana",
-          "venue": "I-CISCO-ARA",
-          "intakes": [
-            "FSKTM-2BIW | FSKTM-3BIW"
-          ]
-        },
-        {
-          "day": "Wednesday",
-          "time_start": "08:00",
-          "duration": 2.0,
-          "section": "S5 K",
-          "type": "Lecture",
-          "lecturer": "I-zana",
-          "venue": "I-B8-T1-GS",
-          "intakes": [
-            "FSKTM-2BIW | FSKTM-3BIW"
-          ]
         }
       ],
       "S3": [
@@ -835,6 +783,52 @@ const COURSES = {
           "section": "S4 A",
           "type": "Lab/Amali",
           "lecturer": "I-nasar",
+          "venue": "I-CISCO-ARAS"
+        }
+      ],
+      "S7": [
+        {
+          "day": "Tuesday",
+          "time_start": "02:00",
+          "duration": 2.0,
+          "section": "S7 K",
+          "type": "Lecture",
+          "lecturer": "I-shamsulk",
+          "venue": "I-PERP-BT6",
+          "intakes": [
+            "FSKTM-2BIM"
+          ]
+        },
+        {
+          "day": "Friday",
+          "time_start": "10:00",
+          "duration": 2.0,
+          "section": "S7 A",
+          "type": "Lab/Amali",
+          "lecturer": "I-shamsulk",
+          "venue": "I-CISCO-ARAS"
+        }
+      ],
+      "S8": [
+        {
+          "day": "Tuesday",
+          "time_start": "02:00",
+          "duration": 2.0,
+          "section": "S8 K",
+          "type": "Lecture",
+          "lecturer": "I-shamsulk",
+          "venue": "I-PERP-BT6",
+          "intakes": [
+            "FSKTM-2BIM"
+          ]
+        },
+        {
+          "day": "Friday",
+          "time_start": "08:00",
+          "duration": 2.0,
+          "section": "S8 A",
+          "type": "Lab/Amali",
+          "lecturer": "I-shamsulk",
           "venue": "I-CISCO-ARAS"
         }
       ]
@@ -1082,6 +1076,17 @@ const COURSES = {
           ]
         }
       ],
+      "S9": [
+        {
+          "day": "Monday",
+          "time_start": "10:00",
+          "duration": 2.0,
+          "section": "S9 K",
+          "type": "Lecture",
+          "lecturer": "I-deden",
+          "venue": "I-PERP-BT6-GS"
+        }
+      ],
       "S3": [
         {
           "day": "Thursday",
@@ -1197,6 +1202,23 @@ const COURSES = {
     },
     "hasMultipleSections": true
   },
+  "BIC31802": {
+    "name": "KEUSAHAWANAN SIBER",
+    "sections": {
+      "S3": [
+        {
+          "day": "Tuesday",
+          "time_start": "04:00",
+          "duration": 2.0,
+          "section": "S3 K",
+          "type": "Lecture",
+          "lecturer": "I-deden",
+          "venue": "I-C12-101-GS"
+        }
+      ]
+    },
+    "hasMultipleSections": false
+  },
   "BIC31903": {
     "name": "TEKNOKEUSAHAWANAN",
     "sections": {
@@ -1208,7 +1230,7 @@ const COURSES = {
           "section": "S7 K",
           "type": "Lecture",
           "lecturer": "I-deden",
-          "venue": "I-BT3",
+          "venue": "I-C12-101-G",
           "intakes": [
             "FSKTM-1BIM"
           ]
@@ -1222,7 +1244,7 @@ const COURSES = {
           "section": "S1 K",
           "type": "Lecture",
           "lecturer": "I-deden",
-          "venue": "I-BT3",
+          "venue": "I-C12-101-G",
           "intakes": [
             "FSKTM-1BIS INTAKE II"
           ]
@@ -1236,7 +1258,7 @@ const COURSES = {
           "section": "S5 K",
           "type": "Lecture",
           "lecturer": "I-deden",
-          "venue": "I-BT3",
+          "venue": "I-C12-101-G",
           "intakes": [
             "FSKTM-1BIW"
           ]
@@ -1638,6 +1660,32 @@ const COURSES = {
       ]
     },
     "hasMultipleSections": true
+  },
+  "BIK10203": {
+    "name": "ALGORITMA DAN PENGATURCARAAN",
+    "sections": {
+      "S1": [
+        {
+          "day": "Tuesday",
+          "time_start": "04:00",
+          "duration": 2.0,
+          "section": "S1 K",
+          "type": "Lecture",
+          "lecturer": "I-sfadzlun",
+          "venue": "I-B8-T2-GS"
+        },
+        {
+          "day": "Thursday",
+          "time_start": "08:00",
+          "duration": 2.0,
+          "section": "S1 A",
+          "type": "Lab/Amali",
+          "lecturer": "I-sfadzlun",
+          "venue": "I-MSK-ARAS"
+        }
+      ]
+    },
+    "hasMultipleSections": false
   },
   "BIK10403": {
     "name": "ANALISIS DAN REKABENTUK SISTEM",
@@ -2064,7 +2112,7 @@ const COURSES = {
           "duration": 2.0,
           "section": "S7 A",
           "type": "Lab/Amali",
-          "lecturer": "I-ezak",
+          "lecturer": "I-nhaniza",
           "venue": "I-MM-ARAS"
         },
         {
@@ -2087,7 +2135,7 @@ const COURSES = {
           "duration": 2.0,
           "section": "S8 A",
           "type": "Lab/Amali",
-          "lecturer": "I-ezak",
+          "lecturer": "I-nhaniza",
           "venue": "I-MM-ARAS"
         },
         {
@@ -2123,7 +2171,7 @@ const COURSES = {
           ]
         },
         {
-          "day": "Thursday",
+          "day": "Friday",
           "time_start": "10:00",
           "duration": 2.0,
           "section": "S7 A",
@@ -2305,7 +2353,7 @@ const COURSES = {
           "section": "S7 K",
           "type": "Lecture",
           "lecturer": "I-fakri",
-          "venue": "I-BT3"
+          "venue": "I-C12-101-GS"
         },
         {
           "day": "Thursday",
@@ -2325,22 +2373,22 @@ const COURSES = {
     "sections": {
       "S7": [
         {
-          "day": "Wednesday",
-          "time_start": "08:00",
-          "duration": 2.0,
-          "section": "S7 A",
-          "type": "Lab/Amali",
-          "lecturer": "I-norasri",
-          "venue": "I-MGA-ARAS"
-        },
-        {
-          "day": "Friday",
-          "time_start": "08:00",
+          "day": "Monday",
+          "time_start": "04:00",
           "duration": 2.0,
           "section": "S7 K",
           "type": "Lecture",
-          "lecturer": "I-norasri",
-          "venue": "I-BT2"
+          "lecturer": "I-noraisah",
+          "venue": "I-BT4"
+        },
+        {
+          "day": "Tuesday",
+          "time_start": "04:00",
+          "duration": 2.0,
+          "section": "S7 A",
+          "type": "Lab/Amali",
+          "lecturer": "I-noraisah",
+          "venue": "I-MGA-ARAS"
         }
       ]
     },
@@ -2670,8 +2718,8 @@ const COURSES = {
           "day": "Thursday",
           "time_start": "04:00",
           "duration": 2.0,
-          "section": "S1 A",
-          "type": "Lab/Amali",
+          "section": "S1 T",
+          "type": "Tutorial",
           "lecturer": "I-sofianajwa",
           "venue": "I-MKK-ARAS"
         }
@@ -2693,8 +2741,8 @@ const COURSES = {
           "day": "Thursday",
           "time_start": "12:00",
           "duration": 2.0,
-          "section": "S2 A",
-          "type": "Lab/Amali",
+          "section": "S2 T",
+          "type": "Tutorial",
           "lecturer": "I-sofianajwa",
           "venue": "I-ISYS-ARAS"
         }
@@ -2722,8 +2770,8 @@ const COURSES = {
           "day": "Wednesday",
           "time_start": "08:00",
           "duration": 2.0,
-          "section": "S1 A",
-          "type": "Lab/Amali",
+          "section": "S1 T",
+          "type": "Tutorial",
           "lecturer": "I-nurziadah",
           "venue": "I-MFD-ARAS",
           "intakes": [
@@ -2748,8 +2796,8 @@ const COURSES = {
           "day": "Wednesday",
           "time_start": "10:00",
           "duration": 2.0,
-          "section": "S2 A",
-          "type": "Lab/Amali",
+          "section": "S2 T",
+          "type": "Tutorial",
           "lecturer": "I-nurziadah",
           "venue": "I-MFD-ARAS"
         }
@@ -2771,94 +2819,13 @@ const COURSES = {
           "day": "Wednesday",
           "time_start": "02:00",
           "duration": 2.0,
-          "section": "S9 A",
-          "type": "Lab/Amali",
+          "section": "S9 T",
+          "type": "Tutorial",
           "lecturer": "I-nurziadah",
           "venue": "I-MKK-ARAS",
           "intakes": [
             "FSKTM-2BIS | FSKTM-3BIS"
           ]
-        }
-      ]
-    },
-    "hasMultipleSections": true
-  },
-  "BIS20503": {
-    "name": "KESELAMATAN PERISIAN",
-    "sections": {
-      "S1": [
-        {
-          "day": "Tuesday",
-          "time_start": "08:00",
-          "duration": 2.0,
-          "section": "S1 K",
-          "type": "Lecture",
-          "lecturer": "I-hidayahar",
-          "venue": "I-B8-T2-GS",
-          "intakes": [
-            "FSKTM-1BIS INTAKE II | FSKTM-2BIS"
-          ]
-        },
-        {
-          "day": "Wednesday",
-          "time_start": "12:00",
-          "duration": 2.0,
-          "section": "S1 A",
-          "type": "Lab/Amali",
-          "lecturer": "I-hidayahar",
-          "venue": "I-C12-101-G",
-          "intakes": [
-            "FSKTM-1BIS INTAKE II | FSKTM-2BIS"
-          ]
-        }
-      ],
-      "S2": [
-        {
-          "day": "Tuesday",
-          "time_start": "08:00",
-          "duration": 2.0,
-          "section": "S2 K",
-          "type": "Lecture",
-          "lecturer": "I-hidayahar",
-          "venue": "I-B8-T2-GS",
-          "intakes": [
-            "FSKTM-1BIS INTAKE II"
-          ]
-        },
-        {
-          "day": "Wednesday",
-          "time_start": "12:00",
-          "duration": 2.0,
-          "section": "S2 A",
-          "type": "Lab/Amali",
-          "lecturer": "I-hidayahar",
-          "venue": "I-C12-101-G",
-          "intakes": [
-            "FSKTM-1BIS INTAKE II"
-          ]
-        }
-      ],
-      "S9": [
-        {
-          "day": "Tuesday",
-          "time_start": "08:00",
-          "duration": 2.0,
-          "section": "S9 K",
-          "type": "Lecture",
-          "lecturer": "I-hidayahar",
-          "venue": "I-B8-T2-GS",
-          "intakes": [
-            "FSKTM-1BIS"
-          ]
-        },
-        {
-          "day": "Wednesday",
-          "time_start": "04:00",
-          "duration": 2.0,
-          "section": "S9 A",
-          "type": "Lab/Amali",
-          "lecturer": "I-hidayahar",
-          "venue": "I-MPPER-ARAS"
         }
       ]
     },
@@ -3096,6 +3063,81 @@ const COURSES = {
           "intakes": [
             "FSKTM-2BIS | FSKTM-3BIS | FSKTM-4BIS"
           ]
+        }
+      ],
+      "S10": [
+        {
+          "day": "Tuesday",
+          "time_start": "08:00",
+          "duration": 2.0,
+          "section": "S10 K",
+          "type": "Lecture",
+          "lecturer": "I-hidayahar",
+          "venue": "I-B8-T2-GS",
+          "intakes": [
+            "FSKTM-1BIS INTAKE II | FSKTM-2BIS"
+          ]
+        },
+        {
+          "day": "Wednesday",
+          "time_start": "12:00",
+          "duration": 2.0,
+          "section": "S10 A",
+          "type": "Lab/Amali",
+          "lecturer": "I-hidayahar",
+          "venue": "I-C12-101-G",
+          "intakes": [
+            "FSKTM-1BIS INTAKE II | FSKTM-2BIS"
+          ]
+        }
+      ],
+      "S17": [
+        {
+          "day": "Tuesday",
+          "time_start": "08:00",
+          "duration": 2.0,
+          "section": "S17 K",
+          "type": "Lecture",
+          "lecturer": "I-hidayahar",
+          "venue": "I-B8-T2-GS",
+          "intakes": [
+            "FSKTM-1BIS INTAKE II"
+          ]
+        },
+        {
+          "day": "Wednesday",
+          "time_start": "12:00",
+          "duration": 2.0,
+          "section": "S17 A",
+          "type": "Lab/Amali",
+          "lecturer": "I-hidayahar",
+          "venue": "I-C12-101-G",
+          "intakes": [
+            "FSKTM-1BIS INTAKE II"
+          ]
+        }
+      ],
+      "S9": [
+        {
+          "day": "Tuesday",
+          "time_start": "08:00",
+          "duration": 2.0,
+          "section": "S9 K",
+          "type": "Lecture",
+          "lecturer": "I-hidayahar",
+          "venue": "I-B8-T2-GS",
+          "intakes": [
+            "FSKTM-1BIS"
+          ]
+        },
+        {
+          "day": "Wednesday",
+          "time_start": "04:00",
+          "duration": 2.0,
+          "section": "S9 A",
+          "type": "Lab/Amali",
+          "lecturer": "I-hidayahar",
+          "venue": "I-MPPER-ARAS"
         }
       ]
     },
@@ -3644,6 +3686,32 @@ const COURSES = {
       ]
     },
     "hasMultipleSections": true
+  },
+  "BIT20303": {
+    "name": "SENIBINA KOMPUTER",
+    "sections": {
+      "S1": [
+        {
+          "day": "Tuesday",
+          "time_start": "02:00",
+          "duration": 2.0,
+          "section": "S1 A",
+          "type": "Lab/Amali",
+          "lecturer": "I-shamsulm",
+          "venue": "I-MFD-ARAS"
+        },
+        {
+          "day": "Thursday",
+          "time_start": "08:00",
+          "duration": 2.0,
+          "section": "S1 K",
+          "type": "Lecture",
+          "lecturer": "I-shamsulm",
+          "venue": "I-BT2"
+        }
+      ]
+    },
+    "hasMultipleSections": false
   },
   "BIT20403": {
     "name": "SISTEM PENGOPERASIAN",
@@ -5232,12 +5300,12 @@ const COURSES = {
   "BIW20503": {
     "name": "PENGATURCARAAN DOTNET",
     "sections": {
-      "S1": [
+      "S5": [
         {
           "day": "Tuesday",
           "time_start": "10:00",
           "duration": 2.0,
-          "section": "S1 K",
+          "section": "S5 K",
           "type": "Lecture",
           "lecturer": "I-nurafiqah",
           "venue": "I-PERP-BT5",
@@ -5249,18 +5317,18 @@ const COURSES = {
           "day": "Thursday",
           "time_start": "02:00",
           "duration": 2.0,
-          "section": "S1 A",
+          "section": "S5 A",
           "type": "Lab/Amali",
           "lecturer": "I-nurafiqah",
           "venue": "I-MPI-ARAS"
         }
       ],
-      "S2": [
+      "S6": [
         {
           "day": "Tuesday",
           "time_start": "10:00",
           "duration": 2.0,
-          "section": "S2 K",
+          "section": "S6 K",
           "type": "Lecture",
           "lecturer": "I-nurafiqah",
           "venue": "I-PERP-BT5",
@@ -5272,7 +5340,7 @@ const COURSES = {
           "day": "Wednesday",
           "time_start": "02:00",
           "duration": 2.0,
-          "section": "S2 A",
+          "section": "S6 A",
           "type": "Lab/Amali",
           "lecturer": "I-nurafiqah",
           "venue": "I-MPPER-ARAS"
@@ -5521,7 +5589,7 @@ const COURSES = {
           "section": "S6 A",
           "type": "Lab/Amali",
           "lecturer": "I-nayef",
-          "venue": "I-MPI-ARAS",
+          "venue": "I-MPI-ARAS 3",
           "intakes": [
             "FSKTM-2BIW | FSKTM-4BIW"
           ]

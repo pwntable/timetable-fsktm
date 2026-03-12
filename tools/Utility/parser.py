@@ -4,7 +4,7 @@ import re
 import os
 
 PDF_FILES = [
-    "by_course_11032026.pdf"
+    "tools/PDF/by_course_12032026.pdf"
 ]
 OUTPUT_FILE = "data.js"
 

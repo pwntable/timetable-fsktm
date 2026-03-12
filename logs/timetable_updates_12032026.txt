@@ -1,0 +1,50 @@
+TIMETABLE UPDATES - 12 March 2026
+=================================
+
+Newly Added Courses: BIC31802, BIC10204, BIT20303, BIK10203
+
+Removed Courses: BIS20503
+
+** BIC21003 - ANALISA DAN REKA BENTUK SISTEM **
+  - Section S1 (Slot 2 Lab/Amali): Venue 'I-MFD-ARA' -> 'I-MFD-ARAS'
+
+** BIM33403 - TEKNOLOGI KESELAMATAN MULTIMEDIA **
+  - Section S7 (Slot 1 Lecture): Day 'Wednesday' -> 'Monday', Time '08:00' -> '04:00', Venue 'I-MGA-ARAS' -> 'I-BT4'
+  - Section S7 (Slot 2 Lab/Amali): Day 'Friday' -> 'Tuesday', Time '08:00' -> '04:00', Venue 'I-BT2' -> 'I-MGA-ARAS'
+
+** BIC31903 - TEKNOKEUSAHAWANAN **
+  - Section S5 (Slot 1 Lecture): Venue 'I-BT3' -> 'I-C12-101-G'
+  - Section S7 (Slot 1 Lecture): Venue 'I-BT3' -> 'I-C12-101-G'
+  - Section S1 (Slot 1 Lecture): Venue 'I-BT3' -> 'I-C12-101-G'
+
+** BIW20503 - PENGATURCARAAN DOTNET **
+  - Added Section(s): S5, S6
+  - Removed Section(s): S1, S2
+
+** BIW33803 - INTERNET OF THINGS **
+  - Section S6 (Slot 2 Lab/Amali): Venue 'I-MPI-ARAS' -> 'I-MPI-ARAS 3'
+
+** BIM33103 - PEMBANGUNAN PERMAINAN KOMPUTER **
+  - Section S7 (Slot 1 Lecture): Venue 'I-BT3' -> 'I-C12-101-GS'
+
+** BIM20404 - SISTEM DAN APLIKASI MULTIMEDIA **
+  - Section S7 (Slot 2 Lab/Amali): Day 'Thursday' -> 'Friday'
+
+** BIS33203 - PIAWAIAN KESELAMATAN MAKLUMAT **
+  - Added Section(s): S9, S10, S17
+
+** BIC31502 - KREATIVITI DAN INOVASI **
+  - Added Section(s): S9
+
+** BIC21303 - RANGKAIAN KOMPUTER **
+  - Section S8 (Slot 1 Lecture): Day 'Monday' -> 'Tuesday', Time '10:00' -> '02:00'
+  - Section S1 (Slot 1 Lecture): Time '10:00' -> '11:00', Venue 'I-PERP-BT6' -> 'I-FSKTM-BS1'
+  - Section S5 (Slot 1 Lecture): Time '12:00' -> '08:00', Venue 'I-CISCO-ARA' -> 'I-PERP-BT6-GS'
+  - Section S5 (Slot 2 Lab/Amali): Day 'Wednesday' -> 'Monday', Time '08:00' -> '11:00', Venue 'I-B8-T1-GS' -> 'I-FSKTM-BS1'
+  - Section S7 (Slot 1 Lecture): Day 'Monday' -> 'Tuesday', Time '10:00' -> '02:00'
+  - Section S2 (Slot 1 Lecture): Time '10:00' -> '11:00', Venue 'I-PERP-BT6' -> 'I-FSKTM-BS1'
+
+** BIC10203 - ALGORITMA DAN PENGATURCARAAN **
+  - Removed Section(s): S6
+  - Section S1 (Slot 1 Lecture): Intakes changed
+  - Section S1 (Slot 2 Lab/Amali): Venue 'I-BT2' -> 'I-MSK-ARAS', Intakes changed

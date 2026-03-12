@@ -686,8 +686,10 @@ function renderSlotContent(e, ts, col, venue, durLabel, isTransposed = false) {
     return `<div class="slot type-${ts}" style="position:absolute; ${posStyles} border-left:3px solid ${e.isConflict ? '#f87171' : col}; background:${e.isConflict ? 'rgba(240,82,82,0.15)' : col + '22'}; color:${e.isConflict ? '#f87171' : col}; padding: 2px 4px; display:flex; flex-direction:column; justify-content:center; overflow:hidden; pointer-events:auto; z-index:${(e.track || 0) + 10};" 
          title="${e.code} ${e.sec}&#10;${e.type}&#10;${e.day} ${format12Hour(e.time_start)}–${format12Hour(e.time_end)}&#10;${e.venue}&#10;${e.lecturer}" 
          onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
-         <div class="slot-code" style="font-size:8px; margin-bottom:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${e.isConflict ? '⚠ ' : ''}${e.code}</div>
-         <div style="font-size:7px; opacity:.8; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ts}·${e.sec}</div>
+         <div class="slot-code" style="font-size:8px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:2px;">
+            <span>${e.isConflict ? '<span style="color:#f87171;">⚠</span> ' : ''}<b>${e.code}</b></span>
+            <span style="opacity:0.8; font-size: 7px;">· ${ts} ${e.sec}</span>
+         </div>
          ${confDurLabel}
       </div>`;
   }

@@ -26,7 +26,10 @@
         </div>
         <div class="toggles">
           <button class="btn-icon" id="btn-lang" onclick="toggleLang()" title="Switch Language">EN</button>
-          <button class="btn-icon" id="btn-theme" onclick="toggleTheme()" title="Toggle Theme">🌙</button>
+          <button class="btn-icon" id="btn-theme" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </button>
         </div>
         <div class="hdr-badge" data-i18n="semester">Sem 2 | Sesi 2025/2026</div>
       </div>
@@ -106,7 +109,8 @@
               <button type="button" class="btn-save" onclick="promptSaveTimetable()" style="flex:1"><span
                   data-i18n="saveBtn">Simpan</span></button>
             </div>
-            <button type="button" class="btn-feedback" onclick="openFeedbackModal()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;padding:8px;border-radius:8px;cursor:pointer;transition:all .15s">
+            <button type="button" class="btn-feedback" onclick="openFeedbackModal()"
+              style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;padding:8px;border-radius:8px;cursor:pointer;transition:all .15s">
               <span data-i18n="feedbackBtn">Report Issue / Give Feedback</span>
             </button>
           </div>
@@ -260,30 +264,37 @@
   <!-- FEEDBACK MODAL -->
   <div class="modal-overlay" id="feedback-modal">
     <div class="modal-box" role="dialog" aria-modal="true" style="text-align: left; max-width: 400px;">
-      <div class="modal-icon" style="background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.25); color: #a78bfa;">💬</div>
+      <div class="modal-icon"
+        style="background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.25); color: #a78bfa;">💬</div>
       <div class="modal-title" data-i18n="feedbackTitle">Report Issue / Feedback</div>
-      <div class="modal-desc" data-i18n="feedbackDesc">Help us improve! Please describe the issue or your suggestion below.</div>
-      
+      <div class="modal-desc" data-i18n="feedbackDesc">Help us improve! Please describe the issue or your suggestion
+        below.</div>
+
       <form id="feedbackForm" onsubmit="submitFeedback(event)">
         <div style="margin-bottom: 15px;">
-          <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text); font-size: 12px;" data-i18n="feedbackTypeLabel">Issue Type:</label>
-          <select id="feedbackType" style="width:100%; padding:10px; border-radius: 8px; border: 1px solid var(--border); background: var(--s1); color: var(--text); font-family: inherit; font-size: 13px; outline: none;">
+          <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text); font-size: 12px;"
+            data-i18n="feedbackTypeLabel">Issue Type:</label>
+          <select id="feedbackType"
+            style="width:100%; padding:10px; border-radius: 8px; border: 1px solid var(--border); background: var(--s1); color: var(--text); font-family: inherit; font-size: 13px; outline: none;">
             <option value="Missing Subject" data-i18n="optMissing">Missing Subject</option>
             <option value="Wrong Info" data-i18n="optWrong">Wrong Timing/Venue</option>
             <option value="Suggestion" data-i18n="optSuggestion">Suggestion</option>
             <option value="Other" data-i18n="optOther">Other</option>
           </select>
         </div>
-        
+
         <div style="margin-bottom: 20px;">
-          <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text); font-size: 12px;" data-i18n="feedbackMsgLabel">Description:</label>
-          <textarea id="feedbackInput" required placeholder="Ex: BIC10203 Section 2 timing is wrong..." 
+          <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text); font-size: 12px;"
+            data-i18n="feedbackMsgLabel">Description:</label>
+          <textarea id="feedbackInput" required placeholder="Ex: BIC10203 Section 2 timing is wrong..."
             style="width:100%; height: 100px; padding:12px; border-radius: 8px; border: 1px solid var(--border); background: var(--s1); color: var(--text); font-family: inherit; font-size: 13px; outline: none; resize: vertical;"></textarea>
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="modal-btn cancel" onclick="closeFeedbackModal()" data-i18n="cancelBtn">Cancel</button>
-          <button type="submit" id="submitBtn" class="modal-btn confirm" style="background: #8b5cf6; border-color: #8b5cf6; color: white;">
+          <button type="button" class="modal-btn cancel" onclick="closeFeedbackModal()"
+            data-i18n="cancelBtn">Cancel</button>
+          <button type="submit" id="submitBtn" class="modal-btn confirm"
+            style="background: #8b5cf6; border-color: #8b5cf6; color: white;">
             <span data-i18n="submitFeedback">Submit Feedback</span>
           </button>
         </div>
