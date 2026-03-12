@@ -162,7 +162,8 @@ let currentLang = localStorage.getItem('uthm-tg-lang') || 'ms';
 function applyLang() {
   const t = DICT[currentLang];
   document.querySelectorAll('[data-i18n]').forEach(el => {
-    el.textContent = t[el.getAttribute('data-i18n')];
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) el.innerHTML = t[key];
   });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => {
     el.placeholder = t[el.getAttribute('data-i18n-ph')];
