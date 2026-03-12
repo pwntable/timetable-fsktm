@@ -259,6 +259,7 @@ function init() {
   renderSavedList();
   document.getElementById('cnt-all').textContent = filtered.length;
   renderTimetable();
+  buildIntakeList();
 }
 
 /* ════ COURSE LIST ════ */
@@ -1293,4 +1294,89 @@ async function submitFeedback(event) {
     submitBtn.disabled = false;
     submitBtn.innerHTML = `<span data-i18n="submitFeedback">${t.submitFeedback}</span>`;
   }
-}
+}
+
+/* ════ INTAKE SUGGESTION ════ */
+
+function buildIntakeList() {
+  // INTAKE_COURSES is loaded from intake_courses.js — authoritative map from by_batch PDF
+  const sel = document.getElementById('intake-select');
+  if (!sel || typeof INTAKE_COURSES === 'Please Select Your Intake (Optional)') return;
+
+  sel.innerHTML = `<option value="">${DICT[currentLang].intakePlaceholder}</option>`;
+  for (const [intake, codes] of Object.entries(INTAKE_COURSES)) {
+    if (codes.length === 0) continue;
+    const opt = document.createElement('option');
+    opt.value = intake;
+    opt.textContent = intake;
+    sel.appendChild(opt);
+  }
+}
+
+function suggestByIntake() {
+  const sel = document.getElementById('intake-select');
+  const chosenIntake = sel ? sel.value : '';
+  if (!chosenIntake) return;
+
+  // Get the definitive course list for this intake from INTAKE_COURSES
+  const courseCodes = (typeof INTAKE_COURSES !== 'Please Select Your Intake (Optional)' && INTAKE_COURSES[chosenIntake]) || [];
+  if (courseCodes.length === 0) {
+    alert(DICT[currentLang].intakeNoneFound);
+    return;
+  }
+
+  // Clear existing selections
+  for (const key in selected) delete selected[key];
+  for (const key in colorMap) delete colorMap[key];
+  for (const key in customColors) delete customColors[key];
+  colorIdx = 0;
+
+  let foundAny = false;
+  for (const code of courseCodes) {
+    if (!COURSES[code]) continue; // course not in data.js
+
+    const secs = Object.keys(COURSES[code].sections || {});
+    if (secs.length === 0) continue;
+
+    // Prefer section tagged with this intake, fall back to first section
+    let bestSection = secs[0];
+    for (const sec of secs) {
+      const slots = COURSES[code].sections[sec] || [];
+      const matchesIntake = slots.some(slot =>
+        (slot.intakes || []).some(intakeStr =>
+          intakeStr.split(' | ').some(part => part.trim() === chosenIntake)
+        )
+      );
+      if (matchesIntake) { bestSection = sec; break; }
+    }
+
+    selected[code] = bestSection;
+    colorMap[code] = colorIdx % COLORS.length;
+    customColors[code] = COLORS[colorMap[code]];
+    colorIdx++;
+    foundAny = true;
+  }
+
+  if (!foundAny) {
+    alert(DICT[currentLang].intakeNoneFound);
+    return;
+  }
+
+  // Clear search so all selected courses show in the list
+  const srch = document.getElementById('srch');
+  if (srch) srch.value = '';
+  filterList();
+  renderSelArea();
+  renderTimetable();
+
+  // Smooth flash effect on timetable grid
+  const ttWrap = document.querySelector('.tt-wrap');
+  if (ttWrap) {
+    ttWrap.style.transition = 'none';
+    ttWrap.style.opacity = '0.3';
+    setTimeout(() => {
+      ttWrap.style.transition = 'opacity 0.35s ease';
+      ttWrap.style.opacity = '1';
+    }, 60);
+  }
+}

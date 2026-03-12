@@ -47,6 +47,23 @@
           <div class="saved-area" id="saved-area"></div>
         </div>
 
+        <!-- Panel: Intake Suggestion -->
+        <div class="panel intake-panel">
+          <div class="panel-hdr">
+            <span class="panel-title" data-i18n="intakePanelTitle">Cadangan Mengikut Ambilan</span>
+            <span class="intake-badge">✨ Baru</span>
+          </div>
+          <div class="intake-body">
+            <select id="intake-select" class="intake-select">
+              <option value="">-- Pilih ambilan anda --</option>
+            </select>
+            <button class="btn-suggest" onclick="suggestByIntake()">
+              <span>🎯</span>
+              <span data-i18n="intakeSuggestBtn">Cadang Jadual</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Panel 1: Course Picker -->
         <div class="panel">
           <div class="panel-hdr">
@@ -186,16 +203,19 @@
       <div class="modal-icon" style="color: #60a5fa;">📅</div>
       <div class="modal-title" id="export-title">Export to Calendar</div>
       <div class="modal-desc" style="margin-bottom: 20px;">
-        <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text);" data-i18n="exportStartLabel">Semester Start
+        <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text);"
+          data-i18n="exportStartLabel">Semester Start
           Date:</label>
         <input type="date" id="export-start"
           style="width:100%; padding:10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid var(--border); background: var(--s1); color: var(--text); font-family: inherit;">
 
-        <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text);" data-i18n="exportEndLabel">End Date
+        <label style="display:block; margin-bottom: 6px; font-weight: bold; color: var(--text);"
+          data-i18n="exportEndLabel">End Date
           (Generated):</label>
         <input type="date" id="export-end"
           style="width:100%; padding:10px; border-radius: 6px; border: 1px solid var(--border); background: var(--s1); color: var(--text); font-family: inherit;">
-        <div style="font-size: 11px; color: var(--muted); margin-top: 6px; margin-bottom: 20px;" data-i18n="exportEndDesc">Automatically set to 15 weeks from the start
+        <div style="font-size: 11px; color: var(--muted); margin-top: 6px; margin-bottom: 20px;"
+          data-i18n="exportEndDesc">Automatically set to 15 weeks from the start
           date.</div>
 
         <!-- Disclaimer -->
@@ -203,8 +223,10 @@
           <div class="info-title" data-i18n="exportDisclaimerTitle">⚠️ Disclaimer</div>
           <span data-i18n="exportDisclaimerText">Ini akan menghasilkan fail .ICS. Sila ambil perhatian:</span>
           <ul class="guide-list">
-            <li data-i18n="exportDisclaimerItem1">Telah diuji dan berfungsi pada <b>Outlook Calendar</b>. Google Calendar mungkin mempunyai tingkah laku berbeza.</li>
-            <li data-i18n="exportDisclaimerItem2">Eksport ini tidak boleh dibatalkan secara automatik. Anda perlu memadam acara secara manual jika perlu.</li>
+            <li data-i18n="exportDisclaimerItem1">Telah diuji dan berfungsi pada <b>Outlook Calendar</b>. Google
+              Calendar mungkin mempunyai tingkah laku berbeza.</li>
+            <li data-i18n="exportDisclaimerItem2">Eksport ini tidak boleh dibatalkan secara automatik. Anda perlu
+              memadam acara secara manual jika perlu.</li>
           </ul>
         </div>
 
@@ -270,6 +292,7 @@
   </div>
 
   <script src="data.js?v=7"></script>
+  <script src="intake_courses.js?v=1"></script>
   <script src="app.js?v=7"></script>
 </body>
 
