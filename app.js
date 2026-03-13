@@ -96,7 +96,10 @@ const DICT = {
     intakePlaceholder: "-- Select your intake --",
     intakeNoneFound: "No matching courses found for this intake.",
     disclaimerTitle: "How to Use",
-    downloadEmptyWarn: "No subjects selected. Please select at least one subject before downloading."
+    downloadEmptyWarn: "No subjects selected. Please select at least one subject before downloading.",
+    discPrev: "Back",
+    discNext: "Next",
+    printBtn: "Print / Download"
   },
   ms: {
     subtitle: "Pilih subjek & section — jadual dijana serta-merta",
@@ -165,7 +168,10 @@ const DICT = {
     intakePlaceholder: "-- Pilih ambilan anda --",
     intakeNoneFound: "Tiada kursus yang sepadan ditemui untuk ambilan ini.",
     disclaimerTitle: "Cara Penggunaan",
-    downloadEmptyWarn: "Tiada subjek dipilih. Sila pilih sekurang-kurangnya satu subjek sebelum muat turun."
+    downloadEmptyWarn: "Tiada subjek dipilih. Sila pilih sekurang-kurangnya satu subjek sebelum muat turun.",
+    discPrev: "Sebelum",
+    discNext: "Seterus",
+    printBtn: "Cetak / Muat Turun"
   }
 };
 
