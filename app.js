@@ -764,7 +764,7 @@ function buildTableDaysTop(daySlots, t) {
       html += `<div style="display: grid; grid-template-columns: repeat(${TIME_SLOTS.length}, 1fr); grid-auto-rows: minmax(58px, auto); position:relative; min-height: 58px;">`;
 
       html += `<div style="grid-column: 1 / -1; grid-row: 1 / -1; display: grid; grid-template-columns: repeat(${TIME_SLOTS.length}, 1fr); pointer-events: none; position: absolute; inset: 0; z-index: 0;">`;
-      for (let i = 0; i < TIME_SLOTS.length; i++) html += `<div style="border-right: 1px solid rgba(255, 255, 255, .03);"></div>`;
+      for (let i = 0; i < TIME_SLOTS.length; i++) html += `<div style="border-right: 1px solid var(--grid-line);"></div>`;
       html += `</div>`;
 
       daySlots[day].forEach(e => {
@@ -799,7 +799,7 @@ function buildTableDaysLeft(daySlots, t) {
   html += `<td style="padding:0; vertical-align:top;"><div style="display: grid; grid-template-rows: repeat(${TIME_SLOTS.length}, 58px);">`;
   TIME_SLOTS.forEach((ts) => {
     const parts = ts.replace(' (eve)', '★').split(' - ');
-    const label = `<div style="line-height:1.3;text-align:center;padding:10px 0;font-size:10px;font-weight:bold;color:var(--text);border-bottom: 1px solid rgba(255, 255, 255, .03);">${parts[0]}<br><span style="opacity:0.6;font-size:8px">${parts[1] || ''}</span></div>`;
+    const label = `<div style="line-height:1.3;text-align:center;padding:10px 0;font-size:10px;font-weight:bold;color:var(--text);border-bottom: 1px solid var(--grid-line);">${parts[0]}<br><span style="opacity:0.6;font-size:8px">${parts[1] || ''}</span></div>`;
     html += `<div>${label}</div>`;
   });
   html += `</div></td>`;
@@ -809,7 +809,7 @@ function buildTableDaysLeft(daySlots, t) {
     html += `<div style="display: grid; grid-template-rows: repeat(${TIME_SLOTS.length}, 58px); grid-auto-columns: minmax(60px, auto); position:absolute; inset:0; min-width: 100%;">`;
 
     html += `<div style="grid-column: 1 / -1; grid-row: 1 / -1; display: grid; grid-template-rows: repeat(${TIME_SLOTS.length}, 58px); pointer-events: none; position: absolute; inset: 0; z-index: 0;">`;
-    for (let i = 0; i < TIME_SLOTS.length; i++) html += `<div style="border-bottom: 1px solid rgba(255, 255, 255, .03);"></div>`;
+    for (let i = 0; i < TIME_SLOTS.length; i++) html += `<div style="border-bottom: 1px solid var(--grid-line);"></div>`;
     html += `</div>`;
 
     daySlots[day].forEach(e => {

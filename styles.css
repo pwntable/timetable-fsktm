@@ -26,6 +26,9 @@
   --yellow: #f59e0b;
   --wrap-pad: 24px;
   --radius: 14px;
+  --grid-line: rgba(255, 255, 255, .05);
+  --grid-hover: rgba(255, 255, 255, .008);
+  --lunch-bg: rgba(0, 0, 0, .22);
 }
 
 :root[data-theme="light"] {
@@ -40,6 +43,9 @@
   --text: #0f172a;
   --muted: #64748b;
   --muted2: #475569;
+  --grid-line: #dde3ec;
+  --grid-hover: rgba(0, 0, 0, .025);
+  --lunch-bg: rgba(0, 0, 0, .05);
 }
 
 /* ════════════════════════════════
@@ -1028,7 +1034,7 @@ html[data-theme="light"] #btn-theme .icon-moon {
 }
 
 .tt-table td {
-  border: 1px solid rgba(255, 255, 255, .03);
+  border: 1px solid var(--grid-line);
   height: 58px;
   vertical-align: top;
   position: relative;
@@ -1050,11 +1056,11 @@ html[data-theme="light"] #btn-theme .icon-moon {
 }
 
 .tt-table tr:hover td:not(.day-td) {
-  background: rgba(255, 255, 255, .006);
+  background: var(--grid-hover);
 }
 
 .lunch-cell {
-  background: rgba(0, 0, 0, .22) !important;
+  background: var(--lunch-bg) !important;
   position: relative;
 }
 
@@ -2246,7 +2252,7 @@ html[data-theme="light"] #btn-theme .icon-moon {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
   animation: slideUp .25s ease;
 }
 
@@ -2286,7 +2292,7 @@ html[data-theme="light"] #btn-theme .icon-moon {
   max-height: 55vh;
   object-fit: contain;
   border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .disclaimer-dots {
@@ -2328,9 +2334,11 @@ html[data-theme="light"] #btn-theme .icon-moon {
     max-height: 95vh;
     border-radius: 14px;
   }
+
   .disclaimer-slide img {
     max-height: 48vh;
   }
+
   .disclaimer-footer {
     padding: 10px 12px 14px;
     gap: 8px;
@@ -2389,4 +2397,70 @@ html[data-theme="light"] #btn-theme .icon-moon {
 .disc-step-text a {
   color: #6366f1;
   text-decoration: underline;
+}
+
+/* ════ FEEDBACK FLOATING ACTION BUTTON ════ */
+#fab-feedback {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 1200;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+  outline: none;
+}
+
+#fab-feedback:hover {
+  transform: scale(1.12);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6);
+}
+
+#fab-feedback:active {
+  transform: scale(0.95);
+}
+
+/* Subtle pulse ring on load */
+#fab-feedback::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(99, 102, 241, 0.4);
+  animation: fabPulse 2.5s ease-out infinite;
+}
+
+@keyframes fabPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+
+  70% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  #fab-feedback {
+    bottom: 18px;
+    right: 16px;
+    width: 46px;
+    height: 46px;
+  }
 }
