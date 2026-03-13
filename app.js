@@ -1773,15 +1773,16 @@ const DISCLAIMER_TOTAL = 3;
 // Bilingual descriptions for each slide. Key = slide index.
 const DISC_DESCRIPTIONS = {
   ms: [
-    // Slide 1 — how to get the slip on SMAP
+    // Slide 1 — log in and navigate to Course Registration
     [
       { text: 'Buka portal <a href="https://smap.uthm.edu.my" target="_blank" rel="noopener">SMAP UTHM</a> dan log masuk ke akaun anda.' },
       { text: 'Pergi ke bahagian <strong>Registration</strong> → <strong>Course Registration</strong>.' },
+    ],
+    // Slide 2 — click Slip & download
+    [
       { text: 'Setelah halaman dimuatkan, klik butang <strong>Slip</strong>.' },
       { text: 'Muat turun atau ambil tangkapan skrin slip pendaftaran anda. Format yang disokong: <strong>PNG</strong> dan <strong>PDF</strong>.' },
     ],
-    // Slide 2
-    [],
     // Slide 3 — shows the actual slip format
     [
       { text: 'Ini adalah contoh <strong>Slip Pendaftaran Kursus</strong> yang perlu anda muat naik ke dalam aplikasi ini.' },
@@ -1792,11 +1793,12 @@ const DISC_DESCRIPTIONS = {
     [
       { text: 'Open the <a href="https://smap.uthm.edu.my" target="_blank" rel="noopener">SMAP UTHM portal</a> and log in to your account.' },
       { text: 'Navigate to the <strong>Registration</strong> section and select <strong>Course Registration</strong>.' },
+    ],
+    // Slide 2
+    [
       { text: 'Once the page loads, click the <strong>Slip</strong> button.' },
       { text: 'Download or take a screenshot of your Course Registration Slip. Supported formats: <strong>PNG</strong> and <strong>PDF</strong>.' },
     ],
-    // Slide 2
-    [],
     // Slide 3
     [
       { text: 'This is an example of the <strong>Course Registration Slip</strong> you need to upload into this app.' },
