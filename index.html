@@ -20,10 +20,22 @@
     <header>
       <div class="hdr">
         <div class="brand">
-          <div class="brand-icon">🗓</div>
-          <div>
-            <h1>Timetable Generator</h1>
-            <p data-i18n="subtitle">Pilih subjek &amp; section — jadual dijana serta-merta</p>
+          <div class="brand-icon" aria-hidden="true">
+            <!-- Minimalist calendar grid SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="rgba(255,255,255,0.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <rect x="7" y="14" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.8)" stroke="none"></rect>
+              <rect x="11" y="14" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.8)" stroke="none"></rect>
+              <rect x="15" y="14" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.8)" stroke="none"></rect>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>Timetable <span class="brand-highlight">Generator</span></h1>
+            <p class="brand-sub" data-i18n="subtitle">Pilih subjek &amp; section — jadual dijana serta-merta</p>
           </div>
         </div>
         <div class="toggles">
