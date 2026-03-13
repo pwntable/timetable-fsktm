@@ -96,6 +96,16 @@
               onclick="document.getElementById('slip-upload').click()" title="Upload Registration Slip">
               <span style="font-size:14px">📄</span> <span data-i18n="uploadBtn">Muat Naik</span>
             </button>
+            <button class="btn-sm" id="btn-disclaimer"
+              style="border-color:var(--border2);background:transparent;color:var(--accent);padding:0 10px;height:38px;white-space:nowrap;display:flex;align-items:center;gap:4px;font-weight:700;border-radius:8px;flex-shrink:0;"
+              onclick="openDisclaimerModal()" title="Cara Penggunaan / Tutorial">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </button>
             <input type="file" id="slip-upload" accept=".pdf,image/*" style="display:none"
               onchange="handleSlipUpload(event)">
           </div>
@@ -375,6 +385,83 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER / TUTORIAL MODAL -->
+  <div class="modal-overlay" id="disclaimer-modal">
+    <div class="disclaimer-box" role="dialog" aria-modal="true">
+      <!-- Header -->
+      <div class="disclaimer-hdr">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div
+            style="width:36px;height:36px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div>
+            <div class="modal-title" style="margin:0; font-size:16px;" data-i18n="disclaimerTitle">Cara Penggunaan</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:1px;" id="disclaimer-page-label">Halaman 1 / 3
+            </div>
+          </div>
+        </div>
+        <button onclick="closeDisclaimerModal()"
+          style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;" title="Tutup">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Image carousel -->
+      <div class="disclaimer-carousel" id="disclaimer-carousel">
+        <div class="disclaimer-slides" id="disclaimer-slides">
+          <div class="disclaimer-slide">
+            <img src="images/page1-disclaimer.png" alt="Tutorial Page 1" loading="lazy" />
+          </div>
+          <div class="disclaimer-slide">
+            <img src="images/page2-disclaimer.png" alt="Tutorial Page 2" loading="lazy" />
+          </div>
+          <div class="disclaimer-slide">
+            <img src="images/page3-disclaimer.png" alt="Tutorial Page 3" loading="lazy" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Dots indicator -->
+      <div class="disclaimer-dots">
+        <span class="disc-dot active" onclick="goToSlide(0)"></span>
+        <span class="disc-dot" onclick="goToSlide(1)"></span>
+        <span class="disc-dot" onclick="goToSlide(2)"></span>
+      </div>
+
+      <!-- Slide description (injected by JS, bilingual) -->
+      <div id="disclaimer-desc" class="disclaimer-desc-area"></div>
+
+      <!-- Navigation buttons -->
+      <div class="disclaimer-footer">
+        <button class="modal-btn cancel" id="disc-prev" onclick="changeSlide(-1)" style="flex:1; max-width:120px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          Sebelum
+        </button>
+        <button class="modal-btn confirm" id="disc-next" onclick="changeSlide(1)"
+          style="flex:1; max-width:120px; background:#6366f1; border-color:#6366f1; color:white;">
+          Seterus
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 

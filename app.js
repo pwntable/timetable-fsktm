@@ -94,7 +94,9 @@ const DICT = {
     intakePanelTitle: "Suggest by Intake",
     intakeSuggestBtn: "Suggest Timetable",
     intakePlaceholder: "-- Select your intake --",
-    intakeNoneFound: "No matching courses found for this intake."
+    intakeNoneFound: "No matching courses found for this intake.",
+    disclaimerTitle: "How to Use",
+
   },
   ms: {
     subtitle: "Pilih subjek & section — jadual dijana serta-merta",
@@ -161,7 +163,8 @@ const DICT = {
     intakePanelTitle: "Cadangan Mengikut Ambilan",
     intakeSuggestBtn: "Cadang Jadual",
     intakePlaceholder: "-- Pilih ambilan anda --",
-    intakeNoneFound: "Tiada kursus yang sepadan ditemui untuk ambilan ini."
+    intakeNoneFound: "Tiada kursus yang sepadan ditemui untuk ambilan ini.",
+    disclaimerTitle: "Cara Penggunaan",
   }
 };
 
@@ -1731,3 +1734,121 @@ if (dlModal) {
     if (e.target === dlModal) closeDownloadModal();
   });
 }
+
+/* ════ DISCLAIMER / TUTORIAL MODAL ════ */
+let disclaimerCurrentSlide = 0;
+const DISCLAIMER_TOTAL = 3;
+
+// Bilingual descriptions for each slide. Key = slide index.
+const DISC_DESCRIPTIONS = {
+  ms: [
+    // Slide 1 — how to get the slip on SMAP
+    [
+      { text: 'Buka portal <a href="https://smap.uthm.edu.my" target="_blank" rel="noopener">SMAP UTHM</a> dan log masuk ke akaun anda.' },
+      { text: 'Pergi ke bahagian <strong>Registration</strong> → <strong>Course Registration</strong>.' },
+      { text: 'Setelah halaman dimuatkan, klik butang <strong>Slip</strong>.' },
+      { text: 'Muat turun atau ambil tangkapan skrin slip pendaftaran anda. Format yang disokong: <strong>PNG</strong> dan <strong>PDF</strong>.' },
+    ],
+    // Slide 2
+    [],
+    // Slide 3 — shows the actual slip format
+    [
+      { text: 'Ini adalah contoh <strong>Slip Pendaftaran Kursus</strong> yang perlu anda muat naik ke dalam aplikasi ini.' },
+    ],
+  ],
+  en: [
+    // Slide 1
+    [
+      { text: 'Open the <a href="https://smap.uthm.edu.my" target="_blank" rel="noopener">SMAP UTHM portal</a> and log in to your account.' },
+      { text: 'Navigate to the <strong>Registration</strong> section and select <strong>Course Registration</strong>.' },
+      { text: 'Once the page loads, click the <strong>Slip</strong> button.' },
+      { text: 'Download or take a screenshot of your Course Registration Slip. Supported formats: <strong>PNG</strong> and <strong>PDF</strong>.' },
+    ],
+    // Slide 2
+    [],
+    // Slide 3
+    [
+      { text: 'This is an example of the <strong>Course Registration Slip</strong> you need to upload into this app.' },
+    ],
+  ],
+};
+
+function openDisclaimerModal() {
+  disclaimerCurrentSlide = 0;
+  _disclaimerRender();
+  const modal = document.getElementById('disclaimer-modal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeDisclaimerModal() {
+  const modal = document.getElementById('disclaimer-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+function changeSlide(dir) {
+  const next = disclaimerCurrentSlide + dir;
+  if (next < 0 || next >= DISCLAIMER_TOTAL) return;
+  disclaimerCurrentSlide = next;
+  _disclaimerRender();
+}
+
+function goToSlide(index) {
+  if (index < 0 || index >= DISCLAIMER_TOTAL) return;
+  disclaimerCurrentSlide = index;
+  _disclaimerRender();
+}
+
+function _disclaimerRender() {
+  // Move slide strip
+  const slides = document.getElementById('disclaimer-slides');
+  if (slides) slides.style.transform = `translateX(-${disclaimerCurrentSlide * 100}%)`;
+
+  // Update page label (bilingual)
+  const label = document.getElementById('disclaimer-page-label');
+  const pageWord = currentLang === 'ms' ? 'Halaman' : 'Page';
+  if (label) label.textContent = `${pageWord} ${disclaimerCurrentSlide + 1} / ${DISCLAIMER_TOTAL}`;
+
+  // Update dot indicators
+  document.querySelectorAll('.disc-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === disclaimerCurrentSlide);
+  });
+
+  // Update prev/next button states
+  const prev = document.getElementById('disc-prev');
+  const next = document.getElementById('disc-next');
+  if (prev) prev.style.opacity = disclaimerCurrentSlide === 0 ? '0.35' : '1';
+  if (prev) prev.style.pointerEvents = disclaimerCurrentSlide === 0 ? 'none' : 'auto';
+  if (next) next.style.opacity = disclaimerCurrentSlide === DISCLAIMER_TOTAL - 1 ? '0.35' : '1';
+  if (next) next.style.pointerEvents = disclaimerCurrentSlide === DISCLAIMER_TOTAL - 1 ? 'none' : 'auto';
+
+  // Inject bilingual description
+  const descEl = document.getElementById('disclaimer-desc');
+  if (descEl) {
+    const lang = (typeof currentLang !== 'undefined') ? currentLang : 'ms';
+    const steps = (DISC_DESCRIPTIONS[lang] || DISC_DESCRIPTIONS['ms'])[disclaimerCurrentSlide] || [];
+    if (steps.length === 0) {
+      descEl.innerHTML = '';
+    } else {
+      descEl.innerHTML = steps.map((s, i) =>
+        `<div class="disclaimer-step"><span class="disc-step-num">${i + 1}</span><span class="disc-step-text">${s.text}</span></div>`
+      ).join('');
+    }
+  }
+}
+
+// Click overlay to close
+const discModal = document.getElementById('disclaimer-modal');
+if (discModal) {
+  discModal.addEventListener('click', (e) => {
+    if (e.target === discModal) closeDisclaimerModal();
+  });
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  const discModal = document.getElementById('disclaimer-modal');
+  if (!discModal || !discModal.classList.contains('open')) return;
+  if (e.key === 'ArrowRight') changeSlide(1);
+  if (e.key === 'ArrowLeft') changeSlide(-1);
+  if (e.key === 'Escape') closeDisclaimerModal();
+});
