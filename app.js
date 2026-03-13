@@ -96,7 +96,7 @@ const DICT = {
     intakePlaceholder: "-- Select your intake --",
     intakeNoneFound: "No matching courses found for this intake.",
     disclaimerTitle: "How to Use",
-
+    downloadEmptyWarn: "No subjects selected. Please select at least one subject before downloading."
   },
   ms: {
     subtitle: "Pilih subjek & section — jadual dijana serta-merta",
@@ -165,6 +165,7 @@ const DICT = {
     intakePlaceholder: "-- Pilih ambilan anda --",
     intakeNoneFound: "Tiada kursus yang sepadan ditemui untuk ambilan ini.",
     disclaimerTitle: "Cara Penggunaan",
+    downloadEmptyWarn: "Tiada subjek dipilih. Sila pilih sekurang-kurangnya satu subjek sebelum muat turun."
   }
 };
 
@@ -1564,7 +1565,31 @@ function suggestByIntake() {
 let downloadOrientation = 'landscape';
 let isExporting = false; // Flag to prevent rapid double-clicks
 
+function showToast(message, duration = 3000) {
+  let toast = document.getElementById('app-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'app-toast';
+    toast.style.cssText = `
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #323232; color: #fff; padding: 12px 20px; border-radius: 8px;
+      font-size: 14px; z-index: 99999; opacity: 0; transition: opacity 0.25s;
+      max-width: 90vw; text-align: center; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.style.opacity = '1';
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => { toast.style.opacity = '0'; }, duration);
+}
+
 function openDownloadModal() {
+  if (Object.keys(selected).length === 0) {
+    const lang = (typeof currentLang !== 'undefined') ? currentLang : 'ms';
+    showToast(DICT[lang].downloadEmptyWarn);
+    return;
+  }
   document.getElementById('download-modal').classList.add('open');
   setDownloadOrientation(downloadOrientation); // re-trigger to draw preview
 }

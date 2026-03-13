@@ -445,19 +445,20 @@
       <div id="disclaimer-desc" class="disclaimer-desc-area"></div>
 
       <!-- Navigation buttons -->
-      <div class="disclaimer-footer">
-        <button class="modal-btn cancel" id="disc-prev" onclick="changeSlide(-1)" style="flex:1; max-width:120px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="disclaimer-footer" style="gap:14px; padding-bottom:20px; border-top:none;">
+        <button class="modal-btn" id="disc-prev" onclick="changeSlide(-1)"
+          style="flex:1; max-width:140px; background:transparent; border:2px solid var(--border); color:var(--muted); border-radius:12px; font-weight:600; font-size:14px; gap:8px; padding:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
-          Sebelum
+          <span data-i18n="discPrev">Sebelum</span>
         </button>
-        <button class="modal-btn confirm" id="disc-next" onclick="changeSlide(1)"
-          style="flex:1; max-width:120px; background:#6366f1; border-color:#6366f1; color:white;">
-          Seterus
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="modal-btn" id="disc-next" onclick="changeSlide(1)"
+          style="flex:1; max-width:140px; background:#6366f1; border:2px solid #6366f1; color:white; border-radius:12px; font-weight:700; font-size:14px; gap:8px; padding:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; box-shadow:0 4px 14px rgba(99,102,241,0.25);">
+          <span data-i18n="discNext">Seterus</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </button>
