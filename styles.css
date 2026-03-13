@@ -115,7 +115,8 @@ header::before {
 .hdr {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 10px;
   flex-wrap: nowrap;
 }
 
@@ -125,7 +126,8 @@ header::before {
   align-items: center;
   gap: 11px;
   flex: 1;
-  min-width: 0;
+  min-width: 0; /* critical: lets flex child shrink */
+  overflow: hidden;
 }
 
 .brand-icon {
@@ -222,6 +224,7 @@ header::before {
   display: flex;
   gap: 7px;
   flex-shrink: 0;
+  margin-left: 8px; /* breathing room from the title */
 }
 
 .btn-icon {
