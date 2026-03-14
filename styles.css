@@ -305,6 +305,7 @@ header::before {
     width: 32px;
     height: 32px;
     border-radius: 9px;
+    transform: translateY(1px);
   }
 
   .btn-icon {
