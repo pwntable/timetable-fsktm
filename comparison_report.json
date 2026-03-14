@@ -1,0 +1,1544 @@
+{
+  "added_courses": [
+    "BIT30603"
+  ],
+  "deleted_courses": [
+    "BIS33103"
+  ],
+  "modified_courses": {
+    "BIS33403": {
+      "name": "TOPIK-TOPIK KHAS KESELAMATAN MAKLUMAT",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S2": {
+            "old": [
+              {
+                "day": "Wednesday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S2 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-feresa",
+                "venue": "I-ISYS-ARAS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S2 K",
+                "type": "Lecture",
+                "lecturer": "I-feresa",
+                "venue": "I-AUDITORI",
+                "intakes": [
+                  "FSKTM-3BIS"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Thursday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S2 K",
+                "type": "Lecture",
+                "lecturer": "I-feresa",
+                "venue": "I-AUDITORI",
+                "intakes": [
+                  "FSKTM-3BIS"
+                ]
+              },
+              {
+                "day": "Friday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S2 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-feresa",
+                "venue": "I-C12-101-GS"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIC10003": {
+      "name": "FUNDAMENTAL MATHEMATICS FOR COMPUTER SCIENCE",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-sitihajara",
+                "venue": "I-BT4",
+                "intakes": [
+                  "FSKTM-1BIK | FSKTM-1BIM"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S1 T",
+                "type": "Tutorial",
+                "lecturer": "I-sitihajara",
+                "venue": "I-BT4",
+                "intakes": [
+                  "FSKTM-1BIK | FSKTM-1BIM"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Monday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-sitihajara",
+                "venue": "I-BT4",
+                "intakes": [
+                  "FSKTM-1BIK | FSKTM-1BIM"
+                ]
+              },
+              {
+                "day": "Monday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S1 T",
+                "type": "Tutorial",
+                "lecturer": "I-sitihajara",
+                "venue": "I-AUDITORIU",
+                "intakes": [
+                  "FSKTM-1BIK | FSKTM-1BIM"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIS30703": {
+      "name": "PENGURUSAN PROJEK KESELAMATAN MAKLUMAT",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-azma",
+                "venue": "I-BT4"
+              },
+              {
+                "day": "Tuesday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-azma",
+                "venue": "I-CISCO-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-azma",
+                "venue": "I-CISCO-ARAS"
+              },
+              {
+                "day": "Tuesday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-azma",
+                "venue": "I-CISCO-ARAS"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIM20703": {
+      "name": "ANIMASI KOMPUTER",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S8": {
+            "old": [
+              {
+                "day": "Tuesday",
+                "time_start": "11:00",
+                "duration": 2.0,
+                "section": "S8 K",
+                "type": "Lecture",
+                "lecturer": "I-fakri",
+                "venue": "I-PERP-BT6",
+                "intakes": [
+                  "FSKTM-2BIM"
+                ]
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S8 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-fakri",
+                "venue": "I-MRM-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "11:00",
+                "duration": 2.0,
+                "section": "S8 K",
+                "type": "Lecture",
+                "lecturer": "I-fakri",
+                "venue": "I-PERP-BT6",
+                "intakes": [
+                  "FSKTM-2BIM"
+                ]
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S8 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-fakri",
+                "venue": "I-MRM-ARAS"
+              }
+            ]
+          },
+          "S7": {
+            "old": [
+              {
+                "day": "Tuesday",
+                "time_start": "11:00",
+                "duration": 2.0,
+                "section": "S7 K",
+                "type": "Lecture",
+                "lecturer": "I-fakri",
+                "venue": "I-PERP-BT6",
+                "intakes": [
+                  "FSKTM-2BIM | FSKTM-3BIM | FSKTM-4BIM"
+                ]
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S7 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-fakri",
+                "venue": "I-MRM-ARAS",
+                "intakes": [
+                  "FSKTM-2BIM | FSKTM-3BIM | FSKTM-4BIM"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "11:00",
+                "duration": 2.0,
+                "section": "S7 K",
+                "type": "Lecture",
+                "lecturer": "I-fakri",
+                "venue": "I-PERP-BT6",
+                "intakes": [
+                  "FSKTM-2BIM | FSKTM-3BIM | FSKTM-4BIM"
+                ]
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S7 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-fakri",
+                "venue": "I-MRM-ARAS",
+                "intakes": [
+                  "FSKTM-2BIM | FSKTM-3BIM | FSKTM-4BIM"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIK10903": {
+      "name": "STRUKTUR DATA",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Tuesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-halid",
+                "venue": "I-MP-ARAS"
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-halid",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-1BIK"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-nurezayana",
+                "venue": "I-MP-ARAS"
+              },
+              {
+                "day": "Friday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-nurezayana",
+                "venue": "I-AUDITORI",
+                "intakes": [
+                  "FSKTM-1BIK"
+                ]
+              }
+            ]
+          },
+          "S2": {
+            "old": [
+              {
+                "day": "Tuesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S2 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-halid",
+                "venue": "I-MP-ARAS"
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S2 K",
+                "type": "Lecture",
+                "lecturer": "I-halid",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-1BIK"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S2 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-nurezayana",
+                "venue": "I-MP-ARAS"
+              },
+              {
+                "day": "Friday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S2 K",
+                "type": "Lecture",
+                "lecturer": "I-nurezayana",
+                "venue": "I-AUDITORI",
+                "intakes": [
+                  "FSKTM-1BIK"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIM33403": {
+      "name": "TEKNOLOGI KESELAMATAN MULTIMEDIA",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S7": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S7 K",
+                "type": "Lecture",
+                "lecturer": "I-noraisah",
+                "venue": "I-BT4"
+              },
+              {
+                "day": "Tuesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S7 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-noraisah",
+                "venue": "I-MGA-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Monday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S7 K",
+                "type": "Lecture",
+                "lecturer": "I-noraisah",
+                "venue": "I-BT4"
+              },
+              {
+                "day": "Tuesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S7 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-noraisah",
+                "venue": "I-MGA-ARAS"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIK10803": {
+      "name": "KEJURUTERAAN KEPERLUAN",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-ruhaya",
+                "venue": "I-MKP-ARAS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-ruhaya",
+                "venue": "I-FSKTM-BS",
+                "intakes": [
+                  "FSKTM-1BIK"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Monday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-ruhaya",
+                "venue": "I-MKP-ARAS"
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-ruhaya",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-1BIK"
+                ]
+              }
+            ]
+          },
+          "S2": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S2 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-ruhaya",
+                "venue": "I-MKP-ARAS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S2 K",
+                "type": "Lecture",
+                "lecturer": "I-ruhaya",
+                "venue": "I-FSKTM-BS",
+                "intakes": [
+                  "FSKTM-1BIK"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Monday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S2 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-ruhaya",
+                "venue": "I-MKP-ARAS"
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S2 K",
+                "type": "Lecture",
+                "lecturer": "I-ruhaya",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-1BIK"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIC10203": {
+      "name": "ALGORITMA DAN PENGATURCARAAN",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Tuesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-sfadzlun",
+                "venue": "I-B8-T2-GS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-sfadzlun",
+                "venue": "I-MSK-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-sfadzlun",
+                "venue": "I-B8-T2-GS"
+              },
+              {
+                "day": "Friday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-sfadzlun",
+                "venue": "I-MSK-ARAS"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIM10203": {
+      "name": "TEKNOLOGI AUDIO DAN VIDEO DIGITAL",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S8": {
+            "old": [
+              {
+                "day": "Wednesday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S8 K",
+                "type": "Lecture",
+                "lecturer": "I-azizanis",
+                "venue": "I-PERP-BT8",
+                "intakes": [
+                  "FSKTM-1BIM"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S8 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-azizanis",
+                "venue": "I-MM-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S8 K",
+                "type": "Lecture",
+                "lecturer": "I-azizanis",
+                "venue": "I-PERP-BT8",
+                "intakes": [
+                  "FSKTM-1BIM"
+                ]
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S8 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-azizanis",
+                "venue": "I-MGA-ARAS"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIC21003": {
+      "name": "ANALISA DAN REKA BENTUK SISTEM",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Wednesday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-faradila",
+                "venue": "I-BT4",
+                "intakes": [
+                  "FSKTM-1BIS | FSKTM-2BIS | FSKTM-3BIS"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-faradila",
+                "venue": "I-MFD-ARAS",
+                "intakes": [
+                  "FSKTM-1BIS | FSKTM-2BIS | FSKTM-3BIS"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-faradila",
+                "venue": "I-BT4",
+                "intakes": [
+                  "FSKTM-1BIS | FSKTM-2BIS | FSKTM-3BIS"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-faradila",
+                "venue": "I-MFD-ARA",
+                "intakes": [
+                  "FSKTM-1BIS | FSKTM-2BIS | FSKTM-3BIS"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIT21202": {
+      "name": "ETIKA PROFESIONAL DAN KESELAMATAN PEKERJAAN",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Friday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-helmy",
+                "venue": "I-BT2"
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-helmy",
+                "venue": "I-BT4"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIT21503": {
+      "name": "PEMBANGUNAN WEB",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S3": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S3 K",
+                "type": "Lecture",
+                "lecturer": "I-haziqr",
+                "venue": "I-B8-T2-GS",
+                "intakes": [
+                  "FSKTM-3BIT"
+                ]
+              },
+              {
+                "day": "Tuesday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S3 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-haziqr",
+                "venue": "I-C12-101-G",
+                "intakes": [
+                  "FSKTM-3BIT"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Monday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S3 K",
+                "type": "Lecture",
+                "lecturer": "I-tajudin",
+                "venue": "I-B8-T2-GS",
+                "intakes": [
+                  "FSKTM-3BIT"
+                ]
+              },
+              {
+                "day": "Tuesday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S3 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-tajudin",
+                "venue": "I-C12-101-G",
+                "intakes": [
+                  "FSKTM-3BIT"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIT34103": {
+      "name": "PEMBANGUNAN APLIKASI MUDAH ALIH",
+      "changes": {
+        "added_sections": [
+          "S6"
+        ],
+        "deleted_sections": [],
+        "modified_sections": {}
+      }
+    },
+    "BIC10303": {
+      "name": "ALGEBRA",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Wednesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S1 T",
+                "type": "Tutorial",
+                "lecturer": "I-sitihajara",
+                "venue": "I-BT1",
+                "intakes": [
+                  "FSKTM-2BIP | FSKTM-2BIS | FSKTM-2BIW | FSKTM-3BIM"
+                ]
+              },
+              {
+                "day": "Friday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-sitihajara",
+                "venue": "I-BT4",
+                "intakes": [
+                  "FSKTM-2BIP | FSKTM-2BIS | FSKTM-2BIW | FSKTM-3BIM"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Monday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-sitihajara",
+                "venue": "I-ISYS-ARAS 1",
+                "intakes": [
+                  "FSKTM-2BIP | FSKTM-2BIS | FSKTM-2BIW | FSKTM-3BIM"
+                ]
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S1 T",
+                "type": "Tutorial",
+                "lecturer": "I-sitihajara",
+                "venue": "I-BT1",
+                "intakes": [
+                  "FSKTM-2BIP | FSKTM-2BIS | FSKTM-2BIW | FSKTM-3BIM"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIT11603": {
+      "name": "STATISTIK",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Tuesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-radiah",
+                "venue": "I-MSK-ARAS",
+                "intakes": [
+                  "FSKTM-2BIT | FSKTM-3BIT"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-radiah",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-2BIT | FSKTM-3BIT"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-radiah",
+                "venue": "I-MSK-ARAS",
+                "intakes": [
+                  "FSKTM-2BIT | FSKTM-3BIT"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-radiah",
+                "venue": "I-FSKTM-BS",
+                "intakes": [
+                  "FSKTM-2BIT | FSKTM-3BIT"
+                ]
+              }
+            ]
+          },
+          "S3": {
+            "old": [
+              {
+                "day": "Tuesday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S3 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-radiah",
+                "venue": "I-MSK-ARAS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S3 K",
+                "type": "Lecture",
+                "lecturer": "I-radiah",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-3BIT"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S3 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-radiah",
+                "venue": "I-MSK-ARAS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S3 K",
+                "type": "Lecture",
+                "lecturer": "I-radiah",
+                "venue": "I-FSKTM-BS",
+                "intakes": [
+                  "FSKTM-3BIT"
+                ]
+              }
+            ]
+          },
+          "S2": {
+            "old": [
+              {
+                "day": "Tuesday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S2 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-radiah",
+                "venue": "I-MSK-ARAS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S2 K",
+                "type": "Lecture",
+                "lecturer": "I-radiah",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-2BIT"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S2 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-radiah",
+                "venue": "I-MSK-ARAS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S2 K",
+                "type": "Lecture",
+                "lecturer": "I-radiah",
+                "venue": "I-FSKTM-BS",
+                "intakes": [
+                  "FSKTM-2BIT"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIM20404": {
+      "name": "SISTEM DAN APLIKASI MULTIMEDIA",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S8": {
+            "old": [
+              {
+                "day": "Wednesday",
+                "time_start": "09:00",
+                "duration": 3.0,
+                "section": "S8 K",
+                "type": "Lecture",
+                "lecturer": "I-rahayu",
+                "venue": "I-AUDITORIUM",
+                "intakes": [
+                  "FSKTM-2BIM"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S8 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-rahayu",
+                "venue": "I-MGA-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "09:00",
+                "duration": 3.0,
+                "section": "S8 K",
+                "type": "Lecture",
+                "lecturer": "I-rahayu",
+                "venue": "I-AUDITORIUM",
+                "intakes": [
+                  "FSKTM-2BIM"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S8 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-rahayu",
+                "venue": "I-MM-ARAS"
+              }
+            ]
+          },
+          "S7": {
+            "old": [
+              {
+                "day": "Wednesday",
+                "time_start": "09:00",
+                "duration": 3.0,
+                "section": "S7 K",
+                "type": "Lecture",
+                "lecturer": "I-rahayu",
+                "venue": "I-AUDITORIUM",
+                "intakes": [
+                  "FSKTM-2BIM"
+                ]
+              },
+              {
+                "day": "Friday",
+                "time_start": "10:00",
+                "duration": 2.0,
+                "section": "S7 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-rahayu",
+                "venue": "I-MGA-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "09:00",
+                "duration": 3.0,
+                "section": "S7 K",
+                "type": "Lecture",
+                "lecturer": "I-rahayu",
+                "venue": "I-AUDITORIUM",
+                "intakes": [
+                  "FSKTM-2BIM"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S7 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-rahayu",
+                "venue": "I-MM-ARAS"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIW33803": {
+      "name": "INTERNET OF THINGS",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S6": {
+            "old": [
+              {
+                "day": "Wednesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S6 K",
+                "type": "Lecture",
+                "lecturer": "I-nayef",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-2BIW | FSKTM-4BIW"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S6 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-nayef",
+                "venue": "I-MPI-ARAS 3",
+                "intakes": [
+                  "FSKTM-2BIW | FSKTM-4BIW"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S6 K",
+                "type": "Lecture",
+                "lecturer": "I-nayef",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-2BIW | FSKTM-4BIW"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S6 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-nayef",
+                "venue": "I-MPI-ARAS",
+                "intakes": [
+                  "FSKTM-2BIW | FSKTM-4BIW"
+                ]
+              }
+            ]
+          },
+          "S5": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S5 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-nayef",
+                "venue": "I-MTW-ARAS"
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S5 K",
+                "type": "Lecture",
+                "lecturer": "I-nayef",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-3BIW"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S5 K",
+                "type": "Lecture",
+                "lecturer": "I-nayef",
+                "venue": "I-FSKTM-BS1",
+                "intakes": [
+                  "FSKTM-3BIW"
+                ]
+              },
+              {
+                "day": "Thursday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S5 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-nayef",
+                "venue": "I-MFD-ARAS"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIM33603": {
+      "name": "TOPIK-TOPIK KHAS PENGKOMPUTERAN MULTIMEDIA",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S8": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S8 K",
+                "type": "Lecture",
+                "lecturer": "I-suriati",
+                "venue": "I-PERP-BT8",
+                "intakes": [
+                  "FSKTM-3BIM"
+                ]
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S8 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-suriati",
+                "venue": "I-MM-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S8 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-suriati",
+                "venue": "I-MM-ARAS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S8 K",
+                "type": "Lecture",
+                "lecturer": "I-suriati",
+                "venue": "I-PERP-BT9",
+                "intakes": [
+                  "FSKTM-3BIM"
+                ]
+              }
+            ]
+          },
+          "S7": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S7 K",
+                "type": "Lecture",
+                "lecturer": "I-suriati",
+                "venue": "I-PERP-BT8",
+                "intakes": [
+                  "FSKTM-3BIM"
+                ]
+              },
+              {
+                "day": "Wednesday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S7 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-suriati",
+                "venue": "I-MM-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S7 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-suriati",
+                "venue": "I-MM-ARAS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "02:00",
+                "duration": 2.0,
+                "section": "S7 K",
+                "type": "Lecture",
+                "lecturer": "I-suriati",
+                "venue": "I-PERP-BT9",
+                "intakes": [
+                  "FSKTM-3BIM"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIT34303": {
+      "name": "PEMBELAJARAN MESIN",
+      "changes": {
+        "added_sections": [
+          "S4"
+        ],
+        "deleted_sections": [],
+        "modified_sections": {}
+      }
+    },
+    "BIC10403": {
+      "name": "STRUKTUR DATA",
+      "changes": {
+        "added_sections": [
+          "S10",
+          "S17"
+        ],
+        "deleted_sections": [],
+        "modified_sections": {}
+      }
+    },
+    "BIK10203": {
+      "name": "ALGORITMA DAN PENGATURCARAAN",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S1": {
+            "old": [
+              {
+                "day": "Tuesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-sfadzlun",
+                "venue": "I-B8-T2-GS"
+              },
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-sfadzlun",
+                "venue": "I-MSK-ARAS"
+              }
+            ],
+            "new": [
+              {
+                "day": "Tuesday",
+                "time_start": "04:00",
+                "duration": 2.0,
+                "section": "S1 K",
+                "type": "Lecture",
+                "lecturer": "I-sfadzlun",
+                "venue": "I-B8-T2-GS"
+              },
+              {
+                "day": "Friday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S1 A",
+                "type": "Lab/Amali",
+                "lecturer": "I-sfadzlun",
+                "venue": "I-MSK-ARAS"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "BIC31502": {
+      "name": "KREATIVITI DAN INOVASI",
+      "changes": {
+        "added_sections": [],
+        "deleted_sections": [],
+        "modified_sections": {
+          "S4": {
+            "old": [
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S4 K",
+                "type": "Lecture",
+                "lecturer": "I-ysuhaila",
+                "venue": "I-PERP-BT1",
+                "intakes": [
+                  "FSKTM-2BIP"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S4 K",
+                "type": "Lecture",
+                "lecturer": "I-ysuhaila",
+                "venue": "I-PERP-BT10",
+                "intakes": [
+                  "FSKTM-2BIP"
+                ]
+              }
+            ]
+          },
+          "S5": {
+            "old": [
+              {
+                "day": "Monday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S5 K",
+                "type": "Lecture",
+                "lecturer": "I-noraisah",
+                "venue": "I-B8-T2-GS",
+                "intakes": [
+                  "FSKTM-2BIW"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Monday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S5 K",
+                "type": "Lecture",
+                "lecturer": "I-noraisah",
+                "venue": "I-B8-T2-GS",
+                "intakes": [
+                  "FSKTM-1BIW"
+                ]
+              }
+            ]
+          },
+          "S3": {
+            "old": [
+              {
+                "day": "Thursday",
+                "time_start": "08:00",
+                "duration": 2.0,
+                "section": "S3 K",
+                "type": "Lecture",
+                "lecturer": "I-ysuhaila",
+                "venue": "I-PERP-BT1",
+                "intakes": [
+                  "FSKTM-2BIP | FSKTM-3BIP"
+                ]
+              }
+            ],
+            "new": [
+              {
+                "day": "Wednesday",
+                "time_start": "12:00",
+                "duration": 2.0,
+                "section": "S3 K",
+                "type": "Lecture",
+                "lecturer": "I-ysuhaila",
+                "venue": "I-PERP-BT10",
+                "intakes": [
+                  "FSKTM-2BIP | FSKTM-3BIP"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
