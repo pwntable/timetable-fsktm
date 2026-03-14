@@ -99,7 +99,9 @@ const DICT = {
     downloadEmptyWarn: "No subjects selected. Please select at least one subject before downloading.",
     discPrev: "Back",
     discNext: "Next",
-    printBtn: "Print / Download"
+    printBtn: "Print / Download",
+    viewTable: "Table",
+    viewCards: "Cards"
   },
   ms: {
     subtitle: "Pilih subjek & section — jadual dijana serta-merta",
@@ -171,11 +173,43 @@ const DICT = {
     downloadEmptyWarn: "Tiada subjek dipilih. Sila pilih sekurang-kurangnya satu subjek sebelum muat turun.",
     discPrev: "Sebelum",
     discNext: "Seterus",
-    printBtn: "Cetak / Muat Turun"
+    printBtn: "Cetak / Muat Turun",
+    viewTable: "Jadual",
+    viewCards: "Kad"
   }
 };
 
 let currentLang = localStorage.getItem('uthm-tg-lang') || 'ms';
+
+function _refreshViewToggleButton() {
+  const t = DICT[currentLang] || DICT.ms;
+  const tableLabel = t.viewTable || (currentLang === 'ms' ? 'Jadual' : 'Table');
+  const cardsLabel = t.viewCards || (currentLang === 'ms' ? 'Kad' : 'Cards');
+
+  document.querySelectorAll('.btn-view-toggle[data-view]').forEach(btn => {
+    // Keep dataset in sync so the click handler toggles correctly even after JS-driven changes.
+    btn.dataset.view = viewMode;
+    btn.classList.add('active');
+    btn.innerHTML = viewMode === 'table'
+      ? `<span class="tt-btn-ico" aria-hidden="true">≡</span> ${tableLabel}`
+      : `<span class="tt-btn-ico" aria-hidden="true">⊞</span> ${cardsLabel}`;
+  });
+}
+
+function _refreshOrientationButtonLabel() {
+  const btn = document.getElementById('btn-orient');
+  if (!btn) return;
+  btn.innerHTML = layoutOrientation === 'days-top'
+    ? (currentLang === 'ms'
+      ? '<span class="tt-btn-ico" aria-hidden="true">▤</span> Hari Kiri'
+      : '<span class="tt-btn-ico" aria-hidden="true">▤</span> Days Left')
+    : (currentLang === 'ms'
+      ? '<span class="tt-btn-ico" aria-hidden="true">▦</span> Hari Atas'
+      : '<span class="tt-btn-ico" aria-hidden="true">▦</span> Days Top');
+  btn.title = layoutOrientation === 'days-top'
+    ? (currentLang === 'ms' ? 'Tukar: Hari di kiri, Masa di atas' : 'Switch: Days on left, Time on top')
+    : (currentLang === 'ms' ? 'Tukar: Hari di atas, Masa di kiri' : 'Switch: Days on top, Time on left');
+}
 
 function applyLang() {
   const t = DICT[currentLang];
@@ -188,6 +222,9 @@ function applyLang() {
   });
   const btn = document.getElementById('btn-lang');
   if (btn) btn.textContent = currentLang === 'ms' ? 'EN' : 'MS';
+
+  _refreshViewToggleButton();
+  _refreshOrientationButtonLabel();
 
   if (filtered.length) {
     renderList(filtered);
@@ -224,13 +261,7 @@ initTheme();
 /* ════ VIEW MODE (table / card toggle) ════ */
 function setViewMode(mode) {
   viewMode = mode;
-  // Sync toggle button visual state
-  document.querySelectorAll('.btn-view-toggle[data-view]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.view === mode);
-    btn.innerHTML = mode === 'table'
-      ? '<span class="tt-btn-ico" aria-hidden="true">≡</span> Table'
-      : '<span class="tt-btn-ico" aria-hidden="true">⊞</span> Cards';
-  });
+  _refreshViewToggleButton();
   renderTimetable();
 }
 
@@ -238,19 +269,7 @@ function setViewMode(mode) {
 function setOrientation(orient) {
   layoutOrientation = orient;
   localStorage.setItem('uthm-tg-orientation', orient);
-  const btn = document.getElementById('btn-orient');
-  if (btn) {
-    btn.innerHTML = orient === 'days-top'
-      ? (currentLang === 'ms'
-        ? '<span class="tt-btn-ico" aria-hidden="true">▤</span> Hari Kiri'
-        : '<span class="tt-btn-ico" aria-hidden="true">▤</span> Days Left')
-      : (currentLang === 'ms'
-        ? '<span class="tt-btn-ico" aria-hidden="true">▦</span> Hari Atas'
-        : '<span class="tt-btn-ico" aria-hidden="true">▦</span> Days Top');
-    btn.title = orient === 'days-top'
-      ? (currentLang === 'ms' ? 'Tukar: Hari di kiri, Masa di atas' : 'Switch: Days on left, Time on top')
-      : (currentLang === 'ms' ? 'Tukar: Hari di atas, Masa di kiri' : 'Switch: Days on top, Time on left');
-  }
+  _refreshOrientationButtonLabel();
   renderTimetable();
 }
 
@@ -265,13 +284,7 @@ window.addEventListener('resize', () => {
   const bp = nowMobile ? 'mobile' : 'desktop';
   if (bp !== _lastBreakpoint) {
     _lastBreakpoint = bp;
-    viewMode = nowMobile ? 'cards' : 'table';
-    document.querySelectorAll('.btn-view-toggle[data-view]').forEach(btn => {
-      btn.innerHTML = viewMode === 'table'
-        ? '<span class="tt-btn-ico" aria-hidden="true">≡</span> Table'
-        : '<span class="tt-btn-ico" aria-hidden="true">⊞</span> Cards';
-    });
-    renderTimetable();
+    setViewMode(nowMobile ? 'cards' : 'table');
   }
 });
 
@@ -1620,12 +1633,9 @@ function setDownloadOrientation(mode) {
   updateDownloadPreview();
 }
 
-function updateDownloadPreview() {
-  const previewContainer = document.getElementById('download-preview-container');
-  previewContainer.innerHTML = ''; // clear
-
+function _buildDownloadPaper(targetW, targetH) {
   const ttWrap = document.querySelector('.tt-wrap');
-  if (!ttWrap) return;
+  if (!ttWrap) return null;
 
   const clone = ttWrap.cloneNode(true);
 
@@ -1633,25 +1643,80 @@ function updateDownloadPreview() {
   const actions = clone.querySelector('.tt-actions');
   if (actions) actions.remove();
 
+  // Avoid scroll/cropping in exports: expand the table inside the paper.
+  const scroll = clone.querySelector('.tt-scroll');
+  if (scroll) {
+    scroll.style.overflow = 'visible';
+    scroll.style.maxWidth = 'none';
+    scroll.style.width = '100%';
+  }
+  const table = clone.querySelector('.tt-table');
+  if (table) {
+    table.style.minWidth = '0';
+    table.style.width = '100%';
+  }
+
+  // Remove outer chrome so it looks like a clean export.
+  clone.style.margin = '0';
+  clone.style.boxShadow = 'none';
+  clone.style.border = 'none';
+  clone.style.overflow = 'visible';
+  clone.style.width = 'auto';
+  clone.style.height = 'auto';
+  clone.style.background = 'transparent';
+
+  // Force all slots to render their desktop size (avoid hover transforms, etc).
+  clone.querySelectorAll('.slot').forEach(s => {
+    s.style.transition = 'none';
+    s.style.transform = 'none';
+  });
+
+  const paper = document.createElement('div');
+  paper.style.width = `${targetW}px`;
+  paper.style.height = `${targetH}px`;
+  paper.style.boxSizing = 'border-box';
+  paper.style.position = 'relative';
+  paper.style.overflow = 'hidden';
+  paper.style.background = document.documentElement.getAttribute('data-theme') === 'light' ? '#ffffff' : '#0f141e';
+
+  const content = document.createElement('div');
+  content.style.position = 'absolute';
+  content.style.top = '0';
+  content.style.left = '0';
+  content.style.transformOrigin = 'top left';
+  content.appendChild(clone);
+
+  paper.appendChild(content);
+  return { paper, content, clone };
+}
+
+function _fitDownloadPaperContent(content, clone, targetW, targetH) {
+  const pad = 28;
+  const innerW = Math.max(1, targetW - pad * 2);
+  const innerH = Math.max(1, targetH - pad * 2);
+
+  // Use scroll sizes so we fit the full content, not just the visible viewport.
+  const naturalW = Math.max(1, clone.scrollWidth);
+  const naturalH = Math.max(1, clone.scrollHeight);
+
+  const scale = Math.min(innerW / naturalW, innerH / naturalH, 1);
+  const x = pad + (innerW - naturalW * scale) / 2;
+  const y = pad + (innerH - naturalH * scale) / 2;
+  content.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+  return scale;
+}
+
+function updateDownloadPreview() {
+  const previewContainer = document.getElementById('download-preview-container');
+  previewContainer.innerHTML = ''; // clear
+
   // Set dimensions based on orientation to mimic A4 paper ratio (1:1.414)
   const isLandscape = downloadOrientation === 'landscape';
   const targetW = isLandscape ? 1131 : 800;
   const targetH = isLandscape ? 800 : 1131;
 
-  clone.style.width = targetW + 'px';
-  clone.style.height = targetH + 'px';
-  clone.style.margin = '0';
-  clone.style.overflow = 'hidden'; // no scroll
-  clone.style.boxShadow = 'none';
-  clone.style.border = 'none';
-  clone.style.background = 'var(--s1)'; // Force consistent background
-
-  // Force all slots to render their desktop size
-  const slots = clone.querySelectorAll('.slot');
-  slots.forEach(s => {
-    s.style.transition = 'none';
-    s.style.transform = 'none';
-  });
+  const built = _buildDownloadPaper(targetW, targetH);
+  if (!built) return;
 
   // Calculate scale to fit inside our 260px tall wrapper box
   const parentW = previewContainer.parentElement.clientWidth;
@@ -1665,14 +1730,15 @@ function updateDownloadPreview() {
   previewContainer.style.height = targetH + 'px';
   previewContainer.style.transform = `scale(${finalScale})`;
 
-  previewContainer.appendChild(clone);
+  previewContainer.appendChild(built.paper);
+  // Fit content after it has been attached (needs layout to measure scroll sizes).
+  requestAnimationFrame(() => {
+    _fitDownloadPaperContent(built.content, built.clone, targetW, targetH);
+  });
 }
 
 async function executeDownload(format, btnNode) {
   if (isExporting) return; // Prevent double click loop
-
-  const originalClone = document.getElementById('download-preview-container').firstElementChild;
-  if (!originalClone) return;
 
   // Safely grab the button reference whether passed via 'this' or window.event
   const btn = (btnNode && btnNode.tagName === 'BUTTON') ? btnNode :
@@ -1690,20 +1756,29 @@ async function executeDownload(format, btnNode) {
   const targetW = isLandscape ? 1131 : 800;
   const targetH = isLandscape ? 800 : 1131;
 
-  // Render box needs to be securely in the DOM, fully opaque, and fully visible 
-  // to avoid html2canvas skipping the element entirely (which returns data:,)
-  const renderBox = originalClone.cloneNode(true);
-  renderBox.style.width = targetW + 'px';
-  renderBox.style.height = targetH + 'px';
+  // Build a fresh "paper" and auto-fit the timetable into the A4 ratio box.
+  const built = _buildDownloadPaper(targetW, targetH);
+  if (!built) {
+    isExporting = false;
+    if (btn) {
+      btn.innerHTML = prevText;
+      btn.style.pointerEvents = 'auto';
+    }
+    return;
+  }
+
+  const renderBox = built.paper;
   renderBox.style.position = 'fixed';
   renderBox.style.top = '0px';
   renderBox.style.left = '-9999px'; // Push it safely off-screen
   renderBox.style.zIndex = '-9999';
   renderBox.style.opacity = '1';    // IMPORTANT: Must be 1 so html2canvas renders it
-  renderBox.style.margin = '0';
   document.body.appendChild(renderBox);
 
   try {
+    // Fit after insertion so scrollWidth/scrollHeight are correct.
+    _fitDownloadPaperContent(built.content, built.clone, targetW, targetH);
+
     // Wait a bit to ensure the DOM physically paints the appended block
     await new Promise(r => setTimeout(r, 100));
 
