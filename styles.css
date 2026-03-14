@@ -2354,12 +2354,20 @@ html[data-theme="light"] #btn-theme .icon-moon {
   overflow: hidden;
   position: relative;
   background: var(--bg);
+  /* Allow vertical scrolling gestures, but keep horizontal swipes for the carousel. */
+  touch-action: pan-y;
 }
 
 .disclaimer-slides {
   display: flex;
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
+  will-change: transform;
+}
+
+/* While dragging/swiping, follow the finger without easing. */
+.disclaimer-carousel.is-dragging .disclaimer-slides {
+  transition: none;
 }
 
 .disclaimer-slide {

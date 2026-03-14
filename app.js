@@ -1885,3 +1885,147 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft') changeSlide(-1);
   if (e.key === 'Escape') closeDisclaimerModal();
 });
+
+// Swipe / drag navigation for touch devices (and touch-enabled laptops).
+(function _setupDisclaimerSwipe() {
+  const modal = document.getElementById('disclaimer-modal');
+  const carousel = document.getElementById('disclaimer-carousel');
+  const slides = document.getElementById('disclaimer-slides');
+  if (!modal || !carousel || !slides) return;
+
+  let activePointerId = null;
+  let startX = 0;
+  let startY = 0;
+  let lastX = 0;
+  let lastY = 0;
+  let startTime = 0;
+  let isDragging = false;
+  let hasLockedAxis = false;
+
+  const _isOpen = () => modal.classList.contains('open');
+  const _width = () => carousel.getBoundingClientRect().width || 1;
+
+  const _setDragTransform = (dxPx) => {
+    let dx = dxPx;
+    if ((disclaimerCurrentSlide === 0 && dx > 0) || (disclaimerCurrentSlide === DISCLAIMER_TOTAL - 1 && dx < 0)) {
+      dx *= 0.35; // resistance at edges
+    }
+    const pct = (dx / _width()) * 100;
+    slides.style.transform = `translateX(${-(disclaimerCurrentSlide * 100) + pct}%)`;
+  };
+
+  const _start = (x, y) => {
+    startX = lastX = x;
+    startY = lastY = y;
+    startTime = Date.now();
+    isDragging = false;
+    hasLockedAxis = false;
+  };
+
+  const _move = (x, y, ev) => {
+    lastX = x;
+    lastY = y;
+    const dx = x - startX;
+    const dy = y - startY;
+
+    if (!hasLockedAxis) {
+      // Lock once the intent is clear.
+      if (Math.abs(dx) >= 8 || Math.abs(dy) >= 8) {
+        hasLockedAxis = true;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          isDragging = true;
+          carousel.classList.add('is-dragging');
+        }
+      }
+    }
+
+    if (!isDragging) return;
+    if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
+    _setDragTransform(dx);
+  };
+
+  const _end = () => {
+    if (!isDragging) return;
+    carousel.classList.remove('is-dragging');
+
+    const dx = lastX - startX;
+    const dt = Math.max(1, Date.now() - startTime);
+    const width = _width();
+    const distanceThreshold = width * 0.18;
+    const flickVelocity = Math.abs(dx) / dt; // px per ms
+
+    const shouldChange =
+      Math.abs(dx) > distanceThreshold ||
+      (flickVelocity > 0.65 && Math.abs(dx) > 30);
+
+    if (shouldChange) {
+      const dir = dx < 0 ? 1 : -1;
+      const next = disclaimerCurrentSlide + dir;
+      if (next < 0 || next >= DISCLAIMER_TOTAL) {
+        _disclaimerRender(); // can't go further, snap back
+      } else {
+        disclaimerCurrentSlide = next;
+        _disclaimerRender();
+      }
+    } else {
+      _disclaimerRender(); // snap back
+    }
+  };
+
+  if ('PointerEvent' in window) {
+    carousel.addEventListener('pointerdown', (e) => {
+      if (!_isOpen()) return;
+      if (e.button != null && e.button !== 0) return;
+      if (e.pointerType === 'mouse') return;
+      activePointerId = e.pointerId;
+      _start(e.clientX, e.clientY);
+      try { carousel.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+    });
+
+    carousel.addEventListener('pointermove', (e) => {
+      if (!_isOpen()) return;
+      if (activePointerId == null || e.pointerId !== activePointerId) return;
+      _move(e.clientX, e.clientY, e);
+    });
+
+    const _pointerEnd = (e) => {
+      if (activePointerId == null) return;
+      if (e.pointerId !== activePointerId) return;
+      _end();
+      activePointerId = null;
+    };
+
+    carousel.addEventListener('pointerup', _pointerEnd);
+    carousel.addEventListener('pointercancel', _pointerEnd);
+  } else {
+    // Touch fallback for older browsers.
+    let touchActive = false;
+
+    carousel.addEventListener('touchstart', (e) => {
+      if (!_isOpen()) return;
+      const t = e.touches && e.touches[0];
+      if (!t) return;
+      touchActive = true;
+      _start(t.clientX, t.clientY);
+    }, { passive: true });
+
+    carousel.addEventListener('touchmove', (e) => {
+      if (!_isOpen() || !touchActive) return;
+      const t = e.touches && e.touches[0];
+      if (!t) return;
+      _move(t.clientX, t.clientY, e);
+    }, { passive: false });
+
+    carousel.addEventListener('touchend', () => {
+      if (!touchActive) return;
+      _end();
+      touchActive = false;
+    });
+
+    carousel.addEventListener('touchcancel', () => {
+      if (!touchActive) return;
+      _end();
+      touchActive = false;
+    });
+  }
+})();
