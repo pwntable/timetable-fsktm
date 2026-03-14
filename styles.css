@@ -16,6 +16,7 @@
   --s3: #1a263e;
   --border: #1e2d45;
   --border2: #243450;
+  --grid-line: rgba(255, 255, 255, 0.05);
   --accent: #4f8ef7;
   --accent2: #7c6dfa;
   --text: #dde5f4;
@@ -35,6 +36,7 @@
   --s3: #e4eaf2;
   --border: #dde3ec;
   --border2: #c5d0df;
+  --grid-line: rgba(15, 23, 42, 0.08);
   --accent: #3b82f6;
   --accent2: #6366f1;
   --text: #0f172a;
@@ -1261,7 +1263,7 @@ html[data-theme="light"] #btn-theme .icon-moon {
 }
 
 .tt-table td {
-  border: 1px solid rgba(255, 255, 255, .03);
+  border: 1px solid var(--grid-line);
   height: 58px;
   vertical-align: top;
   position: relative;
