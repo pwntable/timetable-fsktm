@@ -275,13 +275,12 @@ header::before {
   }
 
   .brand h1 {
-    font-size: clamp(13px, 4.5vw, 16px);
-    white-space: normal;
+    /* Keep one-row header on phones by shrinking title slightly. */
+    font-size: clamp(12px, 4.1vw, 15px);
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    letter-spacing: -0.6px;
   }
 
   .brand-sub {
@@ -302,18 +301,25 @@ header::before {
 
 /* ── Responsive: small phones (≤ 420px) ── */
 @media (max-width: 420px) {
-  .hdr {
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 8px;
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
   }
 
-  .brand {
-    flex: 1 1 100%;
+  .btn-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
   }
 
   .toggles {
-    margin-left: auto;
+    gap: 6px;
+    margin-left: 6px;
+  }
+
+  .brand h1 {
+    font-size: clamp(12px, 4vw, 14px);
   }
 }
 
