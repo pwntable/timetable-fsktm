@@ -1024,6 +1024,75 @@ html[data-theme="light"] #btn-theme .icon-moon {
   align-items: center;
 }
 
+.tt-btn-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 13px;
+  flex-shrink: 0;
+  opacity: 0.95;
+}
+
+/* Unify timetable header buttons (Table, Days Left, Print/Download, Export). */
+.tt-actions .btn-view-toggle,
+.tt-actions .btn-sm {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.tt-actions .btn-view-toggle:hover,
+.tt-actions .btn-sm:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  background: rgba(79, 142, 247, .08);
+}
+
+.tt-actions .btn-view-toggle.active {
+  border-color: rgba(79, 142, 247, .55);
+  color: var(--accent);
+  background: rgba(79, 142, 247, .12);
+}
+
+.tt-actions .btn-print {
+  border-color: rgba(79, 142, 247, .45);
+  color: var(--accent);
+  background: rgba(79, 142, 247, .10);
+}
+
+.tt-actions .btn-export {
+  border-color: rgba(124, 109, 250, .45);
+  color: #b9b2ff;
+  background: rgba(124, 109, 250, .10);
+}
+
+.tt-actions .btn-print:hover {
+  background: rgba(79, 142, 247, .16);
+}
+
+.tt-actions .btn-export:hover {
+  background: rgba(124, 109, 250, .16);
+}
+
+.tt-actions .btn-print svg {
+  flex-shrink: 0;
+}
+
 .btn-sm {
   padding: 7px 13px;
   border-radius: 8px;
@@ -1079,6 +1148,23 @@ html[data-theme="light"] #btn-theme .icon-moon {
 @media (min-width: 1025px) {
   .btn-view-toggle[data-view="cards"] {
     display: none !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .tt-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+  }
+
+  .tt-actions .btn-view-toggle,
+  .tt-actions .btn-sm {
+    width: 100%;
+    padding: 0 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 

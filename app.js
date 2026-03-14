@@ -227,7 +227,9 @@ function setViewMode(mode) {
   // Sync toggle button visual state
   document.querySelectorAll('.btn-view-toggle[data-view]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === mode);
-    btn.textContent = mode === 'table' ? '≡ Table' : '⊞ Cards';
+    btn.innerHTML = mode === 'table'
+      ? '<span class="tt-btn-ico" aria-hidden="true">≡</span> Table'
+      : '<span class="tt-btn-ico" aria-hidden="true">⊞</span> Cards';
   });
   renderTimetable();
 }
@@ -239,8 +241,12 @@ function setOrientation(orient) {
   const btn = document.getElementById('btn-orient');
   if (btn) {
     btn.innerHTML = orient === 'days-top'
-      ? (currentLang === 'ms' ? '<span style="font-size:12px;margin-right:4px">▤</span> Hari Kiri' : '<span style="font-size:12px;margin-right:4px">▤</span> Days Left')
-      : (currentLang === 'ms' ? '<span style="font-size:12px;margin-right:4px">▦</span> Hari Atas' : '<span style="font-size:12px;margin-right:4px">▦</span> Days Top');
+      ? (currentLang === 'ms'
+        ? '<span class="tt-btn-ico" aria-hidden="true">▤</span> Hari Kiri'
+        : '<span class="tt-btn-ico" aria-hidden="true">▤</span> Days Left')
+      : (currentLang === 'ms'
+        ? '<span class="tt-btn-ico" aria-hidden="true">▦</span> Hari Atas'
+        : '<span class="tt-btn-ico" aria-hidden="true">▦</span> Days Top');
     btn.title = orient === 'days-top'
       ? (currentLang === 'ms' ? 'Tukar: Hari di kiri, Masa di atas' : 'Switch: Days on left, Time on top')
       : (currentLang === 'ms' ? 'Tukar: Hari di atas, Masa di kiri' : 'Switch: Days on top, Time on left');
@@ -261,7 +267,9 @@ window.addEventListener('resize', () => {
     _lastBreakpoint = bp;
     viewMode = nowMobile ? 'cards' : 'table';
     document.querySelectorAll('.btn-view-toggle[data-view]').forEach(btn => {
-      btn.textContent = viewMode === 'table' ? '≡ Table' : '⊞ Cards';
+      btn.innerHTML = viewMode === 'table'
+        ? '<span class="tt-btn-ico" aria-hidden="true">≡</span> Table'
+        : '<span class="tt-btn-ico" aria-hidden="true">⊞</span> Cards';
     });
     renderTimetable();
   }
