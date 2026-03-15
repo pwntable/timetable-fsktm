@@ -28,7 +28,7 @@ let viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
 let layoutOrientation = localStorage.getItem('uthm-tg-orientation') || 'days-top';
 
 // Build info (shown in the on-load update popup)
-const APP_BUILD_VERSION = 21;
+const APP_BUILD_VERSION = 23;
 
 // Latest update payload (from `updates.js`)
 let latestUpdate = null;
@@ -2108,30 +2108,32 @@ async function executeDownload(format, btnNode) {
   }
 
   isExporting = true;
+  const filename = `Jadual_UTHM_${new Date().getTime()}`;
   const isLandscape = downloadOrientation === 'landscape';
   const targetW = isLandscape ? 1131 : 800;
   const targetH = isLandscape ? 800 : 1131;
 
-  // Build a fresh "paper" and auto-fit the timetable into the A4 ratio box.
-  const built = _buildDownloadPaper(targetW, targetH);
-  if (!built) {
-    isExporting = false;
-    if (btn) {
-      btn.innerHTML = prevText;
-      btn.style.pointerEvents = 'auto';
-    }
-    return;
-  }
-
-  const renderBox = built.paper;
-  renderBox.style.position = 'fixed';
-  renderBox.style.top = '0px';
-  renderBox.style.left = '-9999px'; // Push it safely off-screen
-  renderBox.style.zIndex = '-9999';
-  renderBox.style.opacity = '1';    // IMPORTANT: Must be 1 so html2canvas renders it
-  document.body.appendChild(renderBox);
+  let renderBox = null;
+  let built = null;
 
   try {
+    if (format === 'xlsx') {
+      exportTimetableXLSX(`${filename}.xlsx`);
+      return;
+    }
+
+    // Build a fresh "paper" and auto-fit the timetable into the A4 ratio box.
+    built = _buildDownloadPaper(targetW, targetH);
+    if (!built) throw new Error('Failed to build download paper');
+
+    renderBox = built.paper;
+    renderBox.style.position = 'fixed';
+    renderBox.style.top = '0px';
+    renderBox.style.left = '-9999px'; // Push it safely off-screen
+    renderBox.style.zIndex = '-9999';
+    renderBox.style.opacity = '1';    // IMPORTANT: Must be 1 so html2canvas renders it
+    document.body.appendChild(renderBox);
+
     // Fit after insertion so scrollWidth/scrollHeight are correct.
     _fitDownloadPaperContent(built.content, built.clone, targetW, targetH);
 
@@ -2156,8 +2158,6 @@ async function executeDownload(format, btnNode) {
     if (imgData === 'data:,' || imgData.length < 100) {
       throw new Error("Canvas is empty. Rendering issue occurred.");
     }
-
-    const filename = `Jadual_UTHM_${new Date().getTime()}`;
 
     if (format === 'png') {
       const a = document.createElement('a');
@@ -2186,15 +2186,143 @@ async function executeDownload(format, btnNode) {
     alert(currentLang === 'ms' ? 'Maaf, ralat berlaku semasa muat turun jadual. Pastikan browser anda menyokong ciri ini.' : 'Error generating timetable download. Please try again.');
   } finally {
     isExporting = false;
-    if (document.body.contains(renderBox)) {
-      document.body.removeChild(renderBox);
-    }
+    if (renderBox && document.body.contains(renderBox)) document.body.removeChild(renderBox);
     if (btn) {
       btn.innerHTML = prevText;
       btn.style.pointerEvents = 'auto';
     }
     closeDownloadModal();
   }
+}
+
+function exportTimetableXLSX(filename) {
+  const XLSX = (typeof window !== 'undefined') ? window.XLSX : null;
+  if (!XLSX || !XLSX.utils) {
+    alert(currentLang === 'ms'
+      ? 'Modul XLSX belum dimuat. Sila cuba semula atau pastikan anda mempunyai sambungan internet.'
+      : 'XLSX module not loaded. Please try again (internet required).');
+    return;
+  }
+
+  if (!selected || Object.keys(selected).length === 0) {
+    alert((DICT[currentLang] && DICT[currentLang].downloadEmptyWarn) || 'No subjects selected.');
+    return;
+  }
+
+  const dayLabel = (d) => {
+    try {
+      const m = (DICT[currentLang] && DICT[currentLang].days) ? DICT[currentLang].days : null;
+      return m && m[d] ? m[d] : d;
+    } catch {
+      return d;
+    }
+  };
+
+  const norm24 = (t) => {
+    const m = String(t || '').match(/^(\d{1,2}):(\d{2})$/);
+    if (!m) return String(t || '');
+    let h = parseInt(m[1], 10);
+    const mm = parseInt(m[2], 10);
+    if (h >= 1 && h <= 7) h += 12; // timetable uses 01:00–07:00 for 1pm–7pm
+    return `${String(h).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+  };
+
+  const addHours = (t, dur) => {
+    const m = String(t || '').match(/^(\d{1,2}):(\d{2})$/);
+    if (!m) return '';
+    let h = parseInt(m[1], 10);
+    const mm = parseInt(m[2], 10);
+    if (h >= 1 && h <= 7) h += 12;
+    const total = h * 60 + mm + Math.round((Number(dur) || 0) * 60);
+    const hh2 = Math.floor(total / 60) % 24;
+    const mm2 = total % 60;
+    return `${String(hh2).padStart(2, '0')}:${String(mm2).padStart(2, '0')}`;
+  };
+
+  const venueShort = (v) => String(v || '').replace(/^I-/, '');
+  const lecturerShort = (l) => String(l || '').replace(/^I-/, '');
+
+  const uniq = new Set();
+  const rows = [];
+  for (const [code, sec] of Object.entries(selected)) {
+    const course = (typeof COURSES !== 'undefined' && COURSES[code]) ? COURSES[code] : null;
+    const cname = course && course.name ? course.name : '';
+    const slots = (course && course.sections && course.sections[sec]) ? course.sections[sec] : [];
+    for (const s of (slots || [])) {
+      const start = String(s.time_start || '');
+      const dur = Number(s.duration || 0);
+      const key = [
+        code, sec, s.section || '', s.type || '', s.day || '', start,
+        String(dur), s.venue || '', s.lecturer || '', (s.intakes || []).join('|')
+      ].join('||');
+      if (uniq.has(key)) continue;
+      uniq.add(key);
+
+      rows.push({
+        Code: code,
+        Course: cname,
+        Section: sec,
+        Group: s.section || '',
+        Type: s.type || '',
+        Day: dayLabel(s.day || ''),
+        Start: norm24(start),
+        End: addHours(start, dur),
+        'Duration (h)': dur || '',
+        Venue: venueShort(s.venue || ''),
+        Lecturer: lecturerShort(s.lecturer || ''),
+        Intakes: (s.intakes || []).join(' | ')
+      });
+    }
+  }
+
+  if (!rows.length) {
+    alert(currentLang === 'ms' ? 'Tiada kelas dijumpai untuk pilihan semasa.' : 'No classes found for the current selection.');
+    return;
+  }
+
+  const dayOrder = new Map(DAYS.map((d, i) => [dayLabel(d), i]));
+  rows.sort((a, b) => {
+    const da = dayOrder.has(a.Day) ? dayOrder.get(a.Day) : 99;
+    const db = dayOrder.has(b.Day) ? dayOrder.get(b.Day) : 99;
+    if (da !== db) return da - db;
+    if (a.Start !== b.Start) return String(a.Start).localeCompare(String(b.Start));
+    if (a.Code !== b.Code) return String(a.Code).localeCompare(String(b.Code));
+    return String(a.Section).localeCompare(String(b.Section));
+  });
+
+  const sheetName = currentLang === 'ms' ? 'Jadual' : 'Timetable';
+  const ws = XLSX.utils.json_to_sheet(rows, { skipHeader: false });
+  ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+  ws['!autofilter'] = { ref: ws['!ref'] };
+
+  // Best-effort column sizing
+  const headers = Object.keys(rows[0] || {});
+  ws['!cols'] = headers.map((h) => {
+    let maxLen = h.length;
+    for (let i = 0; i < Math.min(rows.length, 200); i++) {
+      const v = rows[i][h];
+      maxLen = Math.max(maxLen, String(v ?? '').length);
+    }
+    return { wch: Math.min(48, Math.max(10, maxLen + 2)) };
+  });
+
+  const metaAOA = [
+    ['Generated At', new Date().toISOString()],
+    ['App Build', `v${APP_BUILD_VERSION}`],
+    ['Timetable Date', (latestUpdate && latestUpdate.timetable && latestUpdate.timetable.latestDate) ? latestUpdate.timetable.latestDate : '—'],
+    ['Base PDF', (latestUpdate && latestUpdate.timetable && latestUpdate.timetable.base) ? latestUpdate.timetable.base : '—'],
+    ['Sources Used', (latestUpdate && latestUpdate.timetable && Array.isArray(latestUpdate.timetable.sourcesUsed)) ? latestUpdate.timetable.sourcesUsed.join(', ') : '—'],
+    ['Selected Courses', Object.keys(selected).length],
+    ['Selected Slots', rows.length],
+  ];
+  const wsMeta = XLSX.utils.aoa_to_sheet(metaAOA);
+  wsMeta['!cols'] = [{ wch: 18 }, { wch: 60 }];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  XLSX.utils.book_append_sheet(wb, wsMeta, 'Info');
+
+  XLSX.writeFile(wb, filename);
 }
 
 // Close download modal when clicking outside the box
@@ -2340,6 +2468,9 @@ document.addEventListener('keydown', (e) => {
   let startTime = 0;
   let isDragging = false;
   let hasLockedAxis = false;
+  let wheelAccumX = 0;
+  let wheelResetTimer = 0;
+  let wheelCooldownUntil = 0;
 
   const _isOpen = () => modal.classList.contains('open');
   const _width = () => carousel.getBoundingClientRect().width || 1;
@@ -2415,7 +2546,6 @@ document.addEventListener('keydown', (e) => {
     carousel.addEventListener('pointerdown', (e) => {
       if (!_isOpen()) return;
       if (e.button != null && e.button !== 0) return;
-      if (e.pointerType === 'mouse') return;
       activePointerId = e.pointerId;
       _start(e.clientX, e.clientY);
       try { carousel.setPointerCapture(e.pointerId); } catch { /* ignore */ }
@@ -2467,4 +2597,36 @@ document.addEventListener('keydown', (e) => {
       touchActive = false;
     });
   }
+
+  // Prevent the browser's default drag image behavior (mouse dragging images).
+  carousel.addEventListener('dragstart', (e) => {
+    if (!_isOpen()) return;
+    e.preventDefault();
+  });
+
+  // MacBook trackpad 2-finger horizontal swipe => wheel event with deltaX.
+  // We treat it as "next/prev slide" once a threshold is crossed.
+  carousel.addEventListener('wheel', (e) => {
+    if (!_isOpen()) return;
+    if (e.ctrlKey) return; // pinch-zoom on trackpad
+    if (Date.now() < wheelCooldownUntil) return;
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+
+    if (e.cancelable) e.preventDefault();
+
+    wheelAccumX += e.deltaX;
+    clearTimeout(wheelResetTimer);
+    wheelResetTimer = setTimeout(() => { wheelAccumX = 0; }, 180);
+
+    const threshold = Math.max(40, _width() * 0.12);
+    if (wheelAccumX >= threshold) {
+      wheelAccumX = 0;
+      wheelCooldownUntil = Date.now() + 300;
+      changeSlide(1);
+    } else if (wheelAccumX <= -threshold) {
+      wheelAccumX = 0;
+      wheelCooldownUntil = Date.now() + 300;
+      changeSlide(-1);
+    }
+  }, { passive: false });
 })();

@@ -9,11 +9,12 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=17">
+  <link rel="stylesheet" href="styles.css?v=20">
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+	</head>
 
 <body>
   <div class="wrap">
@@ -286,10 +287,20 @@
 
   <div class="modal-overlay" id="download-modal">
     <div class="modal-box" role="dialog" aria-modal="true" style="text-align: left; max-width: 600px; width: 90%;">
-      <div class="modal-icon"
-        style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.25); color: #10b981;">⬇️</div>
-      <div class="modal-title" data-i18n="downloadTitle">Download Timetable</div>
-      <div class="modal-desc" data-i18n="downloadDesc">Pilih orientasi jadual anda.</div>
+      <div class="modal-head">
+        <div class="modal-icon modal-icon--download" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </div>
+        <div class="modal-head-text">
+          <div class="modal-title" data-i18n="downloadTitle">Download Timetable</div>
+          <div class="modal-desc" data-i18n="downloadDesc">Pilih orientasi jadual anda.</div>
+        </div>
+      </div>
 
       <div class="download-settings" style="margin-bottom: 20px;">
         <label style="display:block; margin-bottom: 8px; font-weight: bold; color: var(--text); font-size: 13px;">Layout
@@ -331,6 +342,17 @@
             <polyline points="21 15 16 10 5 21"></polyline>
           </svg>
           Muat Turun PNG
+        </button>
+        <button type="button" class="modal-btn confirm" onclick="executeDownload('xlsx', this)"
+          style="flex:1.5; background: #10b981; border-color: #10b981; color: white; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+            <line x1="8" y1="7" x2="16" y2="7"></line>
+            <line x1="8" y1="11" x2="16" y2="11"></line>
+            <line x1="8" y1="15" x2="16" y2="15"></line>
+          </svg>
+          Muat Turun XLSX
         </button>
         <button type="button" class="modal-btn confirm" onclick="executeDownload('pdf', this)"
           style="flex:1.5; background: #ef4444; border-color: #ef4444; color: white; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -493,7 +515,7 @@
   <script src="data.js?v=9"></script>
   <script src="updates.js?v=2"></script>
   <script src="intake_courses.js?v=1"></script>
-  <script src="app.js?v=21"></script>
+  <script src="app.js?v=23"></script>
 </body>
 
 </html>

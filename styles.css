@@ -2128,6 +2128,36 @@ html[data-theme="light"] #btn-theme .icon-moon {
   margin-bottom: 16px;
 }
 
+.modal-icon svg {
+  display: block;
+}
+
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.modal-head .modal-icon {
+  margin-bottom: 0;
+  flex: 0 0 auto;
+}
+
+.modal-head .modal-title {
+  margin-bottom: 4px;
+}
+
+.modal-head .modal-desc {
+  margin-bottom: 0;
+}
+
+.modal-icon--download {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #10b981;
+}
+
 .modal-title {
   font-family: 'Syne', sans-serif;
   font-size: 15px;
@@ -2146,6 +2176,7 @@ html[data-theme="light"] #btn-theme .icon-moon {
 .modal-actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .modal-btn {
@@ -2490,6 +2521,12 @@ html[data-theme="light"] #btn-theme .icon-moon {
   background: var(--bg);
   /* Allow vertical scrolling gestures, but keep horizontal swipes for the carousel. */
   touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+
+.disclaimer-carousel.is-dragging {
+  cursor: grabbing;
 }
 
 .disclaimer-slides {
@@ -2519,6 +2556,7 @@ html[data-theme="light"] #btn-theme .icon-moon {
   object-fit: contain;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  -webkit-user-drag: none;
 }
 
 .disclaimer-dots {
