@@ -28,7 +28,7 @@ let viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
 let layoutOrientation = localStorage.getItem('uthm-tg-orientation') || 'days-top';
 
 // Build info (shown in the on-load update popup)
-const APP_BUILD_VERSION = 24;
+const APP_BUILD_VERSION = 25;
 
 // Latest update payload (from `updates.js`)
 let latestUpdate = null;
@@ -105,6 +105,16 @@ const DICT = {
     intakeNoneFound: "No matching courses found for this intake.",
     disclaimerTitle: "How to Use",
     downloadEmptyWarn: "No subjects selected. Please select at least one subject before downloading.",
+    downloadTitle: "Download Timetable",
+    downloadDesc: "Choose your timetable orientation.",
+    layoutFormatLabel: "Layout Format:",
+    dlLandscape: "Landscape",
+    dlLandscapeHint: "Clearer",
+    dlPortrait: "Portrait",
+    dlPortraitHint: "Phone-friendly",
+    downloadPngBtn: "Download PNG",
+    downloadXlsxBtn: "Download XLSX",
+    downloadPdfBtn: "Download PDF",
     discPrev: "Back",
     discNext: "Next",
     printBtn: "Print / Download",
@@ -179,6 +189,16 @@ const DICT = {
     intakeNoneFound: "Tiada kursus yang sepadan ditemui untuk ambilan ini.",
     disclaimerTitle: "Cara Penggunaan",
     downloadEmptyWarn: "Tiada subjek dipilih. Sila pilih sekurang-kurangnya satu subjek sebelum muat turun.",
+    downloadTitle: "Muat Turun Jadual",
+    downloadDesc: "Pilih orientasi jadual anda.",
+    layoutFormatLabel: "Format Layout:",
+    dlLandscape: "Lanskap",
+    dlLandscapeHint: "Lebih Jelas",
+    dlPortrait: "Potret",
+    dlPortraitHint: "Sesuai Telefon",
+    downloadPngBtn: "Muat Turun PNG",
+    downloadXlsxBtn: "Muat Turun XLSX",
+    downloadPdfBtn: "Muat Turun PDF",
     discPrev: "Sebelum",
     discNext: "Seterus",
     printBtn: "Cetak / Muat Turun",

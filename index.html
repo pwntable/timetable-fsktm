@@ -303,22 +303,25 @@
       </div>
 
       <div class="download-settings" style="margin-bottom: 20px;">
-        <label style="display:block; margin-bottom: 8px; font-weight: bold; color: var(--text); font-size: 13px;">Layout
-          Format:</label>
+        <label style="display:block; margin-bottom: 8px; font-weight: bold; color: var(--text); font-size: 13px;">
+          <span data-i18n="layoutFormatLabel">Layout Format:</span>
+        </label>
         <div class="orientation-toggle-group" style="display:flex; gap:10px;">
           <button id="dl-btn-landscape" class="dl-orientation-btn active" onclick="setDownloadOrientation('landscape')">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
             </svg>
-            <div>Landscape<br><small style="opacity:0.6;font-size:10px">Lebih Jelas</small></div>
+            <div><span data-i18n="dlLandscape">Landscape</span><br><small style="opacity:0.6;font-size:10px"
+                data-i18n="dlLandscapeHint">Lebih Jelas</small></div>
           </button>
           <button id="dl-btn-portrait" class="dl-orientation-btn" onclick="setDownloadOrientation('portrait')">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="6" y="2" width="12" height="20" rx="2" ry="2"></rect>
             </svg>
-            <div>Portrait<br><small style="opacity:0.6;font-size:10px">Sesuai Telefon</small></div>
+            <div><span data-i18n="dlPortrait">Portrait</span><br><small style="opacity:0.6;font-size:10px"
+                data-i18n="dlPortraitHint">Sesuai Telefon</small></div>
           </button>
         </div>
       </div>
@@ -338,7 +341,7 @@
             <circle cx="8.5" cy="8.5" r="1.5"></circle>
             <polyline points="21 15 16 10 5 21"></polyline>
           </svg>
-          <span class="dl-label-long">Muat Turun PNG</span><span class="dl-label-short">PNG</span>
+          <span class="dl-label-long" data-i18n="downloadPngBtn">Muat Turun PNG</span><span class="dl-label-short">PNG</span>
         </button>
         <button type="button" class="modal-btn confirm dl-btn dl-btn--xlsx" onclick="executeDownload('xlsx', this)">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -348,7 +351,7 @@
             <line x1="8" y1="11" x2="16" y2="11"></line>
             <line x1="8" y1="15" x2="16" y2="15"></line>
           </svg>
-          <span class="dl-label-long">Muat Turun XLSX</span><span class="dl-label-short">XLSX</span>
+          <span class="dl-label-long" data-i18n="downloadXlsxBtn">Muat Turun XLSX</span><span class="dl-label-short">XLSX</span>
         </button>
         <button type="button" class="modal-btn confirm dl-btn dl-btn--pdf" onclick="executeDownload('pdf', this)">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -359,7 +362,7 @@
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span class="dl-label-long">Muat Turun PDF</span><span class="dl-label-short">PDF</span>
+          <span class="dl-label-long" data-i18n="downloadPdfBtn">Muat Turun PDF</span><span class="dl-label-short">PDF</span>
         </button>
         <button type="button" class="modal-btn cancel dl-btn dl-btn--cancel" onclick="closeDownloadModal()"
           data-i18n="cancelBtn">Batal</button>
@@ -512,7 +515,7 @@
   <script src="data.js?v=9"></script>
   <script src="updates.js?v=2"></script>
   <script src="intake_courses.js?v=1"></script>
-  <script src="app.js?v=24"></script>
+  <script src="app.js?v=25"></script>
 </body>
 
 </html>
