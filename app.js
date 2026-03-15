@@ -28,7 +28,7 @@ let viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
 let layoutOrientation = localStorage.getItem('uthm-tg-orientation') || 'days-top';
 
 // Build info (shown in the on-load update popup)
-const APP_BUILD_VERSION = 25;
+const APP_BUILD_VERSION = 27;
 
 // Latest update payload (from `updates.js`)
 let latestUpdate = null;
@@ -1058,6 +1058,11 @@ function initLatestUpdate() {
   const sAdded = (changes.slots && changes.slots.structural && changes.slots.structural.added) || {};
   const sRemoved = (changes.slots && changes.slots.structural && changes.slots.structural.removed) || {};
   const dOnly = (changes.slots && changes.slots.detail_only_changed) || {};
+  const _slotArr = (k) => {
+    if (Array.isArray(k)) return k;
+    if (k && typeof k === 'object' && Array.isArray(k.slot)) return k.slot;
+    return null;
+  };
 
   for (const [code, secs] of Object.entries(sAdded)) {
     changedCourses.add(code);
@@ -1080,7 +1085,9 @@ function initLatestUpdate() {
     changedCourses.add(code);
     for (const [sec, keys] of Object.entries(secs || {})) {
       (keys || []).forEach(k => {
-        slotChanged.add([code, k[0], k[1], k[2], k[3], _normDur(k[4])].join('|'));
+        const a = _slotArr(k);
+        if (!a) return;
+        slotChanged.add([code, a[0], a[1], a[2], a[3], _normDur(a[4])].join('|'));
       });
     }
   }
@@ -1145,8 +1152,8 @@ function showUpdatePopup() {
 
   const title = currentLang === 'ms' ? 'Kemaskini Terkini' : 'Latest Update';
   const closeLbl = currentLang === 'ms' ? 'Tutup' : 'Close';
-  const ttDate = latestUpdate.timetable.latestDate || '-';
-  const prevDate = latestUpdate.timetable.previousDate || '-';
+  const ttDate = latestUpdate.timetable.latestId || latestUpdate.timetable.latestDate || '-';
+  const prevDate = latestUpdate.timetable.previousId || latestUpdate.timetable.previousDate || '-';
   const genAt = latestUpdate.generatedAt || '-';
   const base = latestUpdate.timetable.base || '-';
   const sourcesArr = latestUpdate.timetable.sourcesUsed || [];
@@ -1230,6 +1237,7 @@ function showUpdatePopup() {
 
   const slotAdded = (c.slots && c.slots.structural && c.slots.structural.added) || {};
   const slotRemoved = (c.slots && c.slots.structural && c.slots.structural.removed) || {};
+  const detailChanged = (c.slots && c.slots.detail_only_changed) || {};
 
   function slotListHTML(slotObj, marker = '') {
     const rows = [];
@@ -1266,6 +1274,43 @@ function showUpdatePopup() {
     }
     if (!rows.length) return `<div class="update-empty">—</div>`;
     return `<div class="update-items">${rows.slice(0, 40).map(r => `<div class="update-item">${r}</div>`).join('')}${rows.length > 40 ? `<div class="update-more">… +${rows.length - 40}</div>` : ''}</div>`;
+  }
+
+  function detailOnlyListHTML(obj, marker = '') {
+    const rows = [];
+    const labelLect = currentLang === 'ms' ? 'Pensyarah' : 'Lecturer';
+    const labelVenue = currentLang === 'ms' ? 'Lokasi' : 'Venue';
+    const labelIntakes = currentLang === 'ms' ? 'Ambilan' : 'Intakes';
+    const _fmtVal = (v) => {
+      if (Array.isArray(v)) return v.join(' | ');
+      return String(v ?? '');
+    };
+    for (const [code, secs] of Object.entries(obj || {})) {
+      for (const [sec, entries] of Object.entries(secs || {})) {
+        for (const entry of (entries || [])) {
+          const slot = Array.isArray(entry) ? entry : (entry && Array.isArray(entry.slot) ? entry.slot : null);
+          if (!slot) continue;
+          const cname = getCourseName(code);
+          const meta = `${slot[1]} • ${slot[2]} ${slot[3]} (${slot[4]}h)`;
+          const changes = (entry && typeof entry === 'object') ? (entry.changes || {}) : {};
+          const lines = [];
+          if (changes.lecturer) lines.push(`${labelLect}: ${escHtml(_fmtVal(changes.lecturer.from))} → ${escHtml(_fmtVal(changes.lecturer.to))}`);
+          if (changes.venue) lines.push(`${labelVenue}: ${escHtml(_fmtVal(changes.venue.from))} → ${escHtml(_fmtVal(changes.venue.to))}`);
+          if (changes.intakes) lines.push(`${labelIntakes}: ${escHtml(_fmtVal(changes.intakes.from))} → ${escHtml(_fmtVal(changes.intakes.to))}`);
+          if (changes.rows) lines.push(`${currentLang === 'ms' ? 'Butiran' : 'Details'}: ${currentLang === 'ms' ? 'dikemaskini' : 'updated'}`);
+
+          rows.push(`
+            <div class="update-item-top">${marker ? marker + ' ' : ''}${fmtKey(code)} ${fmtKey(slot[0])}</div>
+            ${cname ? `<div class="update-course-name">${cname}</div>` : ''}
+            <div class="update-meta">${escHtml(meta)}</div>
+            ${lines.length ? `<div class="update-meta">${lines.join('<br>')}</div>` : ''}
+          `.trim());
+        }
+      }
+    }
+    if (!rows.length) return `<div class="update-empty">—</div>`;
+    const shown = rows.slice(0, 60).map(r => `<div class="update-item">${r}</div>`).join('');
+    return `<div class="update-items">${shown}${rows.length > 60 ? `<div class="update-more">… +${rows.length - 60}</div>` : ''}</div>`;
   }
 
   const hasAnyChange =
@@ -1322,7 +1367,7 @@ function showUpdatePopup() {
         <section class="update-section is-changed">
           <div class="update-section-title">🟠 ${changedHdr}</div>
           ${namesChangedArr.length ? `<div class="update-block"><div class="update-block-title">${currentLang === 'ms' ? 'Nama kursus' : 'Course names'}</div><div class="update-items">${namesChangedArr.slice(0, 15).map(x => `<div class="update-item">${fmtKey(x.code)}: ${String(x.old || '').toUpperCase()} → ${String(x.new || '').toUpperCase()}</div>`).join('')}${namesChangedArr.length > 15 ? `<div class="update-more">… +${namesChangedArr.length - 15}</div>` : ''}</div></div>` : ''}
-          ${slotDetailChangedCount ? `<div class="update-block"><div class="update-block-title">${currentLang === 'ms' ? 'Butiran kelas' : 'Class details'}</div><div class="update-empty">${slotDetailChangedCount} ${currentLang === 'ms' ? 'kelas dikemaskini' : 'classes updated'}</div></div>` : ''}
+          ${slotDetailChangedCount ? `<div class="update-block"><div class="update-block-title">${currentLang === 'ms' ? 'Butiran kelas' : 'Class details'}</div>${detailOnlyListHTML(detailChanged, '🟠')}</div>` : ''}
         </section>
       ` : ''}
 
@@ -2375,7 +2420,7 @@ function exportTimetableXLSX(filename) {
   const metaAOA = [
     ['Generated At', new Date().toISOString()],
     ['App Build', `v${APP_BUILD_VERSION}`],
-    ['Timetable Date', (latestUpdate && latestUpdate.timetable && latestUpdate.timetable.latestDate) ? latestUpdate.timetable.latestDate : '—'],
+    ['Timetable Version', (latestUpdate && latestUpdate.timetable && (latestUpdate.timetable.latestId || latestUpdate.timetable.latestDate)) ? (latestUpdate.timetable.latestId || latestUpdate.timetable.latestDate) : '—'],
     ['Base PDF', (latestUpdate && latestUpdate.timetable && latestUpdate.timetable.base) ? latestUpdate.timetable.base : '—'],
     ['Sources Used', (latestUpdate && latestUpdate.timetable && Array.isArray(latestUpdate.timetable.sourcesUsed)) ? latestUpdate.timetable.sourcesUsed.join(', ') : '—'],
     ['Selected Courses', Object.keys(selected).length],

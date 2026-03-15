@@ -477,45 +477,98 @@ def _diff_dbs(old_db, new_db):
 
             if not add_struct and not rem_struct and o_struct:
                 # compare detail-only changes
-                def dk(s):
-                    return (
-                        *sk(s),
-                        s.get("venue", ""),
-                        s.get("lecturer", ""),
-                        tuple(s.get("intakes") or []),
-                    )
-                o_by = {}
-                n_by = {}
+                def norm_slot(s):
+                    return {
+                        "venue": s.get("venue", "") or "",
+                        "lecturer": s.get("lecturer", "") or "",
+                        "intakes": sorted(list(s.get("intakes") or [])),
+                    }
+
+                o_map = {}
+                n_map = {}
                 for s in o_slots:
-                    o_by.setdefault(sk(s), set()).add(dk(s))
+                    o_map.setdefault(sk(s), []).append(norm_slot(s))
                 for s in n_slots:
-                    n_by.setdefault(sk(s), set()).add(dk(s))
-                changed = [k for k in (o_struct & n_struct) if o_by.get(k, set()) != n_by.get(k, set())]
-                if changed:
-                    diff["slots"]["detail_only_changed"].setdefault(code, {}).setdefault(sec, []).extend(sorted(changed))
+                    n_map.setdefault(sk(s), []).append(norm_slot(s))
+
+                changed_keys = [k for k in (o_struct & n_struct) if set(map(json.dumps, o_map.get(k, []))) != set(map(json.dumps, n_map.get(k, [])))]
+                if changed_keys:
+                    for k in sorted(changed_keys):
+                        o_list = o_map.get(k, [])
+                        n_list = n_map.get(k, [])
+                        # Prefer 1:1 comparison when possible; otherwise treat as set-level changes.
+                        o0 = o_list[0] if o_list else {}
+                        n0 = n_list[0] if n_list else {}
+                        changes = {}
+
+                        def _set_change(field, ov, nv):
+                            if ov != nv:
+                                changes[field] = {"from": ov, "to": nv}
+
+                        if len(o_list) == 1 and len(n_list) == 1:
+                            _set_change("venue", o0.get("venue", ""), n0.get("venue", ""))
+                            _set_change("lecturer", o0.get("lecturer", ""), n0.get("lecturer", ""))
+                            _set_change("intakes", o0.get("intakes", []), n0.get("intakes", []))
+                        else:
+                            # Multiple rows for same structural slot (rare). Compare set-wise.
+                            o_set = sorted(o_list, key=lambda x: (x.get("venue", ""), x.get("lecturer", ""), tuple(x.get("intakes", []))))
+                            n_set = sorted(n_list, key=lambda x: (x.get("venue", ""), x.get("lecturer", ""), tuple(x.get("intakes", []))))
+                            changes["rows"] = {"from": o_set, "to": n_set}
+
+                        diff["slots"]["detail_only_changed"].setdefault(code, {}).setdefault(sec, []).append({
+                            "slot": list(k),
+                            "changes": changes,
+                        })
 
     return diff
 
 def _find_latest_timetable_date(pdf_dir):
-    """Finds the latest YYYYMMDD suffix from files like by_course_YYYYMMDD.pdf."""
+    """Back-compat wrapper. Prefer `_find_latest_timetable_version()`."""
+    v = _find_latest_timetable_version(pdf_dir)
+    if not v:
+        return None
+    m = re.match(r"^(\d{8})", v)
+    return m.group(1) if m else None
+
+def _find_latest_timetable_version(pdf_dir):
+    """
+    Finds the latest timetable version token from files like:
+      - by_course_YYYYMMDD.pdf
+      - by_course_YYYYMMDD_latest.pdf
+
+    Returns the version token string (e.g. "15032026_latest").
+    """
     if not os.path.isdir(pdf_dir):
         return None
-    dates = []
+    candidates = []
     for name in os.listdir(pdf_dir):
-        m = re.match(r"^by_course_(\d{8})\.pdf$", name)
+        m = re.match(r"^by_course_(\d{8})(?:_([^.]+))?\.pdf$", name)
         if m:
-            dates.append(m.group(1))
-    return max(dates) if dates else None
+            date_part = m.group(1)
+            suffix = m.group(2) or ""
+            ver = f"{date_part}_{suffix}" if suffix else date_part
+            try:
+                mtime = os.path.getmtime(os.path.join(pdf_dir, name))
+            except Exception:
+                mtime = 0
+            suffix_pri = 2 if suffix.lower() == "latest" else (1 if suffix else 0)
+            candidates.append((int(date_part), suffix_pri, mtime, ver))
 
-def _build_pdf_list_for_date(pdf_dir, date_str):
-    """Returns all existing timetable PDFs for a given date, in preferred priority order."""
-    if not date_str:
+    if not candidates:
+        return None
+    # Prefer newest date, then explicit "_latest", then newest mtime.
+    candidates.sort(reverse=True)
+    return candidates[0][3]
+
+def _build_pdf_list_for_version(pdf_dir, version_str):
+    """Returns all existing timetable PDFs for a given version token, in preferred priority order."""
+    if not version_str:
         return []
     preferred = [
-        f"by_course_{date_str}.pdf",
-        f"by_lecturer_{date_str}.pdf",
-        f"by_room_{date_str}.pdf",
-        f"by_batch_{date_str}.pdf",
+        f"by_course_{version_str}.pdf",
+        f"by_lecturer_{version_str}.pdf",
+        f"by_room_{version_str}.pdf",
+        f"by_batch_{version_str}.pdf",
     ]
     out = []
     for fname in preferred:
@@ -705,8 +758,13 @@ const COURSES = {json.dumps(final_db, indent=2)};
         parser.save_anomalies(os.path.join(REPO_ROOT, "intake_anomalies.txt"))
 
 if __name__ == "__main__":
-    latest = _find_latest_timetable_date(PDF_DIR)
-    PDF_FILES = _build_pdf_list_for_date(PDF_DIR, latest)
+    latest_ver = _find_latest_timetable_version(PDF_DIR)
+    if not latest_ver:
+        raise SystemExit(f"No timetable PDFs found in: {PDF_DIR}")
+    m = re.match(r"^(\d{8})", latest_ver)
+    latest_date = m.group(1) if m else latest_ver
+
+    PDF_FILES = _build_pdf_list_for_version(PDF_DIR, latest_ver)
     if not PDF_FILES:
         raise SystemExit(f"No timetable PDFs found in: {PDF_DIR}")
 
@@ -714,18 +772,19 @@ if __name__ == "__main__":
     # Prefer comparing against the previous timetable *version* (stored in `logs/update_meta.json`)
     # and snapshots, not just "whatever data.js currently is".
     data_path = os.path.join(REPO_ROOT, "data.js")
-    prev_date = None
+    prev_ver = None
     try:
         if os.path.exists(UPDATE_META_PATH):
             with open(UPDATE_META_PATH, "r", encoding="utf-8") as f:
-                prev_date = (json.load(f) or {}).get("latestDate")
+                meta = json.load(f) or {}
+                prev_ver = meta.get("latestVersion") or meta.get("latestId") or meta.get("latestDate")
     except Exception:
-        prev_date = None
+        prev_ver = None
 
     old_source = "data.js"
     old_db = _load_courses_from_data_js(data_path) if os.path.exists(data_path) else {}
-    if prev_date and prev_date != latest:
-        snap_path = os.path.join(SNAPSHOT_DIR, f"data_{prev_date}.js")
+    if prev_ver and prev_ver != latest_ver:
+        snap_path = os.path.join(SNAPSHOT_DIR, f"data_{prev_ver}.js")
         if os.path.exists(snap_path):
             old_db = _load_courses_from_data_js(snap_path)
             old_source = os.path.basename(snap_path)
@@ -734,7 +793,7 @@ if __name__ == "__main__":
     # - `by_course` is treated as canonical for (day/time/duration/type/section)
     # - other PDFs only enrich details when the slot matches exactly
     out_path = os.path.join(REPO_ROOT, "data.js")
-    rep_path = os.path.join(REPO_ROOT, "logs", f"reconcile_report_{latest}.json")
+    rep_path = os.path.join(REPO_ROOT, "logs", f"reconcile_report_{latest_ver}.json")
     run_parser(PDF_FILES, out_path, reconcile=True, reconcile_report_path=rep_path)
 
     # Build/update `updates.js` so the website can show "what changed" on load (no fetch needed).
@@ -749,8 +808,10 @@ if __name__ == "__main__":
     updates = {
         "generatedAt": datetime.now().isoformat(timespec="seconds"),
         "timetable": {
-            "latestDate": latest,
-            "previousDate": prev_date,
+            "latestId": latest_ver,
+            "latestDate": latest_date,
+            "previousId": prev_ver,
+            "previousDate": (re.match(r"^(\d{8})", prev_ver).group(1) if prev_ver and re.match(r"^(\d{8})", prev_ver) else prev_ver),
             "diffBase": old_source,
             "base": rec.get("base"),
             "sourcesUsed": rec.get("sources") or [os.path.basename(p) for p in PDF_FILES],
@@ -760,18 +821,18 @@ if __name__ == "__main__":
 
     # JSON copy (for dev) + JS global (for browser)
     os.makedirs(os.path.join(REPO_ROOT, "logs"), exist_ok=True)
-    with open(os.path.join(REPO_ROOT, "logs", f"latest_update_{latest}.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(REPO_ROOT, "logs", f"latest_update_{latest_ver}.json"), "w", encoding="utf-8") as f:
         json.dump(updates, f, indent=2, ensure_ascii=False)
 
     # Persist snapshot + meta for next run.
     os.makedirs(SNAPSHOT_DIR, exist_ok=True)
     try:
-        with open(out_path, "r", encoding="utf-8") as src, open(os.path.join(SNAPSHOT_DIR, f"data_{latest}.js"), "w", encoding="utf-8") as dst:
+        with open(out_path, "r", encoding="utf-8") as src, open(os.path.join(SNAPSHOT_DIR, f"data_{latest_ver}.js"), "w", encoding="utf-8") as dst:
             dst.write(src.read())
     except Exception:
         pass
     with open(UPDATE_META_PATH, "w", encoding="utf-8") as f:
-        json.dump({"latestDate": latest, "generatedAt": updates["generatedAt"]}, f, indent=2, ensure_ascii=False)
+        json.dump({"latestVersion": latest_ver, "latestDate": latest_date, "generatedAt": updates["generatedAt"]}, f, indent=2, ensure_ascii=False)
 
     with open(os.path.join(REPO_ROOT, "updates.js"), "w", encoding="utf-8") as f:
         f.write("/* Auto-generated. Do not edit by hand. */\n")
