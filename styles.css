@@ -2510,6 +2510,89 @@ html[data-theme="light"] #btn-theme .icon-moon {
   color: #6366f1;
 }
 
+.download-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.download-actions .modal-btn {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.download-actions .modal-btn svg {
+  flex: 0 0 auto;
+}
+
+.dl-btn {
+  border-width: 1.5px;
+}
+
+.dl-btn--png {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+}
+
+.dl-btn--xlsx {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+
+.dl-btn--pdf {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+}
+
+.dl-btn--cancel {
+  background: transparent;
+  border-color: var(--border2);
+  color: var(--muted);
+  grid-column: 1 / -1;
+}
+
+.download-actions .dl-btn--png {
+  grid-column: 1 / -1;
+}
+
+.dl-label-short {
+  display: none;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+@media (max-width: 380px) {
+  .dl-label-long {
+    display: none;
+  }
+
+  .dl-label-short {
+    display: inline;
+  }
+}
+
+@media (min-width: 720px) {
+  .download-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .download-actions .dl-btn--png {
+    grid-column: auto;
+  }
+
+  .dl-btn--cancel {
+    grid-column: auto;
+  }
+}
+
 #download-preview-container {
   /* This container uses CSS transforms to shrink the giant virtual grid to exactly fit the 260px wrapper box */
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
