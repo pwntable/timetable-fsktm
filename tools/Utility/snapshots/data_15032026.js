@@ -131,7 +131,7 @@ const COURSES = {
           "duration": 2.0,
           "section": "S10 K",
           "type": "Lecture",
-          "lecturer": "I-liyap",
+          "lecturer": "I-yabliyu",
           "venue": "I-PERP-BT1",
           "intakes": [
             "FSKTM-1BIS INTAKE II"
@@ -143,7 +143,7 @@ const COURSES = {
           "duration": 2.0,
           "section": "S10 A",
           "type": "Lab/Amali",
-          "lecturer": "I-liyap",
+          "lecturer": "I-yabliyu",
           "venue": "I-C12-101",
           "intakes": [
             "FSKTM-1BIS INTAKE II"
@@ -157,7 +157,7 @@ const COURSES = {
           "duration": 2.0,
           "section": "S17 K",
           "type": "Lecture",
-          "lecturer": "I-liyap",
+          "lecturer": "I-yabliyu",
           "venue": "I-PERP-BT1",
           "intakes": [
             "FSKTM-1BIS INTAKE II"
@@ -169,7 +169,7 @@ const COURSES = {
           "duration": 2.0,
           "section": "S17 A",
           "type": "Lab/Amali",
-          "lecturer": "I-liyap",
+          "lecturer": "I-yabliyu",
           "venue": "I-C12-101",
           "intakes": [
             "FSKTM-1BIS INTAKE II"

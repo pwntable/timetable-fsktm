@@ -117,6 +117,7 @@ const DICT = {
     downloadPdfBtn: "Download PDF",
     discPrev: "Back",
     discNext: "Next",
+    discClose: "Close",
     printBtn: "Print / Download",
     viewTable: "Table",
     viewCards: "Cards"
@@ -201,6 +202,7 @@ const DICT = {
     downloadPdfBtn: "Muat Turun PDF",
     discPrev: "Sebelum",
     discNext: "Seterus",
+    discClose: "Tutup",
     printBtn: "Cetak / Muat Turun",
     viewTable: "Jadual",
     viewCards: "Kad"
@@ -2041,6 +2043,7 @@ function suggestByIntake() {
   const srch = document.getElementById('srch');
   if (srch) srch.value = '';
   filterList();
+  renderSelArea();
   renderTimetable();
 
   // Smooth flash effect on timetable grid
@@ -2498,7 +2501,11 @@ function closeDisclaimerModal() {
 
 function changeSlide(dir) {
   const next = disclaimerCurrentSlide + dir;
-  if (next < 0 || next >= DISCLAIMER_TOTAL) return;
+  if (next < 0) return;
+  if (next >= DISCLAIMER_TOTAL) {
+    closeDisclaimerModal();
+    return;
+  }
   disclaimerCurrentSlide = next;
   _disclaimerRender();
 }
@@ -2527,10 +2534,45 @@ function _disclaimerRender() {
   // Update prev/next button states
   const prev = document.getElementById('disc-prev');
   const next = document.getElementById('disc-next');
-  if (prev) prev.style.opacity = disclaimerCurrentSlide === 0 ? '0.35' : '1';
-  if (prev) prev.style.pointerEvents = disclaimerCurrentSlide === 0 ? 'none' : 'auto';
-  if (next) next.style.opacity = disclaimerCurrentSlide === DISCLAIMER_TOTAL - 1 ? '0.35' : '1';
-  if (next) next.style.pointerEvents = disclaimerCurrentSlide === DISCLAIMER_TOTAL - 1 ? 'none' : 'auto';
+  if (prev) {
+    prev.style.opacity = disclaimerCurrentSlide === 0 ? '0.35' : '1';
+    prev.style.pointerEvents = disclaimerCurrentSlide === 0 ? 'none' : 'auto';
+  }
+  
+  if (next) {
+    const isLast = disclaimerCurrentSlide === DISCLAIMER_TOTAL - 1;
+    const t = DICT[currentLang] || DICT.ms;
+    
+    // Change text and icon for last slide
+    if (isLast) {
+      next.innerHTML = `
+        <span>${t.discClose || 'Close'}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" 
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      `;
+      next.style.background = 'var(--text)';
+      next.style.borderColor = 'var(--text)';
+      next.style.color = 'var(--bg)';
+    } else {
+      next.innerHTML = `
+        <span data-i18n="discNext">${t.discNext}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" 
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      `;
+      next.style.background = '#6366f1';
+      next.style.borderColor = '#6366f1';
+      next.style.color = 'white';
+    }
+    
+    // Always show next/close button on last slide instead of disabling it
+    next.style.opacity = '1';
+    next.style.pointerEvents = 'auto';
+  }
 
   // Inject bilingual description
   const descEl = document.getElementById('disclaimer-desc');

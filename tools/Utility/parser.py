@@ -33,12 +33,14 @@ if os.path.isdir(PDF_DIR):
     PDF_FILES = sorted(
         os.path.join(PDF_DIR, f)
         for f in os.listdir(PDF_DIR)
+
         if f.lower().endswith(".pdf")
     )
 else:
     # Fallback: manually listed files (update when PDF dir isn't available)
     PDF_FILES = [
         os.path.join(PDF_DIR, "by_course_12032026.pdf")
+
     ]
 
 if not PDF_FILES:
@@ -51,6 +53,7 @@ for _f in PDF_FILES:
 print()
 
 OUTPUT_FILE = "data.js"
+
 
 # Basic Regex for Course / Intakes / Footnotes
 COURSE_TITLE_PATTERN = re.compile(r'([A-Z]{3,4}\s*\d{4,5}[A-Z]?)\s*-\s*([A-Za-z0-9 &/-]+)')

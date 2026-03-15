@@ -1,18 +1,18 @@
 /* Auto-generated. Do not edit by hand. */
 window.LATEST_UPDATE = {
-  "generatedAt": "2026-03-15T21:47:20",
+  "generatedAt": "2026-03-16T01:43:19",
   "timetable": {
-    "latestId": "15032026_latest",
+    "latestId": "15032026",
     "latestDate": "15032026",
     "previousId": "15032026",
     "previousDate": "15032026",
-    "diffBase": "data_15032026.js",
-    "base": "by_course_15032026_latest.pdf",
+    "diffBase": "data.js",
+    "base": "by_course_15032026.pdf",
     "sourcesUsed": [
-      "by_course_15032026_latest.pdf",
-      "by_lecturer_15032026_latest.pdf",
-      "by_room_15032026_latest.pdf",
-      "by_batch_15032026_latest.pdf"
+      "by_course_15032026.pdf",
+      "by_lecturer_15032026.pdf",
+      "by_room_15032026.pdf",
+      "by_batch_15032026.pdf"
     ]
   },
   "changes": {
@@ -30,74 +30,7 @@ window.LATEST_UPDATE = {
         "added": {},
         "removed": {}
       },
-      "detail_only_changed": {
-        "BIC10403": {
-          "S10": [
-            {
-              "slot": [
-                "S10",
-                "Lab/Amali",
-                "Thursday",
-                "04:00",
-                2
-              ],
-              "changes": {
-                "lecturer": {
-                  "from": "I-liyap",
-                  "to": "I-yabliyu"
-                }
-              }
-            },
-            {
-              "slot": [
-                "S10",
-                "Lecture",
-                "Monday",
-                "02:00",
-                2
-              ],
-              "changes": {
-                "lecturer": {
-                  "from": "I-liyap",
-                  "to": "I-yabliyu"
-                }
-              }
-            }
-          ],
-          "S17": [
-            {
-              "slot": [
-                "S17",
-                "Lab/Amali",
-                "Thursday",
-                "04:00",
-                2
-              ],
-              "changes": {
-                "lecturer": {
-                  "from": "I-liyap",
-                  "to": "I-yabliyu"
-                }
-              }
-            },
-            {
-              "slot": [
-                "S17",
-                "Lecture",
-                "Monday",
-                "02:00",
-                2
-              ],
-              "changes": {
-                "lecturer": {
-                  "from": "I-liyap",
-                  "to": "I-yabliyu"
-                }
-              }
-            }
-          ]
-        }
-      }
+      "detail_only_changed": {}
     }
   }
 };

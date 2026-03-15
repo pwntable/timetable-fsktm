@@ -205,24 +205,40 @@ def main():
         sub_files, _ = _list_folder(best["id"])
         target_files = [f for f in sub_files if _is_pdf(f)]
 
-    # STEP 3 — delete old PDFs
+    # STEP 3 — Archive old PDFs
     _log()
-    _log("STEP 3: Removing old PDFs from output directory …")
+    _log("STEP 3: Archiving old PDFs to oldPDF directory …")
+    OLD_PDF_DIR = "oldPDF"
     if not dry_run and os.path.isdir(OUTPUT_DIR):
-        deleted = 0
+        import shutil
+        archived = 0
         for fname in os.listdir(OUTPUT_DIR):
             if re.search(r"\.pdf$", fname, re.IGNORECASE):
                 fpath = os.path.join(OUTPUT_DIR, fname)
+                
+                # Extract date from filename if possible (DDMMYYYY)
+                date_str = None
+                m = DATE_PAT.search(fname)
+                if m:
+                    date_str = f"{m.group(1)}{m.group(2)}{m.group(3)}"
+                
+                if not date_str:
+                    date_str = datetime.now().strftime("%d%m%Y")
+                
+                target_dir = os.path.join(OLD_PDF_DIR, date_str)
+                os.makedirs(target_dir, exist_ok=True)
+                
+                target_path = os.path.join(target_dir, fname)
                 try:
-                    os.remove(fpath)
-                    _log(f"    🗑️  Deleted: {fname}")
-                    deleted += 1
+                    shutil.move(fpath, target_path)
+                    _log(f"    📦 Archived: {fname} → {target_dir}")
+                    archived += 1
                 except Exception as exc:
-                    _log(f"    ⚠️  Could not delete {fname}: {exc}")
-        if deleted == 0:
-            _log("    (no old PDFs found)")
+                    _log(f"    ⚠️  Could not archive {fname}: {exc}")
+        if archived == 0:
+            _log("    (no old PDFs found to archive)")
     elif dry_run:
-        _log("    [DRY-RUN] Skipping deletion")
+        _log("    [DRY-RUN] Skipping archival")
 
     # STEP 4 — download
     _log()

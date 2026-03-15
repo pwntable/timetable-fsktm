@@ -1,9 +1,11 @@
 {
-  "generatedAt": "2026-03-15T14:18:23",
+  "generatedAt": "2026-03-16T01:43:19",
   "timetable": {
+    "latestId": "15032026",
     "latestDate": "15032026",
-    "previousDate": "14032026",
-    "diffBase": "data_14032026.js",
+    "previousId": "15032026",
+    "previousDate": "15032026",
+    "diffBase": "data.js",
     "base": "by_course_15032026.pdf",
     "sourcesUsed": [
       "by_course_15032026.pdf",
@@ -24,19 +26,7 @@
     },
     "slots": {
       "structural": {
-        "added": {
-          "BIT20803": {
-            "S2": [
-              [
-                "S2",
-                "Lab/Amali",
-                "Monday",
-                "12:00",
-                2
-              ]
-            ]
-          }
-        },
+        "added": {},
         "removed": {}
       },
       "detail_only_changed": {}

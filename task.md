@@ -53,7 +53,10 @@
 - [x] Verify conflict strips and visual conflict indicators
 
 # Task List: Git Conflict Resolution
-- [/] Resolve nested conflict markers in `data.js`, `index.html`, and `parser.py`
-- [ ] Cleanly re-integrate stashed changes to source files
-- [ ] Regenerate `data.js` via parser
-- [ ] Verify clean `git status`
+- [x] Resolve Git conflicts in `parser.py`, `index.html`, and PDFs
+- [x] Fix `data.js` corruption by regenerating it
+- [x] Verify clean `git status`
+- [x] Install `gdown` for auto-fetching
+les
+- [x] Regenerate `data.js` via parser
+- [x] Verify clean `git status`

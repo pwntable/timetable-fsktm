@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-03-15T21:47:20",
+  "generatedAt": "2026-03-16T01:13:37",
   "timetable": {
     "latestId": "15032026_latest",
     "latestDate": "15032026",
-    "previousId": "15032026",
+    "previousId": "15032026_latest",
     "previousDate": "15032026",
-    "diffBase": "data_15032026.js",
+    "diffBase": "data.js",
     "base": "by_course_15032026_latest.pdf",
     "sourcesUsed": [
       "by_course_15032026_latest.pdf",
@@ -16,7 +16,110 @@
   },
   "changes": {
     "courses": {
-      "added": [],
+      "added": [
+        "BIC10003",
+        "BIC10203",
+        "BIC10204",
+        "BIC10303",
+        "BIC10403",
+        "BIC10404",
+        "BIC10603",
+        "BIC20803",
+        "BIC20904",
+        "BIC21003",
+        "BIC21203",
+        "BIC21303",
+        "BIC21404",
+        "BIC31502",
+        "BIC31602",
+        "BIC31802",
+        "BIC31903",
+        "BIE10103",
+        "BIE20203",
+        "BIE20303",
+        "BIE20404",
+        "BIE30503",
+        "BIE33003",
+        "BIE33103",
+        "BIE33503",
+        "BIK10203",
+        "BIK10403",
+        "BIK10503",
+        "BIK10602",
+        "BIK10703",
+        "BIK10803",
+        "BIK10903",
+        "BIK20503",
+        "BIK20703",
+        "BIK31003",
+        "BIM10203",
+        "BIM10603",
+        "BIM20404",
+        "BIM20703",
+        "BIM20903",
+        "BIM30803",
+        "BIM33103",
+        "BIM33403",
+        "BIM33603",
+        "BIM33703",
+        "BIS10103",
+        "BIS20303",
+        "BIS20403",
+        "BIS20404",
+        "BIS30703",
+        "BIS30803",
+        "BIS30903",
+        "BIS33203",
+        "BIS33403",
+        "BIS33703",
+        "BIT10103",
+        "BIT10303",
+        "BIT10703",
+        "BIT11003",
+        "BIT11603",
+        "BIT20103",
+        "BIT20303",
+        "BIT20403",
+        "BIT20603",
+        "BIT20703",
+        "BIT20803",
+        "BIT20903",
+        "BIT21202",
+        "BIT21303",
+        "BIT21403",
+        "BIT21503",
+        "BIT22103",
+        "BIT22303",
+        "BIT22403",
+        "BIT30303",
+        "BIT30403",
+        "BIT30502",
+        "BIT30503",
+        "BIT30603",
+        "BIT30803",
+        "BIT31502",
+        "BIT33703",
+        "BIT33803",
+        "BIT34002",
+        "BIT34103",
+        "BIT34303",
+        "BIT34503",
+        "BIW20303",
+        "BIW20404",
+        "BIW20503",
+        "BIW33403",
+        "BIW33503",
+        "BIW33703",
+        "BIW33803",
+        "CIC10103",
+        "CII10603",
+        "CII10803",
+        "MIC10103",
+        "MIC10203",
+        "MIC10303",
+        "MIC10403",
+        "MIC10503"
+      ],
       "removed": [],
       "name_changed": []
     },
@@ -29,74 +132,7 @@
         "added": {},
         "removed": {}
       },
-      "detail_only_changed": {
-        "BIC10403": {
-          "S10": [
-            {
-              "slot": [
-                "S10",
-                "Lab/Amali",
-                "Thursday",
-                "04:00",
-                2
-              ],
-              "changes": {
-                "lecturer": {
-                  "from": "I-liyap",
-                  "to": "I-yabliyu"
-                }
-              }
-            },
-            {
-              "slot": [
-                "S10",
-                "Lecture",
-                "Monday",
-                "02:00",
-                2
-              ],
-              "changes": {
-                "lecturer": {
-                  "from": "I-liyap",
-                  "to": "I-yabliyu"
-                }
-              }
-            }
-          ],
-          "S17": [
-            {
-              "slot": [
-                "S17",
-                "Lab/Amali",
-                "Thursday",
-                "04:00",
-                2
-              ],
-              "changes": {
-                "lecturer": {
-                  "from": "I-liyap",
-                  "to": "I-yabliyu"
-                }
-              }
-            },
-            {
-              "slot": [
-                "S17",
-                "Lecture",
-                "Monday",
-                "02:00",
-                2
-              ],
-              "changes": {
-                "lecturer": {
-                  "from": "I-liyap",
-                  "to": "I-yabliyu"
-                }
-              }
-            }
-          ]
-        }
-      }
+      "detail_only_changed": {}
     }
   }
 }
