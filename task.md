@@ -57,11 +57,12 @@
 - [x] Fix `data.js` corruption by regenerating it
 - [x] Verify clean `git status`
 - [x] Install `gdown` for auto-fetching
-- [/] Reorganize project structure
-    - [ ] Move data files to `data/`
-    - [ ] Move logo to `images/`
-    - [ ] Move reports and utilities
-    - [ ] Update `index.html` references
-    - [ ] Update `parser.py` path constants
+- [x] Reorganize project structure
+    - [x] Move data files to `data/`
+    - [x] Move logo to `images/`
+    - [x] Move reports and utilities
+    - [x] Update `index.html` references
+    - [x] Update `parser.py` path constants
 - [x] Regenerate `data.js` via parser
+- [x] Add "Remove Subject" button to course details modal
 - [x] Verify clean `git status`

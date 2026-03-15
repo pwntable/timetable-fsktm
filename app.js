@@ -115,6 +115,7 @@ const DICT = {
     downloadPngBtn: "Download PNG",
     downloadXlsxBtn: "Download XLSX",
     downloadPdfBtn: "Download PDF",
+    removeBtn: "Remove Subject",
     discPrev: "Back",
     discNext: "Next",
     discClose: "Close",
@@ -200,6 +201,7 @@ const DICT = {
     downloadPngBtn: "Muat Turun PNG",
     downloadXlsxBtn: "Muat Turun XLSX",
     downloadPdfBtn: "Muat Turun PDF",
+    removeBtn: "Buang Subjek",
     discPrev: "Sebelum",
     discNext: "Seterus",
     discClose: "Tutup",
@@ -1596,6 +1598,21 @@ function showDetailModal(el) {
 
   document.getElementById('detail-venue').textContent = (e.venue || '-').replace('I-', '');
   document.getElementById('detail-lecturer').textContent = (e.lecturer || '-').replace('I-', '');
+
+  // Handle Remove Button
+  const actionsWrap = document.getElementById('detail-actions');
+  const removeBtn = document.getElementById('detail-remove-btn');
+  if (actionsWrap && removeBtn) {
+    if (e.code in selected) {
+      actionsWrap.style.display = 'block';
+      removeBtn.onclick = () => {
+        removeSelected(e.code);
+        closeDetailModal();
+      };
+    } else {
+      actionsWrap.style.display = 'none';
+    }
+  }
 
   document.getElementById('detail-modal').classList.add('show');
 }
