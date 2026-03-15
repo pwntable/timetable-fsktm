@@ -57,6 +57,11 @@
 - [x] Fix `data.js` corruption by regenerating it
 - [x] Verify clean `git status`
 - [x] Install `gdown` for auto-fetching
-les
+- [/] Reorganize project structure
+    - [ ] Move data files to `data/`
+    - [ ] Move logo to `images/`
+    - [ ] Move reports and utilities
+    - [ ] Update `index.html` references
+    - [ ] Update `parser.py` path constants
 - [x] Regenerate `data.js` via parser
 - [x] Verify clean `git status`

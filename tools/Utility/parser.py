@@ -52,7 +52,7 @@ for _f in PDF_FILES:
     print(f"   • {_f}")
 print()
 
-OUTPUT_FILE = "data.js"
+OUTPUT_FILE = os.path.join(REPO_ROOT, "data", "data.js")
 
 
 # Basic Regex for Course / Intakes / Footnotes
@@ -800,7 +800,7 @@ const COURSES = {json.dumps(final_db, indent=2)};
     print(f"✅ Successfully extracted {len(final_db)} courses to {output_file}.")
     # Only available in single-parser mode; in reconcile mode, anomalies are per-source.
     if not (reconcile and len(pdf_files) > 1):
-        parser.save_anomalies(os.path.join(REPO_ROOT, "intake_anomalies.txt"))
+        parser.save_anomalies(os.path.join(REPO_ROOT, "logs", "intake_anomalies.txt"))
 
 if __name__ == "__main__":
     latest_ver = _find_latest_timetable_version(PDF_DIR)
@@ -816,7 +816,7 @@ if __name__ == "__main__":
     # Capture previous parsed data (for on-load update popup).
     # Prefer comparing against the previous timetable *version* (stored in `logs/update_meta.json`)
     # and snapshots, not just "whatever data.js currently is".
-    data_path = os.path.join(REPO_ROOT, "data.js")
+    data_path = os.path.join(REPO_ROOT, "data", "data.js")
     prev_ver = None
     try:
         if os.path.exists(UPDATE_META_PATH):
@@ -837,7 +837,7 @@ if __name__ == "__main__":
     # Generate from multiple sources safely:
     # - `by_course` is treated as canonical for (day/time/duration/type/section)
     # - other PDFs only enrich details when the slot matches exactly
-    out_path = os.path.join(REPO_ROOT, "data.js")
+    out_path = os.path.join(REPO_ROOT, "data", "data.js")
     rep_path = os.path.join(REPO_ROOT, "logs", f"reconcile_report_{latest_ver}.json")
     run_parser(PDF_FILES, out_path, reconcile=True, reconcile_report_path=rep_path)
 
@@ -879,7 +879,7 @@ if __name__ == "__main__":
     with open(UPDATE_META_PATH, "w", encoding="utf-8") as f:
         json.dump({"latestVersion": latest_ver, "latestDate": latest_date, "generatedAt": updates["generatedAt"]}, f, indent=2, ensure_ascii=False)
 
-    with open(os.path.join(REPO_ROOT, "updates.js"), "w", encoding="utf-8") as f:
+    with open(os.path.join(REPO_ROOT, "data", "updates.js"), "w", encoding="utf-8") as f:
         f.write("/* Auto-generated. Do not edit by hand. */\n")
         f.write("window.LATEST_UPDATE = ")
         f.write(json.dumps(updates, ensure_ascii=False, indent=2))
