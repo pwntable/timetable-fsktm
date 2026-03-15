@@ -21,6 +21,7 @@ const COLOR_PALETTE = [
 ];
 
 let selected = {}, colorMap = {}, customColors = {}, colorIdx = 0, filtered = [];
+let intakeModalCourses = [], intakeModalSelected = new Set();
 let savedTimetables = JSON.parse(localStorage.getItem('uthm-tg-saved') || '[]');
 // 'table' | 'cards'  — auto-set per breakpoint, user can override
 let viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
@@ -116,6 +117,11 @@ const DICT = {
     downloadXlsxBtn: "Download XLSX",
     downloadPdfBtn: "Download PDF",
     removeBtn: "Remove Subject",
+    intakeSelectTitle: "Select Subjects for {intake}",
+    totalCredits: "Total Selected Credits:",
+    selectAll: "Select All",
+    deselectAll: "Deselect All",
+    generateBtn: "Generate Timetable",
     discPrev: "Back",
     discNext: "Next",
     discClose: "Close",
@@ -202,6 +208,11 @@ const DICT = {
     downloadXlsxBtn: "Muat Turun XLSX",
     downloadPdfBtn: "Muat Turun PDF",
     removeBtn: "Buang Subjek",
+    intakeSelectTitle: "Pilih Subjek untuk {intake}",
+    totalCredits: "Jumlah Kredit Dipilih:",
+    selectAll: "Pilih Semua",
+    deselectAll: "Nyahpilih Semua",
+    generateBtn: "Jana Jadual",
     discPrev: "Sebelum",
     discNext: "Seterus",
     discClose: "Tutup",
@@ -396,7 +407,14 @@ function removeSelected(code) {
   renderList(filtered); renderSelArea(); renderTimetable();
 }
 
-/* ════ CUSTOM COLOR PICKER ════ */
+/* ════ UTILS ════ */
+function getCredits(code) {
+  // Typical UTHM format: BIT21503 -> 3 credits
+  // Extract last digit of the numeric part
+  const match = code.match(/\d+$/);
+  return match ? parseInt(match[0].slice(-1)) : 0;
+}
+
 function getSubjectColor(code) {
   return customColors[code] || COLORS[colorMap[code]] || COLORS[0];
 }
@@ -2007,6 +2025,10 @@ function buildIntakeList() {
   }
 }
 
+function closeIntakeSelectionModal() {
+  document.getElementById('intake-selection-modal').classList.remove('show');
+}
+
 function suggestByIntake() {
   const sel = document.getElementById('intake-select');
   const chosenIntake = sel ? sel.value : '';
@@ -2019,6 +2041,106 @@ function suggestByIntake() {
     return;
   }
 
+  // Filter out courses that don't exist in data.js
+  intakeModalCourses = courseCodes.filter(code => COURSES[code]);
+  if (intakeModalCourses.length === 0) {
+    alert(DICT[currentLang].intakeNoneFound);
+    return;
+  }
+
+  // Pre-select all by default
+  intakeModalSelected = new Set(intakeModalCourses);
+  
+  // Update Title
+  const titleEl = document.getElementById('intake-sel-title');
+  if (titleEl) {
+    titleEl.textContent = DICT[currentLang].intakeSelectTitle.replace('{intake}', chosenIntake);
+  }
+
+  // Reset Search
+  document.getElementById('intake-srch').value = '';
+  
+  renderIntakeModal();
+  updateIntakeCreditCount();
+  document.getElementById('intake-selection-modal').classList.add('show');
+}
+
+function renderIntakeModal(filterText = '') {
+  const listEl = document.getElementById('intake-course-list');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+
+  const query = filterText.toLowerCase().trim();
+
+  intakeModalCourses.forEach(code => {
+    const c = COURSES[code];
+    if (query && !code.toLowerCase().includes(query) && !c.name.toLowerCase().includes(query)) return;
+
+    const item = document.createElement('div');
+    const isSelected = intakeModalSelected.has(code);
+    item.className = `intake-item${isSelected ? ' selected' : ''}`;
+    item.onclick = () => toggleIntakeCourse(code);
+
+    const credits = getCredits(code);
+
+    item.innerHTML = `
+      <input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleIntakeCourse('${code}')">
+      <div class="intake-item-info">
+        <div class="intake-item-code">${code}</div>
+        <div class="intake-item-name">${c.name}</div>
+      </div>
+      <div class="intake-item-credits">${credits} ${DICT[currentLang].credit}</div>
+    `;
+    listEl.appendChild(item);
+  });
+}
+
+function toggleIntakeCourse(code) {
+  if (intakeModalSelected.has(code)) {
+    intakeModalSelected.delete(code);
+  } else {
+    intakeModalSelected.add(code);
+  }
+  renderIntakeModal(document.getElementById('intake-srch').value);
+  updateIntakeCreditCount();
+}
+
+function toggleIntakeAll(selectAll) {
+  if (selectAll) {
+    intakeModalSelected = new Set(intakeModalCourses);
+  } else {
+    intakeModalSelected.clear();
+  }
+  renderIntakeModal(document.getElementById('intake-srch').value);
+  updateIntakeCreditCount();
+}
+
+function filterIntakeModalList() {
+  const val = document.getElementById('intake-srch').value;
+  renderIntakeModal(val);
+}
+
+function updateIntakeCreditCount() {
+  let total = 0;
+  intakeModalSelected.forEach(code => {
+    total += getCredits(code);
+  });
+  const valEl = document.getElementById('intake-cred-val');
+  if (valEl) {
+    valEl.textContent = total;
+    valEl.style.color = total > 25 ? 'var(--red)' : (total > 20 ? 'var(--yellow)' : 'var(--muted2)');
+  }
+}
+
+function confirmIntakeSuggestion() {
+  if (intakeModalSelected.size === 0) {
+    alert(DICT[currentLang].intakeNoneFound);
+    return;
+  }
+
+  const sel = document.getElementById('intake-select');
+  const chosenIntake = sel ? sel.value : '';
+
   // Clear existing selections
   for (const key in selected) delete selected[key];
   for (const key in colorMap) delete colorMap[key];
@@ -2026,13 +2148,10 @@ function suggestByIntake() {
   colorIdx = 0;
 
   let foundAny = false;
-  for (const code of courseCodes) {
-    if (!COURSES[code]) continue; // course not in data.js
-
+  intakeModalSelected.forEach(code => {
     const secs = sortSections(Object.keys(COURSES[code].sections || {}));
-    if (secs.length === 0) continue;
+    if (secs.length === 0) return;
 
-    // Prefer section tagged with this intake, fall back to first section
     let bestSection = secs[0];
     for (const sec of secs) {
       const slots = COURSES[code].sections[sec] || [];
@@ -2049,12 +2168,12 @@ function suggestByIntake() {
     customColors[code] = COLORS[colorMap[code]];
     colorIdx++;
     foundAny = true;
-  }
+  });
 
-  if (!foundAny) {
-    alert(DICT[currentLang].intakeNoneFound);
-    return;
-  }
+  closeIntakeSelectionModal();
+  renderList(filtered); 
+  renderSelArea(); 
+  renderTimetable();
 
   // Clear search so all selected courses show in the list
   const srch = document.getElementById('srch');

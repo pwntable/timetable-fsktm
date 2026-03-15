@@ -65,4 +65,5 @@
     - [x] Update `parser.py` path constants
 - [x] Regenerate `data.js` via parser
 - [x] Add "Remove Subject" button to course details modal
-- [x] Verify clean `git status`
+- [x] Intake subject selection pre-generation (Fixed)
+- [/] Verify clean `git status`

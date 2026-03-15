@@ -248,6 +248,41 @@
     </div>
   </div>
 
+  <div class="modal" id="intake-selection-modal" onclick="if(event.target===this) closeIntakeSelectionModal()">
+    <div class="modal-content" style="max-width:500px;padding:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 id="intake-sel-title" style="font-family:'Syne',sans-serif;font-size:18px;margin:0"></h3>
+        <button class="btn-sm" onclick="closeIntakeSelectionModal()"
+          style="padding:4px 8px;border:none;background:var(--s2);color:var(--muted);font-size:12px;cursor:pointer;border-radius:6px">✕</button>
+      </div>
+
+      <div class="srch-wrap" style="padding:0; margin-bottom:16px; border:none">
+        <span class="srch-icon" style="left:12px">⌕</span>
+        <input type="text" id="intake-srch" data-i18n-ph="searchPh" placeholder="Cari kod atau nama..."
+          oninput="filterIntakeModalList()" style="width:100%">
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+        <button class="btn-sm" onclick="toggleIntakeAll(true)" style="background:transparent; color:var(--accent); border-color:var(--accent); font-size:11px" data-i18n="selectAll">Select All</button>
+        <button class="btn-sm" onclick="toggleIntakeAll(false)" style="background:transparent; color:var(--muted); border-color:var(--border2); font-size:11px" data-i18n="deselectAll">Deselect All</button>
+      </div>
+
+      <div id="intake-course-list" class="clist" style="max-height:300px; border:1px solid var(--border); border-radius:10px; background:var(--bg)">
+        <!-- Injected by JS -->
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center">
+        <div id="intake-credit-count" style="font-size:13px; font-weight:700; color:var(--muted2)">
+          <span data-i18n="totalCredits">Total Selected Credits:</span> <span id="intake-cred-val">0</span>
+        </div>
+        <div style="display:flex; gap:10px">
+          <button class="btn-sm" onclick="closeIntakeSelectionModal()" style="border-color:var(--border2); background:transparent; color:var(--muted)" data-i18n="cancelBtn">Batal</button>
+          <button class="btn-sm confirm" onclick="confirmIntakeSuggestion()" style="background:var(--accent); color:white; border:none" data-i18n="generateBtn">Generate Timetable</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="export-modal">
     <div class="modal-box" role="dialog" aria-modal="true" style="text-align: left;">
       <div class="modal-icon" style="color: #60a5fa;">📅</div>
