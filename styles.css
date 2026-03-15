@@ -122,6 +122,12 @@ header::before {
   flex-wrap: nowrap;
 }
 
+@media (max-width: 768px) {
+  .hdr {
+    align-items: flex-start;
+  }
+}
+
 /* ── Brand (left side) ── */
 .brand {
   display: flex;
@@ -131,6 +137,17 @@ header::before {
   min-width: 0;
   /* critical: lets flex child shrink */
   overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .brand {
+    align-items: flex-start;
+    overflow: visible;
+  }
+
+  .brand-icon {
+    margin-top: 2px;
+  }
 }
 
 .brand-icon {
@@ -279,12 +296,13 @@ header::before {
   }
 
   .brand h1 {
-    /* Keep one-row header on phones by shrinking title slightly. */
-    font-size: clamp(11px, 3.9vw, 14px);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    letter-spacing: -0.6px;
+    /* Allow title to wrap onto two lines so full text is readable on phones. */
+    font-size: clamp(11px, 3.5vw, 13px);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
   }
 
   .brand-sub {
@@ -328,8 +346,12 @@ header::before {
   }
 
   .brand h1 {
-    font-size: clamp(11px, 3.6vw, 13px);
-    letter-spacing: -0.8px;
+    font-size: clamp(10px, 3.2vw, 12px);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    letter-spacing: -0.6px;
+    line-height: 1.2;
   }
 
   .brand-highlight {
@@ -345,7 +367,10 @@ header::before {
   }
 
   .brand h1 {
-    font-size: 13px;
+    font-size: 11px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
   }
 
   .brand {
@@ -2985,6 +3010,7 @@ html[data-theme="light"] #btn-theme .icon-moon {
   .update-tech-row {
     grid-template-columns: 1fr;
   }
+
   .update-close {
     padding: 6px 10px !important;
   }
