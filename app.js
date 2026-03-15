@@ -28,7 +28,7 @@ let viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
 let layoutOrientation = localStorage.getItem('uthm-tg-orientation') || 'days-top';
 
 // Build info (shown in the on-load update popup)
-const APP_BUILD_VERSION = 23;
+const APP_BUILD_VERSION = 24;
 
 // Latest update payload (from `updates.js`)
 let latestUpdate = null;
@@ -1135,14 +1135,60 @@ function showUpdatePopup() {
     : '-';
   const diffBase = latestUpdate.timetable.diffBase || '-';
   const appMod = (document && document.lastModified) ? document.lastModified : '-';
+  const fmt12 = (d, withSeconds = true) => {
+    const pad2 = (n) => String(n).padStart(2, '0');
+    const mm = pad2(d.getMonth() + 1);
+    const dd = pad2(d.getDate());
+    const yyyy = d.getFullYear();
+    let hh = d.getHours();
+    const ap = hh >= 12 ? 'PM' : 'AM';
+    hh = hh % 12;
+    if (hh === 0) hh = 12;
+    const hh12 = pad2(hh);
+    const mi = pad2(d.getMinutes());
+    const ss = pad2(d.getSeconds());
+    return `${mm}/${dd}/${yyyy} ${hh12}:${mi}${withSeconds ? `:${ss}` : ''} ${ap}`;
+  };
+  const parseLastModified = (s) => {
+    if (!s || s === '-') return null;
+    const str = String(s).trim();
+    const direct = new Date(str);
+    if (!isNaN(direct)) return direct;
+    const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:,)?\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+    if (!m) return null;
+    let month = parseInt(m[1], 10);
+    let day = parseInt(m[2], 10);
+    const year = parseInt(m[3], 10);
+    let hour = parseInt(m[4], 10);
+    const minute = parseInt(m[5], 10);
+    const second = parseInt(m[6] || '0', 10);
+    const ap = (m[7] || '').toUpperCase();
+    if (ap) {
+      if (ap === 'PM' && hour < 12) hour += 12;
+      if (ap === 'AM' && hour === 12) hour = 0;
+    }
+    if (!month || !day || !year) return null;
+    // Basic safety clamp
+    if (month < 1 || month > 12) return null;
+    if (day < 1 || day > 31) return null;
+    if (hour < 0 || hour > 23) return null;
+    if (minute < 0 || minute > 59) return null;
+    if (second < 0 || second > 59) return null;
+    return new Date(year, month - 1, day, hour, minute, second);
+  };
+  const appModPretty = (() => {
+    try {
+      const d = parseLastModified(appMod);
+      return d ? fmt12(d, true) : String(appMod || '-');
+    } catch {
+      return String(appMod || '-');
+    }
+  })();
   const genAtPretty = (() => {
     try {
       const d = new Date(genAt);
       if (isNaN(d)) return genAt;
-      return d.toLocaleString(currentLang === 'ms' ? 'ms-MY' : 'en-US', {
-        year: 'numeric', month: 'short', day: '2-digit',
-        hour: '2-digit', minute: '2-digit'
-      });
+      return fmt12(d, false);
     } catch {
       return genAt;
     }
@@ -1266,7 +1312,7 @@ function showUpdatePopup() {
           <div class="update-tech-row"><span>${currentLang === 'ms' ? 'Sumber (Base)' : 'Base source'}</span><b>${base}</b></div>
           <div class="update-tech-row"><span>${currentLang === 'ms' ? 'PDF Diguna' : 'PDF used'}</span><span>${sourcesFull}</span></div>
           <div class="update-tech-row"><span>${currentLang === 'ms' ? 'Diff dari' : 'Diff base'}</span><span>${fmtKey(diffBase)}</span></div>
-          <div class="update-tech-row"><span>${currentLang === 'ms' ? 'Aplikasi' : 'App'}</span><span>v${APP_BUILD_VERSION} • ${appMod}</span></div>
+          <div class="update-tech-row"><span>${currentLang === 'ms' ? 'Aplikasi' : 'App'}</span><span>v${APP_BUILD_VERSION} • ${appModPretty}</span></div>
         </div>
       </details>
     </div>

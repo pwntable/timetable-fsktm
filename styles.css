@@ -2534,22 +2534,49 @@ html[data-theme="light"] #btn-theme .icon-moon {
   border-width: 1.5px;
 }
 
-.dl-btn--png {
+.download-actions .modal-btn.dl-btn--png {
   background: #6366f1;
   border-color: #6366f1;
   color: #fff;
 }
 
-.dl-btn--xlsx {
+.download-actions .modal-btn.dl-btn--png:hover {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #fff;
+}
+
+.download-actions .modal-btn.dl-btn--xlsx {
   background: #10b981;
   border-color: #10b981;
   color: #fff;
 }
 
-.dl-btn--pdf {
+.download-actions .modal-btn.dl-btn--xlsx:hover {
+  background: #059669;
+  border-color: #059669;
+  color: #fff;
+}
+
+.download-actions .modal-btn.dl-btn--pdf {
   background: #ef4444;
   border-color: #ef4444;
   color: #fff;
+}
+
+.download-actions .modal-btn.dl-btn--pdf:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #fff;
+}
+
+.download-actions .modal-btn.dl-btn:focus-visible {
+  outline: 3px solid rgba(99, 102, 241, 0.4);
+  outline-offset: 2px;
+}
+
+.download-actions .modal-btn.dl-btn:active {
+  transform: translateY(1px);
 }
 
 .dl-btn--cancel {
