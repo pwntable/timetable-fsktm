@@ -2,6 +2,13 @@ import pdfplumber
 import json
 import re
 import os
+from datetime import datetime
+
+# Repo-relative paths (works regardless of current working directory)
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+PDF_DIR = os.path.join(REPO_ROOT, "tools", "PDF")
+SNAPSHOT_DIR = os.path.join(REPO_ROOT, "tools", "Utility", "snapshots")
+UPDATE_META_PATH = os.path.join(REPO_ROOT, "logs", "update_meta.json")
 
 # Basic Regex for Course / Intakes / Footnotes
 COURSE_TITLE_PATTERN = re.compile(r'([A-Z]{3,4}\s*\d{4,5}[A-Z]?)\s*-\s*([A-Za-z0-9 &/-]+)')
@@ -12,7 +19,7 @@ class TimetableParser:
         self.pdf_files = pdf_files
         self.database = {}
         self.course_titles = {}
-        self.merge_map = {}  # { "footnote_id": [{"code", "lecturer", "intake", "section", "type_char", "type_full"}, ...]}
+        self.merge_map = {}  # { "footnote_id": [...] } - Now reset per file
         self.anomalies = []
 
     def normalize_code(self, code):
@@ -56,11 +63,38 @@ class TimetableParser:
                 
         return " | ".join(clean_tags)
 
-    def extract_footnotes(self):
-        print(f"STEP 1: Extracting Footnotes from {len(self.pdf_files)} files...")
+    def process_all(self):
+        """Processes all files, ensuring footnotes are handled per-file."""
+        # Pre-pass: Extract all possible course titles across all files
+        print("PRE-STEP: Extracting All Course Titles...")
         for filename in self.pdf_files:
             if not os.path.exists(filename): continue
             with pdfplumber.open(filename) as pdf:
+                for page in pdf.pages:
+                    text = page.extract_text()
+                    if text:
+                        # Extract course titles only from "CODE - TITLE" patterns to avoid
+                        # accidentally capturing timetable labels like "CODE : S8 A".
+                        for match in COURSE_TITLE_PATTERN.finditer(text):
+                            code = self.normalize_code(match.group(1))
+                            title = re.sub(r'\s+', ' ', match.group(2) or '').strip().upper()
+                            # Guard against false positives like "S8 A", "S1 K", etc.
+                            if not title:
+                                continue
+                            if re.fullmatch(r'S\d+(?:/\d+)?\s*[KTA](?:/[KTA])?', title):
+                                continue
+                            if len(title) < 4:
+                                continue
+                            self.course_titles[code] = title
+
+        # Main Pass
+        for filename in self.pdf_files:
+            if not os.path.exists(filename): continue
+            print(f"Processing {filename}...")
+            self.merge_map = {} # Reset footnotes for each file
+            
+            with pdfplumber.open(filename) as pdf:
+                # 1. Extract footnotes for THIS file
                 for page in pdf.pages:
                     res = page.search(r'Footnote[:\s]', regex=True)
                     if not res: continue
@@ -90,87 +124,8 @@ class TimetableParser:
                     if current_id and current_text:
                         self._parse_footnote_line(current_id, current_text)
 
-    def _parse_footnote_line(self, m_id, text):
-        if m_id not in self.merge_map:
-            self.merge_map[m_id] = []
-            
-        parts = text.split(',')
-        last_code = None
-        last_lec = "Unknown"
-        last_intake = []
-        
-        for part in parts:
-            part = part.strip()
-            if not part: continue
-            
-            code_match = re.search(r'([A-Z]{3,4}\s*\d{4,5}[A-Z]?)', part)
-            if code_match:
-                c_code = self.normalize_code(code_match.group(1))
-                last_code = c_code
-            else:
-                c_code = last_code
-                
-            if not c_code: continue
-            
-            sec_match = re.search(r'(S\d+(?:/\d+)?)\s*:\s*([KTA](?:/[KTA])?)', part)
-            if not sec_match: continue
-            c_sec = sec_match.group(1).replace(' ', '')
-            c_type_char = sec_match.group(2)
-            c_type_full = self.parse_class_type(c_type_char.split('/')[0])
-            
-            lec_match = re.search(r'\(([^)]+)\)', part)
-            if lec_match:
-                c_lecturer = lec_match.group(1).strip()
-                last_lec = c_lecturer
-            else:
-                c_lecturer = last_lec
-            
-            extracted_intakes = self.extract_intakes(part)
-            if extracted_intakes:
-                c_intake = extracted_intakes
-                last_intake = extracted_intakes
-            else:
-                c_intake = last_intake
-            
-            target = {
-                "code": c_code,
-                "lecturer": c_lecturer,
-                "intake": c_intake,
-                "section": c_sec,
-                "type_char": c_type_char,
-                "type": c_type_full
-            }
-            
-            found_existing = False
-            for t in self.merge_map[m_id]:
-                if t["code"] == target["code"] and t["section"] == target["section"] and t["type_char"] == target["type_char"]:
-                    found_existing = True
-                    if target["intake"]:
-                        if not t["intake"]:
-                            t["intake"] = target["intake"]
-                        elif target["intake"] not in t["intake"]:
-                            t["intake"] += " | " + target["intake"]
-                    break
-                    
-            if not found_existing:
-                self.merge_map[m_id].append(target)
-
-    def extract_grid(self):
-        print(f"STEP 2: Processing Table Grids from {len(self.pdf_files)} files...")
-        for filename in self.pdf_files:
-            if not os.path.exists(filename): continue
-            with pdfplumber.open(filename) as pdf:
+                # 2. Extract grid for THIS file
                 for page in pdf.pages:
-                    text = page.extract_text()
-                    if text:
-                        for match in COURSE_TITLE_PATTERN.finditer(text):
-                            code = self.normalize_code(match.group(1))
-                            title = match.group(2).strip().upper()
-                            if len(title) > 3:
-                                self.course_titles[code] = title
-                                if code not in self.database:
-                                    self.database[code] = {"name": title, "sections": {}, "hasMultipleSections": False}
-
                     tables = page.find_tables()
                     if not tables: continue
                     
@@ -230,29 +185,96 @@ class TimetableParser:
                                 
                                 self._process_cell_content(cell_text, day, time_start, duration)
 
+    def _parse_footnote_line(self, m_id, text):
+        if m_id not in self.merge_map:
+            self.merge_map[m_id] = []
+            
+        parts = text.split(',')
+        last_code = None
+        last_lec = "Unknown"
+        last_intake = []
+        
+        for part in parts:
+            part = part.strip()
+            if not part: continue
+            
+            code_match = re.search(r'([A-Z]{3,4}\s*\d{4,5}[A-Z]?)', part)
+            if code_match:
+                c_code = self.normalize_code(code_match.group(1))
+                last_code = c_code
+            else:
+                c_code = last_code
+                
+            if not c_code: continue
+            
+            sec_match = re.search(r'(S\d+(?:/\d+)?)\s*[:\s]*\s*([KTA](?:/[KTA])?)', part)
+            if not sec_match: continue
+            c_sec = sec_match.group(1).replace(' ', '')
+            c_type_char = sec_match.group(2)
+            c_type_full = self.parse_class_type(c_type_char.split('/')[0])
+            
+            lec_match = re.search(r'\(([^)]+)\)', part)
+            if lec_match:
+                c_lecturer = lec_match.group(1).strip()
+                last_lec = c_lecturer
+            else:
+                c_lecturer = last_lec
+            
+            extracted_intakes = self.extract_intakes(part)
+            if extracted_intakes:
+                c_intake = extracted_intakes
+                last_intake = extracted_intakes
+            else:
+                c_intake = last_intake
+            
+            target = {
+                "code": c_code,
+                "lecturer": c_lecturer,
+                "intake": c_intake,
+                "section": c_sec,
+                "type_char": c_type_char,
+                "type": c_type_full
+            }
+            
+            found_existing = False
+            for t in self.merge_map[m_id]:
+                if t["code"] == target["code"] and t["section"] == target["section"] and t["type_char"] == target["type_char"]:
+                    found_existing = True
+                    if target["intake"]:
+                        if not t["intake"]:
+                            t["intake"] = target["intake"]
+                        elif target["intake"] not in t["intake"]:
+                            t["intake"] += " | " + target["intake"]
+                    break
+                    
+            if not found_existing:
+                self.merge_map[m_id].append(target)
+
     def _process_cell_content(self, cell_text, day, time_start, duration):
         cell_text = cell_text.replace('\n', ' ')
         v_match = re.search(r'\[([^[\]]+)(?:\]|$)', cell_text)
         if v_match:
             cell_venue = v_match.group(1).strip()
-            tail_num = re.search(r'\b\d{1,3}\b\s*$', cell_venue)
-            if tail_num:
-                cell_venue = cell_venue[:tail_num.start()].strip().rstrip('-').strip()
+            # Clean venue string
+            cell_venue = re.sub(r'\s*\b\d{1,3}\b\s*$', '', cell_venue).strip().rstrip('-').strip()
         else:
             cell_venue = "TBA"
 
+        # Check for footnote ID at the end
         tail_match = re.search(r'\b(\d{1,3})\b\s*$', cell_text)
         if tail_match:
             f_id = tail_match.group(1)
             if f_id in self.merge_map:
                 self._deploy_targets(self.merge_map[f_id], day, time_start, duration, cell_venue)
                 
+        # Pure footnote ID case
         maybe_id = cell_text.replace(' ', '')
         if maybe_id.isdigit() and maybe_id in self.merge_map:
             self._deploy_targets(self.merge_map[maybe_id], day, time_start, duration, cell_venue)
             return
             
-        direct_pattern = re.compile(r'([A-Z]{3,4}\s*\d{4,5}[A-Z]?)\s*:\s*(S\d+)\s*([KTA](?:/[KTA])?)')
+        # Direct course string case: Code: Sec Type
+        direct_pattern = re.compile(r'([A-Z]{3,4}\s*\d{4,5}[A-Z]?)\s*[:\s]\s*(S\d+)\s*([KTA](?:/[KTA])?)')
         matches = list(direct_pattern.finditer(cell_text))
         
         if matches:
@@ -280,7 +302,7 @@ class TimetableParser:
             sec = t["section"]
             
             if code not in self.database:
-                self.database[code] = {"name": self.course_titles.get(code, f"SUBJECT {code}"), "sections": {}, "hasMultipleSections": False}
+                self.database[code] = {"name": self.course_titles.get(code, f"SUBJECT {code}"), "sections": {}}
             if sec not in self.database[code]["sections"]:
                 self.database[code]["sections"][sec] = []
                 
@@ -289,11 +311,14 @@ class TimetableParser:
             for s in self.database[code]["sections"][sec]:
                 if s.get("_hash") == hash_id:
                     exists = True
+                    # Update venue if TBA
                     if s["venue"] == "TBA" and shared_venue != "TBA":
                         s["venue"] = shared_venue
+                    # Supplementary intake info
                     if t["intake"] and t["intake"] not in s.get("intakes", []):
                         if "intakes" not in s: s["intakes"] = []
-                        s["intakes"].append(t["intake"])
+                        if t["intake"] not in " ".join(s["intakes"]):
+                            s["intakes"].append(t["intake"])
                     break
                     
             if not exists:
@@ -313,8 +338,8 @@ class TimetableParser:
 
     def get_final_data(self):
         db = self.database
+        # Final pass for sharing lectures across sections (Only for Multi-section courses)
         for code, data in db.items():
-            if code == "": continue
             has_multi = len(data["sections"].keys()) > 1
             if has_multi:
                 shared_lectures = []
@@ -338,7 +363,6 @@ class TimetableParser:
 
         final_db = {}
         for code, data in db.items():
-            if code == "": continue
             clean_sections = {}
             for sec, slots in data["sections"].items():
                 clean_slots = []
@@ -349,25 +373,321 @@ class TimetableParser:
                     clean_slots.append(s)
                 if clean_slots:
                     clean_sections[sec] = clean_slots
-            has_multi = len(clean_sections.keys()) > 1
+            
             if clean_sections:
                 final_db[code] = {
-                    "name": data["name"],
+                    "name": self.course_titles.get(code, data["name"]), # Ensure title is the latest we found
                     "sections": clean_sections,
-                    "hasMultipleSections": has_multi
+                    "hasMultipleSections": len(clean_sections.keys()) > 1
                 }
         return final_db
 
     def save_anomalies(self, filepath):
+        if not self.anomalies: return
         with open(filepath, 'w', encoding='utf-8') as f:
             for anomaly in self.anomalies:
                 f.write(anomaly + "\n")
 
-def run_parser(pdf_files, output_file):
-    parser = TimetableParser(pdf_files)
-    parser.extract_footnotes()
-    parser.extract_grid()
-    final_db = parser.get_final_data()
+def _normalize_duration(d):
+    try:
+        v = float(d)
+        if abs(v - round(v)) < 1e-6:
+            return int(round(v))
+        return round(v, 2)
+    except Exception:
+        return d
+
+def _slot_key(section, slot):
+    return (
+        section,
+        slot.get("type", ""),
+        slot.get("day", ""),
+        slot.get("time_start", ""),
+        _normalize_duration(slot.get("duration", 0)),
+    )
+
+def _deepcopy_json(obj):
+    return json.loads(json.dumps(obj))
+
+def _load_courses_from_data_js(path):
+    with open(path, "r", encoding="utf-8") as f:
+        text = f.read()
+    marker = "const COURSES ="
+    idx = text.find(marker)
+    if idx == -1:
+        return {}
+    start = text.find("{", idx)
+    end = text.rfind("};")
+    if start == -1 or end == -1 or end <= start:
+        return {}
+    return json.loads(text[start : end + 1])
+
+def _diff_dbs(old_db, new_db):
+    old_codes = set(old_db.keys())
+    new_codes = set(new_db.keys())
+
+    diff = {
+        "courses": {
+            "added": sorted(list(new_codes - old_codes)),
+            "removed": sorted(list(old_codes - new_codes)),
+            "name_changed": [],
+        },
+        "sections": {"added": {}, "removed": {}},
+        "slots": {"structural": {"added": {}, "removed": {}}, "detail_only_changed": {}},
+    }
+
+    common = sorted(list(old_codes & new_codes))
+    for code in common:
+        o = old_db.get(code) or {}
+        n = new_db.get(code) or {}
+
+        if (o.get("name") or "") != (n.get("name") or ""):
+            diff["courses"]["name_changed"].append({"code": code, "old": o.get("name"), "new": n.get("name")})
+
+        o_secs = set((o.get("sections") or {}).keys())
+        n_secs = set((n.get("sections") or {}).keys())
+        add_secs = sorted(list(n_secs - o_secs))
+        rem_secs = sorted(list(o_secs - n_secs))
+        if add_secs:
+            diff["sections"]["added"][code] = add_secs
+        if rem_secs:
+            diff["sections"]["removed"][code] = rem_secs
+
+        for sec in sorted(list(o_secs & n_secs)):
+            o_slots = ((o.get("sections") or {}).get(sec)) or []
+            n_slots = ((n.get("sections") or {}).get(sec)) or []
+
+            def sk(s):
+                return (
+                    sec,
+                    s.get("type", ""),
+                    s.get("day", ""),
+                    s.get("time_start", ""),
+                    _normalize_duration(s.get("duration", 0)),
+                )
+
+            o_struct = {sk(s) for s in o_slots}
+            n_struct = {sk(s) for s in n_slots}
+            add_struct = sorted(list(n_struct - o_struct))
+            rem_struct = sorted(list(o_struct - n_struct))
+            if add_struct:
+                diff["slots"]["structural"]["added"].setdefault(code, {}).setdefault(sec, []).extend(add_struct)
+            if rem_struct:
+                diff["slots"]["structural"]["removed"].setdefault(code, {}).setdefault(sec, []).extend(rem_struct)
+
+            if not add_struct and not rem_struct and o_struct:
+                # compare detail-only changes
+                def dk(s):
+                    return (
+                        *sk(s),
+                        s.get("venue", ""),
+                        s.get("lecturer", ""),
+                        tuple(s.get("intakes") or []),
+                    )
+                o_by = {}
+                n_by = {}
+                for s in o_slots:
+                    o_by.setdefault(sk(s), set()).add(dk(s))
+                for s in n_slots:
+                    n_by.setdefault(sk(s), set()).add(dk(s))
+                changed = [k for k in (o_struct & n_struct) if o_by.get(k, set()) != n_by.get(k, set())]
+                if changed:
+                    diff["slots"]["detail_only_changed"].setdefault(code, {}).setdefault(sec, []).extend(sorted(changed))
+
+    return diff
+
+def _find_latest_timetable_date(pdf_dir):
+    """Finds the latest YYYYMMDD suffix from files like by_course_YYYYMMDD.pdf."""
+    if not os.path.isdir(pdf_dir):
+        return None
+    dates = []
+    for name in os.listdir(pdf_dir):
+        m = re.match(r"^by_course_(\d{8})\.pdf$", name)
+        if m:
+            dates.append(m.group(1))
+    return max(dates) if dates else None
+
+def _build_pdf_list_for_date(pdf_dir, date_str):
+    """Returns all existing timetable PDFs for a given date, in preferred priority order."""
+    if not date_str:
+        return []
+    preferred = [
+        f"by_course_{date_str}.pdf",
+        f"by_lecturer_{date_str}.pdf",
+        f"by_room_{date_str}.pdf",
+        f"by_batch_{date_str}.pdf",
+    ]
+    out = []
+    for fname in preferred:
+        path = os.path.join(pdf_dir, fname)
+        if os.path.exists(path):
+            out.append(path)
+    return out
+
+def _reconcile_sources(source_dbs, source_files):
+    """
+    Uses `by_course` as the canonical schedule source, then *enriches* missing details
+    (venue/lecturer/intakes) from other sources *only when the slot matches exactly*.
+    Also produces a report of disagreements/unmatched slots for debugging.
+    """
+    if not source_dbs:
+        return {}, {"error": "no_sources"}
+
+    def _is_by_course(path):
+        return "by_course_" in os.path.basename(path)
+
+    base_idx = 0
+    for i, f in enumerate(source_files):
+        if _is_by_course(f):
+            base_idx = i
+            break
+
+    base_db = _deepcopy_json(source_dbs[base_idx] or {})
+    report = {
+        "base": os.path.basename(source_files[base_idx]),
+        "sources": [os.path.basename(p) for p in source_files],
+        "enriched": {"venue": 0, "lecturer": 0, "intakes": 0},
+        "unmatched_slots": {},   # per source -> count
+        "disagreements": {},     # per source -> count
+        "unmatched_samples": {},     # per source -> [sample]
+        "disagreement_samples": {},  # per source -> [sample]
+        "missing_courses_in_base": {},  # per source -> count
+        "missing_sections_in_base": {}, # per source -> count
+        "missing_courses_samples": {},  # per source -> [codes]
+        "missing_sections_samples": {}, # per source -> [sample]
+    }
+
+    # Index base slots for exact matching and for disagreement detection.
+    base_exact = {}   # (code, slot_key) -> slot_ref
+    base_coarse = {}  # (code, section, type, day) -> set of (time_start, duration)
+
+    for code, c in base_db.items():
+        for sec, slots in (c.get("sections") or {}).items():
+            for slot in slots:
+                k = (code, _slot_key(sec, slot))
+                base_exact[k] = slot
+                ck = (code, sec, slot.get("type", ""), slot.get("day", ""))
+                base_coarse.setdefault(ck, set()).add((slot.get("time_start", ""), _normalize_duration(slot.get("duration", 0))))
+
+    # Enrich from other sources.
+    for idx, (src_db, src_file) in enumerate(zip(source_dbs, source_files)):
+        if idx == base_idx:
+            continue
+        src_name = os.path.basename(src_file)
+        unmatched = 0
+        disagreements = 0
+        missing_courses = 0
+        missing_sections = 0
+        unmatched_samples = []
+        disagreement_samples = []
+        missing_courses_samples = []
+        missing_sections_samples = []
+        sample_cap = 40
+
+        for code, c in (src_db or {}).items():
+            if code not in base_db:
+                missing_courses += 1
+                if len(missing_courses_samples) < sample_cap:
+                    missing_courses_samples.append(code)
+                continue
+            base_sections = base_db[code].get("sections") or {}
+            for sec, slots in (c.get("sections") or {}).items():
+                if sec not in base_sections:
+                    missing_sections += 1
+                    if len(missing_sections_samples) < sample_cap:
+                        missing_sections_samples.append({"code": code, "section": sec})
+                    continue
+                for slot in slots:
+                    sk = _slot_key(sec, slot)
+                    exact_key = (code, sk)
+                    if exact_key in base_exact:
+                        dst = base_exact[exact_key]
+
+                        # Venue
+                        src_venue = slot.get("venue")
+                        if (not dst.get("venue") or dst.get("venue") == "TBA") and src_venue and src_venue != "TBA":
+                            dst["venue"] = src_venue
+                            report["enriched"]["venue"] += 1
+
+                        # Lecturer
+                        src_lec = slot.get("lecturer")
+                        if (not dst.get("lecturer") or dst.get("lecturer") == "Unknown") and src_lec and src_lec != "Unknown":
+                            dst["lecturer"] = src_lec
+                            report["enriched"]["lecturer"] += 1
+
+                        # Intakes (union)
+                        src_intakes = slot.get("intakes") or []
+                        if src_intakes:
+                            dst.setdefault("intakes", [])
+                            before = set(dst["intakes"])
+                            for it in src_intakes:
+                                if it and it not in before:
+                                    dst["intakes"].append(it)
+                            if set(dst["intakes"]) != before:
+                                report["enriched"]["intakes"] += 1
+                    else:
+                        # Check if this looks like a time-shift disagreement for the same class.
+                        ck = (code, sec, slot.get("type", ""), slot.get("day", ""))
+                        if ck in base_coarse:
+                            disagreements += 1
+                            if len(disagreement_samples) < sample_cap:
+                                disagreement_samples.append({
+                                    "code": code,
+                                    "section": sec,
+                                    "type": slot.get("type", ""),
+                                    "day": slot.get("day", ""),
+                                    "source_time_start": slot.get("time_start", ""),
+                                    "source_duration": _normalize_duration(slot.get("duration", 0)),
+                                    "base_candidates": sorted(list(base_coarse.get(ck) or [])),
+                                })
+                        else:
+                            unmatched += 1
+                            if len(unmatched_samples) < sample_cap:
+                                unmatched_samples.append({
+                                    "code": code,
+                                    "section": sec,
+                                    "type": slot.get("type", ""),
+                                    "day": slot.get("day", ""),
+                                    "time_start": slot.get("time_start", ""),
+                                    "duration": _normalize_duration(slot.get("duration", 0)),
+                                })
+
+        report["unmatched_slots"][src_name] = unmatched
+        report["disagreements"][src_name] = disagreements
+        report["unmatched_samples"][src_name] = unmatched_samples
+        report["disagreement_samples"][src_name] = disagreement_samples
+        report["missing_courses_in_base"][src_name] = missing_courses
+        report["missing_sections_in_base"][src_name] = missing_sections
+        report["missing_courses_samples"][src_name] = missing_courses_samples
+        report["missing_sections_samples"][src_name] = missing_sections_samples
+
+    # Ensure flags remain correct after enrichment.
+    for code, c in base_db.items():
+        secs = c.get("sections") or {}
+        c["hasMultipleSections"] = len(secs.keys()) > 1
+
+    return base_db, report
+
+def run_parser(pdf_files, output_file, reconcile=False, reconcile_report_path=None):
+    pdf_files = [p for p in (pdf_files or []) if p and os.path.exists(p)]
+    if not pdf_files:
+        raise FileNotFoundError("No PDF files found to parse.")
+
+    if reconcile and len(pdf_files) > 1:
+        source_dbs = []
+        for f in pdf_files:
+            p = TimetableParser([f])
+            p.process_all()
+            source_dbs.append(p.get_final_data())
+        final_db, rep = _reconcile_sources(source_dbs, pdf_files)
+        if reconcile_report_path:
+            os.makedirs(os.path.dirname(reconcile_report_path), exist_ok=True)
+            with open(reconcile_report_path, "w", encoding="utf-8") as fp:
+                json.dump(rep, fp, indent=2, ensure_ascii=False)
+    else:
+        parser = TimetableParser(pdf_files)
+        parser.process_all()
+        final_db = parser.get_final_data()
     
     js_content = f"""/* ═══════════════════════════════════════════════
    UTHM Timetable Generator — data.js
@@ -380,8 +700,81 @@ const COURSES = {json.dumps(final_db, indent=2)};
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(js_content)
     print(f"✅ Successfully extracted {len(final_db)} courses to {output_file}.")
-    parser.save_anomalies("intake_anomalies.txt")
+    # Only available in single-parser mode; in reconcile mode, anomalies are per-source.
+    if not (reconcile and len(pdf_files) > 1):
+        parser.save_anomalies(os.path.join(REPO_ROOT, "intake_anomalies.txt"))
 
 if __name__ == "__main__":
-    PDF_FILES = ["tools/PDF/by_course_14032026.pdf"]
-    run_parser(PDF_FILES, "data.js")
+    latest = _find_latest_timetable_date(PDF_DIR)
+    PDF_FILES = _build_pdf_list_for_date(PDF_DIR, latest)
+    if not PDF_FILES:
+        raise SystemExit(f"No timetable PDFs found in: {PDF_DIR}")
+
+    # Capture previous parsed data (for on-load update popup).
+    # Prefer comparing against the previous timetable *version* (stored in `logs/update_meta.json`)
+    # and snapshots, not just "whatever data.js currently is".
+    data_path = os.path.join(REPO_ROOT, "data.js")
+    prev_date = None
+    try:
+        if os.path.exists(UPDATE_META_PATH):
+            with open(UPDATE_META_PATH, "r", encoding="utf-8") as f:
+                prev_date = (json.load(f) or {}).get("latestDate")
+    except Exception:
+        prev_date = None
+
+    old_source = "data.js"
+    old_db = _load_courses_from_data_js(data_path) if os.path.exists(data_path) else {}
+    if prev_date and prev_date != latest:
+        snap_path = os.path.join(SNAPSHOT_DIR, f"data_{prev_date}.js")
+        if os.path.exists(snap_path):
+            old_db = _load_courses_from_data_js(snap_path)
+            old_source = os.path.basename(snap_path)
+
+    # Generate from multiple sources safely:
+    # - `by_course` is treated as canonical for (day/time/duration/type/section)
+    # - other PDFs only enrich details when the slot matches exactly
+    out_path = os.path.join(REPO_ROOT, "data.js")
+    rep_path = os.path.join(REPO_ROOT, "logs", f"reconcile_report_{latest}.json")
+    run_parser(PDF_FILES, out_path, reconcile=True, reconcile_report_path=rep_path)
+
+    # Build/update `updates.js` so the website can show "what changed" on load (no fetch needed).
+    new_db = _load_courses_from_data_js(out_path)
+    diff = _diff_dbs(old_db, new_db)
+    try:
+        with open(rep_path, "r", encoding="utf-8") as f:
+            rec = json.load(f)
+    except Exception:
+        rec = {}
+
+    updates = {
+        "generatedAt": datetime.now().isoformat(timespec="seconds"),
+        "timetable": {
+            "latestDate": latest,
+            "previousDate": prev_date,
+            "diffBase": old_source,
+            "base": rec.get("base"),
+            "sourcesUsed": rec.get("sources") or [os.path.basename(p) for p in PDF_FILES],
+        },
+        "changes": diff,
+    }
+
+    # JSON copy (for dev) + JS global (for browser)
+    os.makedirs(os.path.join(REPO_ROOT, "logs"), exist_ok=True)
+    with open(os.path.join(REPO_ROOT, "logs", f"latest_update_{latest}.json"), "w", encoding="utf-8") as f:
+        json.dump(updates, f, indent=2, ensure_ascii=False)
+
+    # Persist snapshot + meta for next run.
+    os.makedirs(SNAPSHOT_DIR, exist_ok=True)
+    try:
+        with open(out_path, "r", encoding="utf-8") as src, open(os.path.join(SNAPSHOT_DIR, f"data_{latest}.js"), "w", encoding="utf-8") as dst:
+            dst.write(src.read())
+    except Exception:
+        pass
+    with open(UPDATE_META_PATH, "w", encoding="utf-8") as f:
+        json.dump({"latestDate": latest, "generatedAt": updates["generatedAt"]}, f, indent=2, ensure_ascii=False)
+
+    with open(os.path.join(REPO_ROOT, "updates.js"), "w", encoding="utf-8") as f:
+        f.write("/* Auto-generated. Do not edit by hand. */\n")
+        f.write("window.LATEST_UPDATE = ")
+        f.write(json.dumps(updates, ensure_ascii=False, indent=2))
+        f.write(";\n")

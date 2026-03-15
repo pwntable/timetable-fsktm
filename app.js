@@ -27,6 +27,14 @@ let viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
 // 'days-top' | 'days-left'
 let layoutOrientation = localStorage.getItem('uthm-tg-orientation') || 'days-top';
 
+// Build info (shown in the on-load update popup)
+const APP_BUILD_VERSION = 21;
+
+// Latest update payload (from `updates.js`)
+let latestUpdate = null;
+let updateIndex = null;
+let _updatePrevFocus = null;
+
 /* ════ i18n & THEME ════ */
 const DICT = {
   en: {
@@ -218,7 +226,10 @@ function applyLang() {
     if (t[key]) el.innerHTML = t[key];
   });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-    el.placeholder = t[el.getAttribute('data-i18n-ph')];
+    el.placeholder = t[el.getAttribute('data-i18n-ph')] || el.placeholder;
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t[el.getAttribute('data-i18n-title')] || el.title;
   });
   const btn = document.getElementById('btn-lang');
   if (btn) btn.textContent = currentLang === 'ms' ? 'EN' : 'MS';
@@ -293,12 +304,14 @@ window.addEventListener('resize', () => {
 function init() {
   applyLang();
   setOrientation(layoutOrientation);
+  initLatestUpdate();
   filtered = Object.keys(COURSES).sort();
   renderList(filtered);
   renderSavedList();
   document.getElementById('cnt-all').textContent = filtered.length;
   renderTimetable();
   buildIntakeList();
+  showUpdatePopup();
 }
 
 /* ════ COURSE LIST ════ */
@@ -333,7 +346,9 @@ function renderList(codes) {
     }
     const item = document.createElement('div');
     item.className = `citem${isSel ? ' sel' : ''}${noSec ? ' no-sec' : ''}`;
-    item.innerHTML = `<div class="cbox"></div><div class="cinfo"><div class="ccode">${code}</div><div class="cname">${c.name}</div></div><div class="csec-count">${noSec ? '—' : secCount > 1 ? secCount + ' sec' : '1 sec'}</div>`;
+    const tag = getCourseUpdateTag(code);
+    const tagHtml = tag ? ` <span class="pill ${tag.cls}">${tag.label}</span>` : '';
+    item.innerHTML = `<div class="cbox"></div><div class="cinfo"><div class="ccode">${code}</div><div class="cname">${c.name}${tagHtml}</div></div><div class="csec-count">${noSec ? '—' : secCount > 1 ? secCount + ' sec' : '1 sec'}</div>`;
     if (!noSec) item.onclick = () => toggleCourse(code);
     el.appendChild(item);
   });
@@ -343,7 +358,7 @@ function toggleCourse(code) {
   if (code in selected) {
     delete selected[code]; delete colorMap[code]; delete customColors[code];
   } else {
-    const secs = Object.keys(COURSES[code].sections || {});
+    const secs = sortSections(Object.keys(COURSES[code].sections || {}));
     selected[code] = secs[0] || null;
     colorMap[code] = colorIdx % COLORS.length;
     customColors[code] = COLORS[colorMap[code]];
@@ -438,9 +453,11 @@ function renderSelArea() {
   }
   area.innerHTML = '';
   codes.forEach(code => {
-    const c = COURSES[code], secs = Object.keys(c.sections || {});
+    const c = COURSES[code], secs = sortSections(Object.keys(c.sections || {}));
     const chosen = selected[code], col = getSubjectColor(code);
     const credits = getCredits(code);
+    const tag = getCourseUpdateTag(code);
+    const tagHtml = tag ? `<span class="pill ${tag.cls}" style="margin-left:6px">${tag.label}</span>` : '';
     const pillsHTML = secs.map(s => {
       const isActive = chosen === s, hasConflict = isConflictSection(code, s);
       let style = '';
@@ -455,7 +472,7 @@ function renderSelArea() {
       <div class="sel-top">
         <span style="display:flex;align-items:center;gap:7px">
           <button class="color-swatch-btn" data-code="${code}" onclick="openColorPicker('${code}')" title="${colorLabel}" style="background:${col};border-color:${col}"></button>
-          <span class="sel-code" style="color:${col}">${code}</span>
+          <span class="sel-code" style="color:${col}">${code}</span>${tagHtml}
         </span>
         <span style="display:flex;align-items:center;gap:8px">
           <span class="credit-badge">${credits} kredit</span>
@@ -628,7 +645,8 @@ function renderTimetable() {
         time_end: endTime,
         ci: colorMap[code],
         colspan: dur,
-        startIdx: si
+        startIdx: si,
+        updateTag: getSlotUpdateTag(code, sec, slot)
       });
     });
   }
@@ -702,6 +720,11 @@ function buildTableHTML(daySlots) {
 
 function renderSlotContent(e, ts, col, venue, durLabel, isTransposed = false) {
   let isCompact = (e.overlapCount || 1) > 1;
+  const uCls = e.updateTag ? ` update-${e.updateTag}` : '';
+  const uBadge = e.updateTag
+    ? `<span class="slot-update-badge${e.updateTag === 'changed' ? ' changed' : ''}">${e.updateTag === 'new' ? (currentLang === 'ms' ? 'BARU' : 'NEW') : (currentLang === 'ms' ? 'KEMAS KINI' : 'UPDATED')}</span>`
+    : '';
+  const courseName = escHtml((COURSES[e.code] && COURSES[e.code].name) ? COURSES[e.code].name : '');
 
   if (isCompact) {
     let tStart = e.time_start || '', tEnd = e.time_end || '';
@@ -716,6 +739,7 @@ function renderSlotContent(e, ts, col, venue, durLabel, isTransposed = false) {
 
     let contentInner = `
        <div class="slot-code" style="font-size:8px; margin-bottom:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${e.code}</div>
+       ${courseName ? `<div class="slot-name">${courseName}</div>` : ''}
        <div style="font-size:7px; opacity:.8; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ts}·${e.sec}</div>
     `;
 
@@ -725,6 +749,7 @@ function renderSlotContent(e, ts, col, venue, durLabel, isTransposed = false) {
             <span style="color:#f87171;">⚠</span><b>${e.code}</b>
             <span style="opacity:0.8; font-size: 7px;">· ${ts} ${e.sec}</span>
          </div>
+         ${courseName ? `<div class="slot-name">${courseName}</div>` : ''}
       `;
     }
 
@@ -732,17 +757,19 @@ function renderSlotContent(e, ts, col, venue, durLabel, isTransposed = false) {
     let conflictPadding = e.isConflict ? '3px 4px 2px 4px' : '2px 4px';
     let conflictJustify = e.isConflict ? 'flex-start' : 'center';
 
-    return `<div class="slot type-${ts}" style="position:absolute; ${posStyles} border-left:3px solid ${e.isConflict ? '#f87171' : col}; background:${e.isConflict ? 'rgba(240,82,82,0.15)' : col + '22'}; color:${e.isConflict ? '#f87171' : col}; padding: ${conflictPadding}; display:flex; flex-direction:column; justify-content:${conflictJustify}; overflow:hidden; pointer-events:auto; z-index:${(e.track || 0) + 10};" 
+    return `<div class="slot type-${ts}${uCls}" style="position:absolute; ${posStyles} border-left:3px solid ${e.isConflict ? '#f87171' : col}; background:${e.isConflict ? 'rgba(240,82,82,0.15)' : col + '22'}; color:${e.isConflict ? '#f87171' : col}; padding: ${conflictPadding}; display:flex; flex-direction:column; justify-content:${conflictJustify}; overflow:hidden; pointer-events:auto; z-index:${(e.track || 0) + 10};" 
          title="${e.code} ${e.sec}&#10;${e.type}&#10;${e.day} ${format12Hour(e.time_start)}–${format12Hour(e.time_end)}&#10;${e.venue}&#10;${e.lecturer}" 
          onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
          ${contentInner}
+         ${uBadge}
          ${confDurLabel}
       </div>`;
   }
 
   // Full Layout
   let inner = `
-    <div class="slot-code">${e.code}</div>
+    <div class="slot-code">${e.code}${uBadge}</div>
+    ${courseName ? `<div class="slot-name">${courseName}</div>` : ''}
     <div class="slot-meta">${e.sec} <span class="slot-type-badge" style="background:${col}33">${ts}</span></div>
     ${venue ? `<div class="slot-venue">${venue}</div>` : ''}
     ${durLabel}
@@ -754,11 +781,12 @@ function renderSlotContent(e, ts, col, venue, durLabel, isTransposed = false) {
         <span>${e.code}</span>
         <span style="font-size:8px; opacity:0.8; font-weight:normal; letter-spacing:0;">${ts} ${e.sec}</span>
       </div>
+      ${courseName ? `<div class="slot-name">${courseName}</div>` : ''}
       ${durLabel}
     `;
   }
   return `
-    <div class="slot type-${ts}" style="position:absolute; inset:2px; background:${col}22;border-left:3px solid ${e.isConflict ? '#f87171' : col};color:${e.isConflict ? '#f87171' : col}; ${e.isConflict ? 'background:rgba(240,82,82,0.1)' : ''}; pointer-events:auto; z-index: 10;" 
+    <div class="slot type-${ts}${uCls}" style="position:absolute; inset:2px; background:${col}22;border-left:3px solid ${e.isConflict ? '#f87171' : col};color:${e.isConflict ? '#f87171' : col}; ${e.isConflict ? 'background:rgba(240,82,82,0.1)' : ''}; pointer-events:auto; z-index: 10;" 
          title="${e.code} ${e.sec}&#10;${e.type}&#10;${e.day} ${format12Hour(e.time_start)}–${format12Hour(e.time_end)}&#10;${e.venue}&#10;${e.lecturer}" 
          onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
       ${inner}
@@ -885,9 +913,13 @@ function buildCardsHTML(daySlots) {
         const typeFull = ts === 'K' ? 'Kuliah' : ts === 'A' ? 'Amali' : 'Tutorial';
         const confTag = e.isConflict ? `<span class="sc-tag is-conflict">⚠ KONFLIK</span>` : '';
         const venueTag = venue ? `<span class="sc-tag">${venue.substring(0, 22)}</span>` : '';
+        const uCls = e.updateTag ? ` update-${e.updateTag}` : '';
+        const uBadge = e.updateTag
+          ? `<span class="slot-update-badge${e.updateTag === 'changed' ? ' changed' : ''}">${e.updateTag === 'new' ? (currentLang === 'ms' ? 'BARU' : 'NEW') : (currentLang === 'ms' ? 'KEMAS KINI' : 'UPDATED')}</span>`
+          : '';
 
-        html += `<div class="slot-card" style="border-left-color:${col};background:${col}12; ${e.isConflict ? 'border-color:#f87171; background:rgba(240,82,82,0.1)' : ''}" onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
-          <div class="sc-code" style="color:${e.isConflict ? '#f87171' : col}">${e.isConflict ? '⚠ ' : ''}${e.code}</div>
+        html += `<div class="slot-card${uCls}" style="border-left-color:${col};background:${col}12; ${e.isConflict ? 'border-color:#f87171; background:rgba(240,82,82,0.1)' : ''}" onclick="showDetailModal(this)" data-info="${encodeURIComponent(JSON.stringify(e))}">
+          <div class="sc-code" style="color:${e.isConflict ? '#f87171' : col}">${e.isConflict ? '⚠ ' : ''}${e.code}${uBadge}</div>
           <div class="sc-time">${timeStr}</div>
           <div class="sc-name">${name}</div>
           <div class="sc-tags">
@@ -931,11 +963,335 @@ function buildLegendHTML() {
 }
 
 /* ════ UTILITY ════ */
+function escHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
 function typeLabel(type) {
   return type === 'Lecture' ? 'K' : type === 'Lab/Amali' ? 'A' : 'T';
 }
 function getCredits(code) { const m = code.match(/(\d{2})$/); return m ? parseInt(m[1], 10) : 0; }
 function totalCredits() { return Object.keys(selected).reduce((s, c) => s + getCredits(c), 0); }
+
+function _parseSectionNumber(sec) {
+  // Supports "S1", "1", and "S1/2" (sorted by the first number).
+  const m = String(sec || '').trim().match(/^S?\s*(\d+)(?:\s*\/\s*(\d+))?$/i);
+  if (!m) return null;
+  return { primary: parseInt(m[1], 10), secondary: m[2] ? parseInt(m[2], 10) : null };
+}
+
+function sortSections(sections) {
+  return [...(sections || [])].sort((a, b) => {
+    const pa = _parseSectionNumber(a);
+    const pb = _parseSectionNumber(b);
+    if (pa && pb) {
+      if (pa.primary !== pb.primary) return pa.primary - pb.primary;
+      const sa = pa.secondary === null ? -1 : pa.secondary;
+      const sb = pb.secondary === null ? -1 : pb.secondary;
+      if (sa !== sb) return sa - sb;
+      return String(a).localeCompare(String(b), undefined, { numeric: true });
+    }
+    if (pa) return -1;
+    if (pb) return 1;
+    return String(a).localeCompare(String(b), undefined, { numeric: true });
+  });
+}
+
+function _normDur(d) {
+  const v = Number(d);
+  if (!Number.isFinite(v)) return d;
+  return Math.abs(v - Math.round(v)) < 1e-6 ? Math.round(v) : Math.round(v * 100) / 100;
+}
+
+function _slotUpdateKey(code, sec, slotLike) {
+  return [
+    code,
+    sec,
+    slotLike.type || '',
+    slotLike.day || '',
+    (slotLike.time_start || '').replace('.', ':'),
+    _normDur(slotLike.duration || 0),
+  ].join('|');
+}
+
+function initLatestUpdate() {
+  latestUpdate = (typeof window !== 'undefined' && window.LATEST_UPDATE) ? window.LATEST_UPDATE : null;
+  if (!latestUpdate || !latestUpdate.changes) {
+    updateIndex = null;
+    return;
+  }
+
+  const changes = latestUpdate.changes || {};
+  const addedCourses = new Set((changes.courses && changes.courses.added) || []);
+  const removedCourses = new Set((changes.courses && changes.courses.removed) || []);
+
+  const changedCourses = new Set();
+  const slotAdded = new Set();
+  const slotChanged = new Set();
+
+  const secAdded = (changes.sections && changes.sections.added) || {};
+  const secRemoved = (changes.sections && changes.sections.removed) || {};
+  Object.keys(secAdded).forEach(c => changedCourses.add(c));
+  Object.keys(secRemoved).forEach(c => changedCourses.add(c));
+
+  const sAdded = (changes.slots && changes.slots.structural && changes.slots.structural.added) || {};
+  const sRemoved = (changes.slots && changes.slots.structural && changes.slots.structural.removed) || {};
+  const dOnly = (changes.slots && changes.slots.detail_only_changed) || {};
+
+  for (const [code, secs] of Object.entries(sAdded)) {
+    changedCourses.add(code);
+    for (const [sec, keys] of Object.entries(secs || {})) {
+      (keys || []).forEach(k => {
+        // k format: [sec,type,day,time,dur]
+        slotAdded.add([code, k[0], k[1], k[2], k[3], _normDur(k[4])].join('|'));
+      });
+    }
+  }
+  for (const [code, secs] of Object.entries(sRemoved)) {
+    changedCourses.add(code);
+    for (const [sec, keys] of Object.entries(secs || {})) {
+      (keys || []).forEach(k => {
+        slotChanged.add([code, k[0], k[1], k[2], k[3], _normDur(k[4])].join('|'));
+      });
+    }
+  }
+  for (const [code, secs] of Object.entries(dOnly)) {
+    changedCourses.add(code);
+    for (const [sec, keys] of Object.entries(secs || {})) {
+      (keys || []).forEach(k => {
+        slotChanged.add([code, k[0], k[1], k[2], k[3], _normDur(k[4])].join('|'));
+      });
+    }
+  }
+
+  updateIndex = { addedCourses, removedCourses, changedCourses, slotAdded, slotChanged };
+}
+
+function getCourseUpdateTag(code) {
+  if (!updateIndex) return null;
+  if (updateIndex.addedCourses.has(code)) return { cls: 'tag-new', label: currentLang === 'ms' ? 'BARU' : 'NEW' };
+  if (updateIndex.changedCourses.has(code)) return { cls: 'tag-upd', label: currentLang === 'ms' ? 'KEMAS KINI' : 'UPDATED' };
+  return null;
+}
+
+function getSlotUpdateTag(code, sec, slot) {
+  if (!updateIndex) return null;
+  const key = _slotUpdateKey(code, sec, slot);
+  if (updateIndex.slotAdded.has(key)) return 'new';
+  if (updateIndex.slotChanged.has(key)) return 'changed';
+  return null;
+}
+
+function _countNestedKeys(obj) {
+  let n = 0;
+  for (const v of Object.values(obj || {})) for (const arr of Object.values(v || {})) n += (arr || []).length;
+  return n;
+}
+
+function showUpdatePopup() {
+  if (!latestUpdate || !latestUpdate.timetable) {
+    return;
+  }
+
+  _updatePrevFocus = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+
+  // Always show on load (as requested).
+  let modal = document.getElementById('update-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal update-modal';
+    modal.id = 'update-modal';
+    modal.setAttribute('aria-hidden', 'true');
+    modal.onclick = (e) => { if (e.target === modal) closeUpdatePopup(); };
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeUpdatePopup(); });
+    document.body.appendChild(modal);
+  }
+  // Ensure it can show again even after we set display:none on close.
+  modal.style.display = 'flex';
+  modal.removeAttribute('inert');
+
+  const c = latestUpdate.changes || {};
+  const coursesAddedArr = (c.courses && c.courses.added) || [];
+  const coursesRemovedArr = (c.courses && c.courses.removed) || [];
+  const namesChangedArr = (c.courses && c.courses.name_changed) || [];
+  const sectionsAddedObj = (c.sections && c.sections.added) || {};
+  const sectionsRemovedObj = (c.sections && c.sections.removed) || {};
+  const detailOnlyObj = (c.slots && c.slots.detail_only_changed) || {};
+
+  const slotAddedCount = _countNestedKeys((c.slots && c.slots.structural && c.slots.structural.added) || {});
+  const slotRemovedCount = _countNestedKeys((c.slots && c.slots.structural && c.slots.structural.removed) || {});
+  const slotDetailChangedCount = _countNestedKeys((c.slots && c.slots.detail_only_changed) || {});
+
+  const title = currentLang === 'ms' ? 'Kemaskini Terkini' : 'Latest Update';
+  const closeLbl = currentLang === 'ms' ? 'Tutup' : 'Close';
+  const ttDate = latestUpdate.timetable.latestDate || '-';
+  const prevDate = latestUpdate.timetable.previousDate || '-';
+  const genAt = latestUpdate.generatedAt || '-';
+  const base = latestUpdate.timetable.base || '-';
+  const sourcesArr = latestUpdate.timetable.sourcesUsed || [];
+  const sourcesShort = sourcesArr.length
+    ? `${sourcesArr[0]}${sourcesArr.length > 1 ? ` (+${sourcesArr.length - 1})` : ''}`
+    : '-';
+  const diffBase = latestUpdate.timetable.diffBase || '-';
+  const appMod = (document && document.lastModified) ? document.lastModified : '-';
+  const genAtPretty = (() => {
+    try {
+      const d = new Date(genAt);
+      if (isNaN(d)) return genAt;
+      return d.toLocaleString(currentLang === 'ms' ? 'ms-MY' : 'en-US', {
+        year: 'numeric', month: 'short', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+    } catch {
+      return genAt;
+    }
+  })();
+  const sourcesFull = sourcesArr.length ? sourcesArr.join(', ') : sourcesShort;
+
+  const fmtKey = (k) => `<code>${k}</code>`;
+  const escHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+  const getCourseName = (code) => {
+    try {
+      const n = (typeof COURSES !== 'undefined' && COURSES[code] && COURSES[code].name) ? COURSES[code].name : '';
+      return n ? escHtml(n) : '';
+    } catch {
+      return '';
+    }
+  };
+
+  const slotAdded = (c.slots && c.slots.structural && c.slots.structural.added) || {};
+  const slotRemoved = (c.slots && c.slots.structural && c.slots.structural.removed) || {};
+
+  function slotListHTML(slotObj, marker = '') {
+    const rows = [];
+    for (const [code, secs] of Object.entries(slotObj || {})) {
+      for (const [sec, keys] of Object.entries(secs || {})) {
+        for (const k of (keys || [])) {
+          // k = [sec,type,day,time,dur]
+          const cname = getCourseName(code);
+          const meta = `${k[1]} • ${k[2]} ${k[3]} (${k[4]}h)`;
+          rows.push(`
+            <div class="update-item-top">${marker ? marker + ' ' : ''}${fmtKey(code)} ${fmtKey(k[0])}</div>
+            ${cname ? `<div class="update-course-name">${cname}</div>` : ''}
+            <div class="update-meta">${escHtml(meta)}</div>
+          `.trim());
+        }
+      }
+    }
+    if (!rows.length) return `<div class="update-empty">—</div>`;
+    const shown = rows.slice(0, 60).map(r => `<div class="update-item">${r}</div>`).join('');
+    return `<div class="update-items">${shown}${rows.length > 60 ? `<div class="update-more">… +${rows.length - 60}</div>` : ''}</div>`;
+  }
+
+  function codeListHTML(arr, marker = '') {
+    if (!arr || !arr.length) return `<div class="update-empty">—</div>`;
+    const prefix = marker ? marker + ' ' : '';
+    const shown = arr.slice(0, 24).map(c => `<span class="update-code">${prefix + fmtKey(c)}</span>`).join(' ');
+    return `<div class="update-inline">${shown}${arr.length > 24 ? ` <span class="update-more">… +${arr.length - 24}</span>` : ''}</div>`;
+  }
+
+  function sectionsListHTML(obj, marker = '') {
+    const rows = [];
+    for (const [code, secs] of Object.entries(obj || {})) {
+      rows.push(`${marker ? marker + ' ' : ''}${fmtKey(code)}: ${(secs || []).map(s => fmtKey(s)).join(' ')}`);
+    }
+    if (!rows.length) return `<div class="update-empty">—</div>`;
+    return `<div class="update-items">${rows.slice(0, 40).map(r => `<div class="update-item">${r}</div>`).join('')}${rows.length > 40 ? `<div class="update-more">… +${rows.length - 40}</div>` : ''}</div>`;
+  }
+
+  const hasAnyChange =
+    coursesAddedArr.length || coursesRemovedArr.length ||
+    Object.keys(sectionsAddedObj).length || Object.keys(sectionsRemovedObj).length ||
+    slotAddedCount || slotRemovedCount || namesChangedArr.length || slotDetailChangedCount;
+
+  const addedHdr = currentLang === 'ms' ? 'Ditambah' : 'Added';
+  const removedHdr = currentLang === 'ms' ? 'Dibuang' : 'Removed';
+  const changedHdr = currentLang === 'ms' ? 'Berubah' : 'Changed';
+  const coursesLbl = currentLang === 'ms' ? 'Kursus' : 'Courses';
+  const sectionsLbl = currentLang === 'ms' ? 'Seksyen' : 'Sections';
+  const classesLbl = currentLang === 'ms' ? 'Kelas' : 'Classes';
+
+  modal.innerHTML = `
+    <div class="modal-content update-content" role="dialog" aria-modal="true" aria-labelledby="update-title">
+      <div class="update-hdr">
+        <div class="update-hdr-left">
+          <h3 id="update-title" class="update-title">${title}</h3>
+          <div class="update-sub">
+            <span class="update-chip">${currentLang === 'ms' ? 'Versi' : 'Version'}: <b>${prevDate}</b> → <b>${ttDate}</b></span>
+            <span class="update-chip">${currentLang === 'ms' ? 'Dijana' : 'Generated'}: ${genAtPretty}</span>
+          </div>
+        </div>
+        <button class="btn-sm update-close" id="update-close" onclick="closeUpdatePopup()">${closeLbl}</button>
+      </div>
+
+      ${hasAnyChange ? '' : `
+        <div class="update-note">
+          <b>${currentLang === 'ms' ? 'Tiada Perubahan' : 'No changes'}</b>
+          <div style="margin-top:4px;opacity:.9">${currentLang === 'ms' ? `Tiada perubahan berbanding ${fmtKey(diffBase)}.` : `No changes compared to ${fmtKey(diffBase)}.`}</div>
+        </div>
+      `}
+
+      ${coursesAddedArr.length || Object.keys(sectionsAddedObj).length || slotAddedCount ? `
+        <section class="update-section is-added">
+          <div class="update-section-title">🟢 ${addedHdr}</div>
+          ${coursesAddedArr.length ? `<div class="update-block"><div class="update-block-title">${coursesLbl}</div>${codeListHTML(coursesAddedArr, '🟢')}</div>` : ''}
+          ${Object.keys(sectionsAddedObj).length ? `<div class="update-block"><div class="update-block-title">${sectionsLbl}</div>${sectionsListHTML(sectionsAddedObj, '🟢')}</div>` : ''}
+          ${slotAddedCount ? `<div class="update-block"><div class="update-block-title">${classesLbl}</div>${slotListHTML(slotAdded, '🟢')}</div>` : ''}
+        </section>
+      ` : ''}
+
+      ${coursesRemovedArr.length || Object.keys(sectionsRemovedObj).length || slotRemovedCount ? `
+        <section class="update-section is-removed">
+          <div class="update-section-title">🔴 ${removedHdr}</div>
+          ${coursesRemovedArr.length ? `<div class="update-block"><div class="update-block-title">${coursesLbl}</div>${codeListHTML(coursesRemovedArr, '🔴')}</div>` : ''}
+          ${Object.keys(sectionsRemovedObj).length ? `<div class="update-block"><div class="update-block-title">${sectionsLbl}</div>${sectionsListHTML(sectionsRemovedObj, '🔴')}</div>` : ''}
+          ${slotRemovedCount ? `<div class="update-block"><div class="update-block-title">${classesLbl}</div>${slotListHTML(slotRemoved, '🔴')}</div>` : ''}
+        </section>
+      ` : ''}
+
+      ${namesChangedArr.length || slotDetailChangedCount ? `
+        <section class="update-section is-changed">
+          <div class="update-section-title">🟠 ${changedHdr}</div>
+          ${namesChangedArr.length ? `<div class="update-block"><div class="update-block-title">${currentLang === 'ms' ? 'Nama kursus' : 'Course names'}</div><div class="update-items">${namesChangedArr.slice(0, 15).map(x => `<div class="update-item">${fmtKey(x.code)}: ${String(x.old || '').toUpperCase()} → ${String(x.new || '').toUpperCase()}</div>`).join('')}${namesChangedArr.length > 15 ? `<div class="update-more">… +${namesChangedArr.length - 15}</div>` : ''}</div></div>` : ''}
+          ${slotDetailChangedCount ? `<div class="update-block"><div class="update-block-title">${currentLang === 'ms' ? 'Butiran kelas' : 'Class details'}</div><div class="update-empty">${slotDetailChangedCount} ${currentLang === 'ms' ? 'kelas dikemaskini' : 'classes updated'}</div></div>` : ''}
+        </section>
+      ` : ''}
+
+      <details class="update-tech">
+        <summary>${currentLang === 'ms' ? 'Info teknikal' : 'Technical info'}</summary>
+        <div class="update-tech-body">
+          <div class="update-tech-row"><span>${currentLang === 'ms' ? 'Sumber (Base)' : 'Base source'}</span><b>${base}</b></div>
+          <div class="update-tech-row"><span>${currentLang === 'ms' ? 'PDF Diguna' : 'PDF used'}</span><span>${sourcesFull}</span></div>
+          <div class="update-tech-row"><span>${currentLang === 'ms' ? 'Diff dari' : 'Diff base'}</span><span>${fmtKey(diffBase)}</span></div>
+          <div class="update-tech-row"><span>${currentLang === 'ms' ? 'Aplikasi' : 'App'}</span><span>v${APP_BUILD_VERSION} • ${appMod}</span></div>
+        </div>
+      </details>
+    </div>
+  `;
+
+  modal.setAttribute('aria-hidden', 'false');
+  modal.classList.add('show');
+  const closeBtn = document.getElementById('update-close');
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeUpdatePopup() {
+  const modal = document.getElementById('update-modal');
+  if (!modal) return;
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  modal.setAttribute('inert', '');
+  // After transition ends, fully remove it from layout so it can't block any interaction.
+  setTimeout(() => {
+    if (modal && !modal.classList.contains('show')) modal.style.display = 'none';
+  }, 220);
+  const fb = document.getElementById('fab-feedback');
+  if (fb) return fb.focus();
+  if (_updatePrevFocus && document.contains(_updatePrevFocus)) _updatePrevFocus.focus();
+}
 
 function format12Hour(t) {
   if (!t || t === "Unknown") return t;
@@ -1260,7 +1616,7 @@ function processExtractedText(text) {
       // E.g: "BIT10703 DATA STRUCTURE AND ALGORITHM 1 DT 3"
       const afterCode = cleanText.substring(matchIndex + code.length, matchIndex + code.length + 100);
 
-      const availableSections = Object.keys(COURSES[code].sections);
+      const availableSections = sortSections(Object.keys(COURSES[code].sections || {}));
 
       // Look for the first standalone number word (1, 2, 31, etc)
       const numberMatches = [...afterCode.matchAll(/\b(\d+)\b/g)];
@@ -1543,7 +1899,7 @@ function suggestByIntake() {
   for (const code of courseCodes) {
     if (!COURSES[code]) continue; // course not in data.js
 
-    const secs = Object.keys(COURSES[code].sections || {});
+    const secs = sortSections(Object.keys(COURSES[code].sections || {}));
     if (secs.length === 0) continue;
 
     // Prefer section tagged with this intake, fall back to first section

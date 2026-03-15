@@ -4,14 +4,29 @@ import json
 import os
 
 # 1. Configuration
+# NOTE: Kept for backwards compatibility; prefer `tools/Utility/parser.py` as the main generator.
+# We intentionally use ONLY `by_course` as the canonical time-grid source to avoid duplicate/shifted
+# slots introduced by other timetable views (notably `by_batch`).
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+PDF_DIR = os.path.join(REPO_ROOT, "tools", "PDF")
+
+def _find_latest_by_course_date(pdf_dir):
+    dates = []
+    if not os.path.isdir(pdf_dir):
+        return None
+    for name in os.listdir(pdf_dir):
+        m = re.match(r"^by_course_(\d{8})\.pdf$", name)
+        if m:
+            dates.append(m.group(1))
+    return max(dates) if dates else None
+
+LATEST_DATE = _find_latest_by_course_date(PDF_DIR)
+
 PDF_FILES = [
-    "by_course_11032026.pdf",
-    "by_batch_11032026.pdf",
-    "by_lecturer_11032026.pdf",
-    "by_room_11032026.pdf"
+    os.path.join(PDF_DIR, f"by_course_{LATEST_DATE}.pdf") if LATEST_DATE else os.path.join(PDF_DIR, "by_course.pdf"),
 ]
 
-OUTPUT_FILE = "data.js"
+OUTPUT_FILE = os.path.join(REPO_ROOT, "data.js")
 
 # 2. Regex Patterns
 CLASS_PATTERN = re.compile(r'([A-Z]{3,4}\s*\d{4,5}[A-Z]?)\s*:\s*(S\d+)\s*([KTA])')

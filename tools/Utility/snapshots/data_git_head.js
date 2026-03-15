@@ -4071,29 +4071,6 @@ const COURSES = {
           ]
         }
       ],
-      "S2": [
-        {
-          "day": "Monday",
-          "time_start": "12:00",
-          "duration": 2.0,
-          "section": "S2 A",
-          "type": "Lab/Amali",
-          "lecturer": "I-mnazim",
-          "venue": "I-MP-ARAS"
-        },
-        {
-          "day": "Wednesday",
-          "time_start": "04:00",
-          "duration": 2.0,
-          "section": "S2 K",
-          "type": "Lecture",
-          "lecturer": "I-mnazim",
-          "venue": "I-BT1",
-          "intakes": [
-            "FSKTM-3BIT"
-          ]
-        }
-      ],
       "S3": [
         {
           "day": "Wednesday",
@@ -4115,6 +4092,20 @@ const COURSES = {
           "type": "Lab/Amali",
           "lecturer": "I-shahdatun",
           "venue": "I-MP-ARAS"
+        }
+      ],
+      "S2": [
+        {
+          "day": "Wednesday",
+          "time_start": "04:00",
+          "duration": 2.0,
+          "section": "S2 K",
+          "type": "Lecture",
+          "lecturer": "I-mnazim",
+          "venue": "I-BT1",
+          "intakes": [
+            "FSKTM-3BIT"
+          ]
         }
       ]
     },

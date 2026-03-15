@@ -1,0 +1,46 @@
+/* Auto-generated. Do not edit by hand. */
+window.LATEST_UPDATE = {
+  "generatedAt": "2026-03-15T14:18:23",
+  "timetable": {
+    "latestDate": "15032026",
+    "previousDate": "14032026",
+    "diffBase": "data_14032026.js",
+    "base": "by_course_15032026.pdf",
+    "sourcesUsed": [
+      "by_course_15032026.pdf",
+      "by_lecturer_15032026.pdf",
+      "by_room_15032026.pdf",
+      "by_batch_15032026.pdf"
+    ]
+  },
+  "changes": {
+    "courses": {
+      "added": [],
+      "removed": [],
+      "name_changed": []
+    },
+    "sections": {
+      "added": {},
+      "removed": {}
+    },
+    "slots": {
+      "structural": {
+        "added": {
+          "BIT20803": {
+            "S2": [
+              [
+                "S2",
+                "Lab/Amali",
+                "Monday",
+                "12:00",
+                2
+              ]
+            ]
+          }
+        },
+        "removed": {}
+      },
+      "detail_only_changed": {}
+    }
+  }
+};

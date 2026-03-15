@@ -1,0 +1,30 @@
+{
+  "courses": {
+    "added": [],
+    "removed": [],
+    "name_changed": []
+  },
+  "sections": {
+    "added": {},
+    "removed": {}
+  },
+  "slots": {
+    "structural": {
+      "added": {
+        "BIT20803": {
+          "S2": [
+            [
+              "S2",
+              "Lab/Amali",
+              "Monday",
+              "12:00",
+              2
+            ]
+          ]
+        }
+      },
+      "removed": {}
+    },
+    "detail_only_changed": {}
+  }
+}
