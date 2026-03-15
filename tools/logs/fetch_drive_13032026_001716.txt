@@ -1,0 +1,33 @@
+fetch_drive.py — run started at 2026-03-13 00:17:16
+Drive Folder ID : 1TLZ0NklKZqmgy2UCmkgTLTSVHFgbyNpY
+Output Dir      : tools/PDF
+------------------------------------------------------------
+⚙️  DRY-RUN mode — no files will be written
+
+STEP 1: Listing root Drive folder …
+  → Fetching folder: https://drive.google.com/drive/folders/1TLZ0NklKZqmgy2UCmkgTLTSVHFgbyNpY
+  Found 1 file(s), 3 subfolder(s)
+
+STEP 2: Versioned layout — selecting best subfolder …
+    • 09032026  (id=1zU-dMNPOKw3crAzmcE1i-EH04HtuEXWp?hl=en)
+    • 11032026  (id=1ZzFxxHfWcycaoF3_MnhXzdcLubUzPjJ4?hl=en)
+    • 12032026 - LATEST  (id=1_pmLwkw3Eu6W7I4aBiWoeIzzOYHWAc0X?hl=en)
+
+  ✅ 'LATEST' keyword → '12032026 - LATEST'
+
+STEP 2b: Listing subfolder '12032026 - LATEST' …
+  → Fetching folder: https://drive.google.com/drive/folders/1_pmLwkw3Eu6W7I4aBiWoeIzzOYHWAc0X?hl=en
+
+STEP 3: 4 PDF(s) queued for download
+    • by_batch_12032026.pdf
+    • by_course_12032026.pdf
+    • by_lecturer_12032026.pdf
+    • by_room_12032026.pdf
+
+    [DRY-RUN] Would download: by_batch_12032026.pdf
+    [DRY-RUN] Would download: by_course_12032026.pdf
+    [DRY-RUN] Would download: by_lecturer_12032026.pdf
+    [DRY-RUN] Would download: by_room_12032026.pdf
+
+────────────────────────────────────────────────────────────
+✅ Dry-run — 4 PDF(s) identified, nothing written.

@@ -3,12 +3,54 @@ import json
 import re
 import os
 from datetime import datetime
+import sys
 
 # Repo-relative paths (works regardless of current working directory)
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 PDF_DIR = os.path.join(REPO_ROOT, "tools", "PDF")
 SNAPSHOT_DIR = os.path.join(REPO_ROOT, "tools", "Utility", "snapshots")
 UPDATE_META_PATH = os.path.join(REPO_ROOT, "logs", "update_meta.json")
+
+# ─── Auto-fetch: download latest PDFs from Google Drive before parsing ──────────
+# Use --no-fetch to skip the download step.
+if "--no-fetch" not in sys.argv:
+    print("🔄 Auto-fetching latest PDFs from Google Drive ...")
+    _fetch_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, _fetch_dir)
+    try:
+        import fetch_drive
+        fetch_drive.main()
+        print("✅ Fetch complete — proceeding with parsing ...\n")
+    except Exception as e:
+        print(f"❌ Fetch failed: {e} — proceeding with existing files ...\n")
+else:
+    if "--no-fetch" in sys.argv:
+        sys.argv.remove("--no-fetch")
+    print("⏭️  --no-fetch flag detected — skipping Google Drive download.\n")
+
+# ─── PDF discovery: auto-scan tools/PDF/ for all PDF files ────────────────────
+if os.path.isdir(PDF_DIR):
+    PDF_FILES = sorted(
+        os.path.join(PDF_DIR, f)
+        for f in os.listdir(PDF_DIR)
+        if f.lower().endswith(".pdf")
+    )
+else:
+    # Fallback: manually listed files (update when PDF dir isn't available)
+    PDF_FILES = [
+        os.path.join(PDF_DIR, "by_course_12032026.pdf")
+    ]
+
+if not PDF_FILES:
+    print("⚠️  No PDF files found in tools/PDF/ — nothing to parse.")
+    sys.exit(0)
+
+print(f"📄 PDF files to parse ({len(PDF_FILES)}):")
+for _f in PDF_FILES:
+    print(f"   • {_f}")
+print()
+
+OUTPUT_FILE = "data.js"
 
 # Basic Regex for Course / Intakes / Footnotes
 COURSE_TITLE_PATTERN = re.compile(r'([A-Z]{3,4}\s*\d{4,5}[A-Z]?)\s*-\s*([A-Za-z0-9 &/-]+)')

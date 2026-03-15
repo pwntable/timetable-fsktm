@@ -446,7 +446,85 @@ html[data-theme="light"] #btn-theme .icon-moon {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  transition: box-shadow .2s;
 }
+
+/* ════════════════════════════════
+   COLLAPSIBLE PANEL BODY
+   On desktop, each panel body is collapsed (max-height:0) by default.
+   When the user hovers over the panel, it smoothly expands.
+════════════════════════════════ */
+@media (min-width: 1025px) {
+
+  .panel-body,
+  .panel .saved-area,
+  .panel .intake-body,
+  .panel .sel-area,
+  .panel .sidebar-foot,
+  .panel [style*="display:flex;gap:8px;padding:12px"] {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.25s ease;
+    opacity: 0;
+  }
+
+  /* .clist needs overflow-y:auto when open so it can scroll internally */
+  .panel .clist {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.25s ease;
+    opacity: 0;
+  }
+
+  .panel:hover .panel-body,
+  .panel:hover .saved-area,
+  .panel:hover .intake-body,
+  .panel:hover .clist,
+  .panel:hover .sel-area,
+  .panel:hover .sidebar-foot,
+  .panel:hover [style*="display:flex;gap:8px;padding:12px"] {
+    max-height: 800px;
+    opacity: 1;
+  }
+
+  /* Restore individual scroll on the subject list when expanded */
+  .panel:hover .clist {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Remove bottom border on header when collapsed for a clean look */
+  .panel .panel-hdr {
+    border-bottom-color: transparent;
+    transition: border-bottom-color 0.2s, padding 0.2s ease;
+    cursor: pointer;
+    padding: 8px 18px;
+  }
+
+  .panel:hover .panel-hdr {
+    border-bottom-color: var(--border);
+    padding: 14px 18px;
+  }
+
+  /* Collapse indicator icon */
+  .panel .panel-hdr::after {
+    content: '›';
+    font-size: 16px;
+    color: var(--muted);
+    transition: transform 0.3s ease, opacity 0.2s;
+    opacity: 0.5;
+    margin-left: 4px;
+    line-height: 1;
+  }
+
+  .panel:hover .panel-hdr::after {
+    transform: rotate(90deg);
+    opacity: 1;
+  }
+}
+
 
 .panel-hdr {
   padding: 14px 18px;

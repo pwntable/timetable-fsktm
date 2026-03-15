@@ -1,0 +1,38 @@
+fetch_drive.py — run started at 2026-03-16 00:47:29
+Drive Folder ID : 1TLZ0NklKZqmgy2UCmkgTLTSVHFgbyNpY
+Output Dir      : tools/PDF
+------------------------------------------------------------
+
+STEP 1: Listing root Drive folder …
+  → Fetching folder: https://drive.google.com/drive/folders/1TLZ0NklKZqmgy2UCmkgTLTSVHFgbyNpY
+  Found 1 file(s), 5 subfolder(s)
+
+STEP 2: Versioned layout — selecting best subfolder …
+    • 09032026  (id=1zU-dMNPOKw3crAzmcE1i-EH04HtuEXWp?hl=en)
+    • 11032026  (id=1ZzFxxHfWcycaoF3_MnhXzdcLubUzPjJ4?hl=en)
+    • 12032026  (id=1_pmLwkw3Eu6W7I4aBiWoeIzzOYHWAc0X?hl=en)
+    • 14032026  (id=1-lGqvkDtSC1tb9W9Vw6P8SsYrgg0zUZf?hl=en)
+    • 15032026 - LATEST  (id=1vG0Vv0VJ9DFiDc0tX171X_bNwQfEvbMF?hl=en)
+
+  ✅ 'LATEST' keyword → '15032026 - LATEST'
+
+STEP 2b: Listing subfolder '15032026 - LATEST' …
+  → Fetching folder: https://drive.google.com/drive/folders/1vG0Vv0VJ9DFiDc0tX171X_bNwQfEvbMF?hl=en
+
+STEP 3: 4 PDF(s) queued for download
+    • by_batch_15032026.pdf
+    • by_course_15032026.pdf
+    • by_lecturer_15032026.pdf
+    • by_room_15032026.pdf
+
+    ⬇️  by_batch_15032026.pdf …
+    ✅ Saved → tools/PDF\by_batch_15032026.pdf  (239 KB)
+    ⬇️  by_course_15032026.pdf …
+    ✅ Saved → tools/PDF\by_course_15032026.pdf  (621 KB)
+    ⬇️  by_lecturer_15032026.pdf …
+    ✅ Saved → tools/PDF\by_lecturer_15032026.pdf  (479 KB)
+    ⬇️  by_room_15032026.pdf …
+    ✅ Saved → tools/PDF\by_room_15032026.pdf  (254 KB)
+
+────────────────────────────────────────────────────────────
+✅ Done — 4 PDF(s) downloaded to 'tools/PDF'

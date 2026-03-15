@@ -1,0 +1,16 @@
+fetch_drive.py — run started at 2026-03-13 00:12:55
+Drive Folder ID : 1TLZ0NklKZqmgy2UCmkgTLTSVHFgbyNpY
+Output Dir      : tools/PDF
+------------------------------------------------------------
+⚙️  DRY-RUN mode — no files will be written
+
+STEP 1: Listing root Drive folder …
+  → GET https://drive.google.com/drive/folders/1TLZ0NklKZqmgy2UCmkgTLTSVHFgbyNpY
+  → Trying sharing host endpoint…
+  → Trying en-locale fallback …
+  Found 0 file(s), 0 subfolder(s)
+
+STEP 2: Flat layout detected (no subfolders) — using root PDFs
+
+STEP 3: 0 PDF(s) queued for download
+  ⚠️  No PDFs found — nothing to download.
