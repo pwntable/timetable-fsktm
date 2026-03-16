@@ -3226,32 +3226,6 @@ html[data-theme="light"] #btn-theme .icon-moon {
   font-weight: 800;
 }
 
-button.update-chip {
-  appearance: none;
-  font-family: inherit;
-  border: 1px solid var(--border);
-}
-
-.update-chip--action {
-  cursor: pointer;
-  color: var(--text);
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.28);
-}
-
-.update-chip--action:hover {
-  filter: brightness(1.05);
-}
-
-.update-chip--action:active {
-  transform: translateY(1px);
-}
-
-.update-chip--action:focus-visible {
-  outline: 2px solid rgba(99, 102, 241, 0.55);
-  outline-offset: 2px;
-}
-
 .update-close {
   padding: 6px 12px !important;
   border-radius: 10px !important;

@@ -1351,66 +1351,6 @@ function _countNestedKeys(obj) {
   return n;
 }
 
-function promptPushNotifications() {
-  try {
-    const appId = (typeof window !== 'undefined' && window.ONESIGNAL_APP_ID) ? String(window.ONESIGNAL_APP_ID).trim() : '';
-    const isSecure = (typeof location !== 'undefined') && (location.protocol === 'https:' || location.hostname === 'localhost');
-    if (!isSecure) {
-      return showToast(currentLang === 'ms'
-        ? 'Notifikasi push memerlukan HTTPS (GitHub Pages OK).'
-        : 'Push notifications require HTTPS (GitHub Pages is OK).');
-    }
-    if (!appId || appId.includes('PASTE_')) {
-      return showToast(currentLang === 'ms'
-        ? 'OneSignal belum dikonfigurasi (App ID belum diisi).'
-        : 'OneSignal is not configured (missing App ID).');
-    }
-
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    window.OneSignalDeferred.push(async function (OneSignal) {
-      try {
-        // iOS: Push only works for installed web apps ("Add to Home Screen").
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
-        const isStandalone = !!(navigator.standalone || window.matchMedia?.('(display-mode: standalone)')?.matches);
-        if (isIOS && !isStandalone) {
-          showToast(currentLang === 'ms'
-            ? 'iPhone/iPad: Untuk notifikasi, tambah ke Home Screen dahulu (Share → Add to Home Screen).'
-            : 'iPhone/iPad: To enable notifications, add this site to Home Screen first.');
-        }
-
-        // Prefer direct permission request (works well when our own modal is open).
-        if (OneSignal?.Notifications?.requestPermission) {
-          showToast(currentLang === 'ms' ? 'Membuka kebenaran notifikasi…' : 'Opening notification permission…', 2200);
-          await OneSignal.Notifications.requestPermission();
-          return;
-        }
-
-        // Fallbacks (SDK variants)
-        if (OneSignal?.Slidedown?.promptPush) {
-          showToast(currentLang === 'ms' ? 'Membuka notifikasi…' : 'Opening notifications…', 2200);
-          await OneSignal.Slidedown.promptPush({ force: true });
-          return;
-        }
-        if (OneSignal?.registerForPushNotifications) {
-          showToast(currentLang === 'ms' ? 'Membuka notifikasi…' : 'Opening notifications…', 2200);
-          await OneSignal.registerForPushNotifications();
-          return;
-        }
-        showToast(currentLang === 'ms'
-          ? 'OneSignal belum bersedia. Cuba lagi sebentar.'
-          : 'OneSignal is not ready yet. Please try again.');
-      } catch (e) {
-        console.warn('OneSignal prompt failed:', e);
-        showToast(currentLang === 'ms'
-          ? 'Gagal memaparkan prompt notifikasi.'
-          : 'Failed to show notification prompt.');
-      }
-    });
-  } catch (e) {
-    console.warn('promptPushNotifications error:', e);
-  }
-}
-
 function showUpdatePopup() {
   if (!latestUpdate || !latestUpdate.timetable) {
     return;
@@ -1516,16 +1456,6 @@ function showUpdatePopup() {
     }
   })();
   const sourcesFull = sourcesArr.length ? sourcesArr.join(', ') : sourcesShort;
-  const canPush = (() => {
-    try {
-      const appId = (typeof window !== 'undefined' && window.ONESIGNAL_APP_ID) ? String(window.ONESIGNAL_APP_ID).trim() : '';
-      const isSecure = (typeof location !== 'undefined') && (location.protocol === 'https:' || location.hostname === 'localhost');
-      return !!appId && !appId.includes('PASTE_') && isSecure;
-    } catch {
-      return false;
-    }
-  })();
-  const pushLbl = currentLang === 'ms' ? 'Aktifkan notifikasi' : 'Enable notifications';
 
   const fmtKey = (k) => `<code>${k}</code>`;
   const escHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
@@ -1638,7 +1568,6 @@ function showUpdatePopup() {
 	          <div class="update-sub">
 	            <span class="update-chip">${currentLang === 'ms' ? 'Versi' : 'Version'}: <b>${prevDate}</b> → <b>${ttDate}</b></span>
 	            <span class="update-chip">${currentLang === 'ms' ? 'Dijana' : 'Generated'}: ${genAtPretty}</span>
-	            ${canPush ? `<button type="button" class="update-chip update-chip--action" onclick="promptPushNotifications()">${pushLbl}</button>` : ''}
 	          </div>
 	        </div>
 	        <button class="btn-sm update-close" id="update-close" onclick="closeUpdatePopup()">${closeLbl}</button>

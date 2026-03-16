@@ -9,46 +9,12 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=28">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-  <!-- OneSignal Web Push (optional). Requires HTTPS (GitHub Pages is OK). -->
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script>
-    // App ID is safe to expose (NOT a secret). REST API key must stay in GitHub Secrets only.
-    // Paste your OneSignal App ID here:
-    window.ONESIGNAL_APP_ID = "55f33e92-3013-4ead-9605-2af091680c04";
-    // Optional override for GitHub Pages project scope, e.g. "/timetable-fsktm/"
-    window.ONESIGNAL_SW_SCOPE = window.ONESIGNAL_SW_SCOPE || "";
+	  <link rel="stylesheet" href="styles.css?v=28">
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function (OneSignal) {
-      try {
-        const appId = String(window.ONESIGNAL_APP_ID || "").trim();
-        const isSecure = location.protocol === "https:" || location.hostname === "localhost";
-        if (!appId || appId.includes("PASTE_") || !isSecure) return;
-
-        const hostIsGithubPages = /\.github\.io$/i.test(location.hostname || "");
-        const segs = (location.pathname || "/").split("/").filter(Boolean);
-        const inferredScope = (hostIsGithubPages && segs.length >= 1) ? `/${segs[0]}/` : "/";
-        const scope = String(window.ONESIGNAL_SW_SCOPE || inferredScope);
-        const scopeRel = scope.replace(/^\//, ""); // "repo/" or ""
-
-        await OneSignal.init({
-          appId,
-          autoResubscribe: true,
-          serviceWorkerPath: `${scopeRel}OneSignalSDKWorker.js`,
-          serviceWorkerUpdaterPath: `${scopeRel}OneSignalSDKUpdaterWorker.js`,
-          serviceWorkerParam: { scope }
-        });
-      } catch (e) {
-        console.warn("OneSignal init failed:", e);
-      }
-    });
-  </script>
-
-</head>
+	</head>
 
 <body>
   <div class="wrap">

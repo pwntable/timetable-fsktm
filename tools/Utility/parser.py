@@ -939,44 +939,6 @@ if __name__ == "__main__":
         f.write(json.dumps(updates, ensure_ascii=False, indent=2))
         f.write(";\n")
 
-    # Also write a plain JSON file for GitHub Actions (push notification workflow)
-    # and other tooling. This file is safe to commit (no secrets).
-    try:
-        def _count_section_changes(obj):
-            return sum(len(v or []) for v in (obj or {}).values())
-
-        def _count_slot_changes(obj):
-            n = 0
-            for _code, secs in (obj or {}).items():
-                for _sec, arr in (secs or {}).items():
-                    n += len(arr or [])
-            return n
-
-        diff_obj = updates.get("changes") or {}
-        summary = {
-            "coursesAdded": len(((diff_obj.get("courses") or {}).get("added") or [])),
-            "coursesRemoved": len(((diff_obj.get("courses") or {}).get("removed") or [])),
-            "courseNamesChanged": len(((diff_obj.get("courses") or {}).get("name_changed") or [])),
-            "sectionsAdded": _count_section_changes((diff_obj.get("sections") or {}).get("added") or {}),
-            "sectionsRemoved": _count_section_changes((diff_obj.get("sections") or {}).get("removed") or {}),
-            "classesAdded": _count_slot_changes((((diff_obj.get("slots") or {}).get("structural") or {}).get("added") or {})),
-            "classesRemoved": _count_slot_changes((((diff_obj.get("slots") or {}).get("structural") or {}).get("removed") or {})),
-            "classDetailsChanged": _count_slot_changes(((diff_obj.get("slots") or {}).get("detail_only_changed") or {})),
-        }
-
-        timetable_json = {
-            "generatedAt": updates.get("generatedAt"),
-            "latestVersion": latest_ver,
-            "previousVersion": prev_ver,
-            "base": (updates.get("timetable") or {}).get("base"),
-            "sourcesUsed": (updates.get("timetable") or {}).get("sourcesUsed") or [],
-            "summary": summary,
-        }
-        with open(os.path.join(REPO_ROOT, "timetable.json"), "w", encoding="utf-8") as f:
-            json.dump(timetable_json, f, indent=2, ensure_ascii=False)
-    except Exception:
-        pass
-
     # Cache-bust `data.js` / `updates.js` includes in `index.html` so browsers
     # won't keep stale data after a new parse run (GitHub Pages/mobile caches).
     try:
