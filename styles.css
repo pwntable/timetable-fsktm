@@ -3215,11 +3215,41 @@ html[data-theme="light"] #btn-theme .icon-moon {
   border: 1px solid var(--border);
   padding: 4px 8px;
   border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.2;
 }
 
 .update-chip b {
   color: var(--text);
   font-weight: 800;
+}
+
+button.update-chip {
+  appearance: none;
+  font-family: inherit;
+  border: 1px solid var(--border);
+}
+
+.update-chip--action {
+  cursor: pointer;
+  color: var(--text);
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.28);
+}
+
+.update-chip--action:hover {
+  filter: brightness(1.05);
+}
+
+.update-chip--action:active {
+  transform: translateY(1px);
+}
+
+.update-chip--action:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.55);
+  outline-offset: 2px;
 }
 
 .update-close {

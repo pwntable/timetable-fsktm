@@ -1,12 +1,12 @@
 /* Auto-generated. Do not edit by hand. */
 window.LATEST_UPDATE = {
-  "generatedAt": "2026-03-16T11:47:53",
+  "generatedAt": "2026-03-16T17:50:57",
   "timetable": {
     "latestId": "16032026",
     "latestDate": "16032026",
-    "previousId": "16032026",
-    "previousDate": "16032026",
-    "diffBase": "data.js",
+    "previousId": "15032026",
+    "previousDate": "15032026",
+    "diffBase": "data_15032026.js",
     "base": "by_course_16032026.pdf",
     "sourcesUsed": [
       "by_course_16032026.pdf",
@@ -30,7 +30,46 @@ window.LATEST_UPDATE = {
         "added": {},
         "removed": {}
       },
-      "detail_only_changed": {}
+      "detail_only_changed": {
+        "BIS30803": {
+          "S2": [
+            {
+              "slot": [
+                "S2",
+                "Lab/Amali",
+                "Thursday",
+                "04:00",
+                2
+              ],
+              "changes": {
+                "venue": {
+                  "from": "I-MKP-ARA",
+                  "to": "I-MFD-ARA"
+                }
+              }
+            }
+          ]
+        },
+        "BIW33803": {
+          "S5": [
+            {
+              "slot": [
+                "S5",
+                "Lab/Amali",
+                "Thursday",
+                "04:00",
+                2
+              ],
+              "changes": {
+                "venue": {
+                  "from": "I-MFD-ARAS",
+                  "to": "I-MSK-ARAS"
+                }
+              }
+            }
+          ]
+        }
+      }
     }
   }
 };

@@ -21,6 +21,9 @@ if "--no-fetch" not in sys.argv:
         import fetch_drive
         fetch_drive.main()
         print("✅ Fetch complete — proceeding with parsing ...\n")
+    except SystemExit as e:
+        # `fetch_drive` may call `sys.exit(1)` on network errors; do not abort parsing if files already exist.
+        print(f"❌ Fetch failed (exit {getattr(e, 'code', 1)}). Proceeding with existing files ...\n")
     except Exception as e:
         print(f"❌ Fetch failed: {e} — proceeding with existing files ...\n")
 else:
@@ -817,18 +820,59 @@ if __name__ == "__main__":
     # Prefer comparing against the previous timetable *version* (stored in `logs/update_meta.json`)
     # and snapshots, not just "whatever data.js currently is".
     data_path = os.path.join(REPO_ROOT, "data", "data.js")
-    prev_ver = None
+    meta_latest = None
+    meta_prev = None
     try:
         if os.path.exists(UPDATE_META_PATH):
             with open(UPDATE_META_PATH, "r", encoding="utf-8") as f:
                 meta = json.load(f) or {}
-                prev_ver = meta.get("latestVersion") or meta.get("latestId") or meta.get("latestDate")
+                meta_latest = meta.get("latestVersion") or meta.get("latestId") or meta.get("latestDate")
+                meta_prev = meta.get("previousVersion") or meta.get("prevVersion") or meta.get("previousId")
     except Exception:
-        prev_ver = None
+        meta_latest = None
+        meta_prev = None
+
+    def _infer_prev_snapshot(exclude_ver):
+        try:
+            if not os.path.isdir(SNAPSHOT_DIR):
+                return None
+            candidates = []
+            for name in os.listdir(SNAPSHOT_DIR):
+                m = re.match(r"^data_(\d{8})(?:_([^.]+))?\.js$", name)
+                if not m:
+                    continue
+                date_part = m.group(1)
+                suffix = m.group(2) or ""
+                ver = f"{date_part}_{suffix}" if suffix else date_part
+                if ver == exclude_ver:
+                    continue
+                try:
+                    mtime = os.path.getmtime(os.path.join(SNAPSHOT_DIR, name))
+                except Exception:
+                    mtime = 0
+                suffix_pri = 2 if suffix.lower() == "latest" else (1 if suffix else 0)
+                candidates.append((int(date_part), suffix_pri, mtime, ver))
+            if not candidates:
+                return None
+            candidates.sort(reverse=True)
+            return candidates[0][3]
+        except Exception:
+            return None
+
+    # Determine the "previous" version used for diff:
+    # - If a new timetable version arrives, compare vs the meta latest.
+    # - If re-running the parser on the same version, keep comparing vs the last distinct previous version.
+    prev_ver = None
+    if meta_latest and meta_latest != latest_ver:
+        prev_ver = meta_latest
+    elif meta_prev:
+        prev_ver = meta_prev
+    else:
+        prev_ver = _infer_prev_snapshot(latest_ver)
 
     old_source = "data.js"
     old_db = _load_courses_from_data_js(data_path) if os.path.exists(data_path) else {}
-    if prev_ver and prev_ver != latest_ver:
+    if prev_ver:
         snap_path = os.path.join(SNAPSHOT_DIR, f"data_{prev_ver}.js")
         if os.path.exists(snap_path):
             old_db = _load_courses_from_data_js(snap_path)
@@ -877,13 +921,61 @@ if __name__ == "__main__":
     except Exception:
         pass
     with open(UPDATE_META_PATH, "w", encoding="utf-8") as f:
-        json.dump({"latestVersion": latest_ver, "latestDate": latest_date, "generatedAt": updates["generatedAt"]}, f, indent=2, ensure_ascii=False)
+        json.dump(
+            {
+                "latestVersion": latest_ver,
+                "latestDate": latest_date,
+                "previousVersion": prev_ver,
+                "generatedAt": updates["generatedAt"],
+            },
+            f,
+            indent=2,
+            ensure_ascii=False,
+        )
 
     with open(os.path.join(REPO_ROOT, "data", "updates.js"), "w", encoding="utf-8") as f:
         f.write("/* Auto-generated. Do not edit by hand. */\n")
         f.write("window.LATEST_UPDATE = ")
         f.write(json.dumps(updates, ensure_ascii=False, indent=2))
         f.write(";\n")
+
+    # Also write a plain JSON file for GitHub Actions (push notification workflow)
+    # and other tooling. This file is safe to commit (no secrets).
+    try:
+        def _count_section_changes(obj):
+            return sum(len(v or []) for v in (obj or {}).values())
+
+        def _count_slot_changes(obj):
+            n = 0
+            for _code, secs in (obj or {}).items():
+                for _sec, arr in (secs or {}).items():
+                    n += len(arr or [])
+            return n
+
+        diff_obj = updates.get("changes") or {}
+        summary = {
+            "coursesAdded": len(((diff_obj.get("courses") or {}).get("added") or [])),
+            "coursesRemoved": len(((diff_obj.get("courses") or {}).get("removed") or [])),
+            "courseNamesChanged": len(((diff_obj.get("courses") or {}).get("name_changed") or [])),
+            "sectionsAdded": _count_section_changes((diff_obj.get("sections") or {}).get("added") or {}),
+            "sectionsRemoved": _count_section_changes((diff_obj.get("sections") or {}).get("removed") or {}),
+            "classesAdded": _count_slot_changes((((diff_obj.get("slots") or {}).get("structural") or {}).get("added") or {})),
+            "classesRemoved": _count_slot_changes((((diff_obj.get("slots") or {}).get("structural") or {}).get("removed") or {})),
+            "classDetailsChanged": _count_slot_changes(((diff_obj.get("slots") or {}).get("detail_only_changed") or {})),
+        }
+
+        timetable_json = {
+            "generatedAt": updates.get("generatedAt"),
+            "latestVersion": latest_ver,
+            "previousVersion": prev_ver,
+            "base": (updates.get("timetable") or {}).get("base"),
+            "sourcesUsed": (updates.get("timetable") or {}).get("sourcesUsed") or [],
+            "summary": summary,
+        }
+        with open(os.path.join(REPO_ROOT, "timetable.json"), "w", encoding="utf-8") as f:
+            json.dump(timetable_json, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
 
     # Cache-bust `data.js` / `updates.js` includes in `index.html` so browsers
     # won't keep stale data after a new parse run (GitHub Pages/mobile caches).

@@ -13,6 +13,40 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <!-- OneSignal Web Push (optional). Requires HTTPS (GitHub Pages is OK). -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    // App ID is safe to expose (NOT a secret). REST API key must stay in GitHub Secrets only.
+    // Paste your OneSignal App ID here:
+    window.ONESIGNAL_APP_ID = "55f33e92-3013-4ead-9605-2af091680c04";
+    // Optional override for GitHub Pages project scope, e.g. "/timetable-fsktm/"
+    window.ONESIGNAL_SW_SCOPE = window.ONESIGNAL_SW_SCOPE || "";
+
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function (OneSignal) {
+      try {
+        const appId = String(window.ONESIGNAL_APP_ID || "").trim();
+        const isSecure = location.protocol === "https:" || location.hostname === "localhost";
+        if (!appId || appId.includes("PASTE_") || !isSecure) return;
+
+        const hostIsGithubPages = /\.github\.io$/i.test(location.hostname || "");
+        const segs = (location.pathname || "/").split("/").filter(Boolean);
+        const inferredScope = (hostIsGithubPages && segs.length >= 1) ? `/${segs[0]}/` : "/";
+        const scope = String(window.ONESIGNAL_SW_SCOPE || inferredScope);
+        const scopeRel = scope.replace(/^\//, ""); // "repo/" or ""
+
+        await OneSignal.init({
+          appId,
+          autoResubscribe: true,
+          serviceWorkerPath: `${scopeRel}OneSignalSDKWorker.js`,
+          serviceWorkerUpdaterPath: `${scopeRel}OneSignalSDKUpdaterWorker.js`,
+          serviceWorkerParam: { scope }
+        });
+      } catch (e) {
+        console.warn("OneSignal init failed:", e);
+      }
+    });
+  </script>
 
 </head>
 
@@ -235,7 +269,8 @@
         </div>
       </div>
       <div style="margin-top:16px">
-        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+        <div
+          style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -293,14 +328,14 @@
         <div id="intake-credit-count" style="font-size:13px; font-weight:700; color:var(--muted2)">
           <span data-i18n="totalCredits">Total Selected Credits:</span> <span id="intake-cred-val">0</span>
         </div>
-	        <div style="display:flex; gap:10px">
-	          <button class="btn-sm confirm" onclick="confirmIntakeSuggestion()"
-	            style="background:var(--accent); color:white; border:none" data-i18n="generateBtn">Generate
-	            Timetable</button>
-	          <button class="btn-sm" onclick="closeIntakeSelectionModal()"
-	            style="border-color:var(--border2); background:transparent; color:var(--muted)"
-	            data-i18n="cancelBtn">Batal</button>
-	        </div>
+        <div style="display:flex; gap:10px">
+          <button class="btn-sm confirm" onclick="confirmIntakeSuggestion()"
+            style="background:var(--accent); color:white; border:none" data-i18n="generateBtn">Generate
+            Timetable</button>
+          <button class="btn-sm" onclick="closeIntakeSelectionModal()"
+            style="border-color:var(--border2); background:transparent; color:var(--muted)"
+            data-i18n="cancelBtn">Batal</button>
+        </div>
       </div>
     </div>
   </div>

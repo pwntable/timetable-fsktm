@@ -1,0 +1,112 @@
+name: Notify Timetable Updates (OneSignal)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "timetable.json"
+  workflow_dispatch:
+
+jobs:
+  onesignal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read timetable version
+        id: meta
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, sys
+
+          def load_json_text(text: str):
+            try:
+              return json.loads(text)
+            except Exception:
+              return None
+
+          with open("timetable.json", "r", encoding="utf-8") as f:
+            cur = json.load(f) or {}
+
+          new_ver = str(cur.get("latestVersion") or "").strip()
+          if not new_ver:
+            print("Missing latestVersion in timetable.json", file=sys.stderr)
+            new_ver = ""
+
+          old_ver = ""
+          before = (os.environ.get("BEFORE_SHA") or "").strip()
+          if before and before != "0" * 40:
+            try:
+              prev_txt = subprocess.check_output(["git", "show", f"{before}:timetable.json"], text=True)
+              prev = load_json_text(prev_txt) or {}
+              old_ver = str(prev.get("latestVersion") or "").strip()
+            except Exception:
+              old_ver = ""
+
+          should_send = "true" if (new_ver and new_ver != old_ver) else "false"
+
+          summary = cur.get("summary") or {}
+          ca = int(summary.get("coursesAdded") or 0)
+          cr = int(summary.get("coursesRemoved") or 0)
+          sa = int(summary.get("sectionsAdded") or 0)
+          sr = int(summary.get("sectionsRemoved") or 0)
+          cla = int(summary.get("classesAdded") or 0)
+          clr = int(summary.get("classesRemoved") or 0)
+          cdc = int(summary.get("classDetailsChanged") or 0)
+
+          details = f"Courses +{ca}/-{cr} • Sections +{sa}/-{sr} • Classes +{cla}/-{clr} • Updated {cdc}"
+          title_en = "New Timetable Update"
+          body_en = f"Version {new_ver} is available. {details}"
+          title_ms = "Kemaskini Jadual"
+          body_ms = f"Versi {new_ver} tersedia. {details}"
+
+          out_path = os.environ.get("GITHUB_OUTPUT")
+          with open(out_path, "a", encoding="utf-8") as out:
+            out.write(f"new_ver={new_ver}\n")
+            out.write(f"old_ver={old_ver}\n")
+            out.write(f"should_send={should_send}\n")
+            out.write(f"title_en={title_en}\n")
+            out.write(f"body_en={body_en}\n")
+            out.write(f"title_ms={title_ms}\n")
+            out.write(f"body_ms={body_ms}\n")
+          PY
+
+      - name: Skip (no version change)
+        if: steps.meta.outputs.should_send != 'true'
+        run: echo "No timetable version change (${{ steps.meta.outputs.old_ver }} -> ${{ steps.meta.outputs.new_ver }}). Skipping."
+
+      - name: Send OneSignal notification
+        if: steps.meta.outputs.should_send == 'true'
+        env:
+          ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
+          ONESIGNAL_API_KEY: ${{ secrets.ONESIGNAL_API_KEY }}
+          SITE_URL: https://pwntable.github.io/timetable-fsktm/
+          TITLE_EN: ${{ steps.meta.outputs.title_en }}
+          BODY_EN: ${{ steps.meta.outputs.body_en }}
+          TITLE_MS: ${{ steps.meta.outputs.title_ms }}
+          BODY_MS: ${{ steps.meta.outputs.body_ms }}
+        run: |
+          if [ -z "${ONESIGNAL_APP_ID}" ] || [ -z "${ONESIGNAL_API_KEY}" ]; then
+            echo "Missing secrets: ONESIGNAL_APP_ID / ONESIGNAL_API_KEY"
+            exit 1
+          fi
+
+          python3 - <<'PY' > payload.json
+          import json, os
+          payload = {
+            "app_id": os.environ["ONESIGNAL_APP_ID"],
+            "included_segments": ["Subscribed Users"],
+            "headings": {"en": os.environ.get("TITLE_EN", "New Timetable Update"), "ms": os.environ.get("TITLE_MS", "Kemaskini Jadual")},
+            "contents": {"en": os.environ.get("BODY_EN", "A new timetable version is available."), "ms": os.environ.get("BODY_MS", "Versi baharu jadual tersedia.")},
+            "url": os.environ.get("SITE_URL", ""),
+          }
+          print(json.dumps(payload))
+          PY
+
+          curl -sS -X POST "https://onesignal.com/api/v1/notifications" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -H "Authorization: Basic ${ONESIGNAL_API_KEY}" \
+            --data-binary @payload.json
