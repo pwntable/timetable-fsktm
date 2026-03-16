@@ -23,6 +23,7 @@ const COLOR_PALETTE = [
 let selected = {}, colorMap = {}, customColors = {}, colorIdx = 0, filtered = [];
 let intakeModalCourses = [], intakeModalSelected = new Set();
 let savedTimetables = JSON.parse(localStorage.getItem('uthm-tg-saved') || '[]');
+let subjectNotes = JSON.parse(localStorage.getItem('uthm-tg-notes') || '{}');
 // 'table' | 'cards'  — auto-set per breakpoint, user can override
 let viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
 // 'days-top' | 'days-left'
@@ -105,6 +106,7 @@ const DICT = {
     intakeSuggestBtn: "Suggest Timetable",
     intakePlaceholder: "-- Select your intake --",
     intakeNoneFound: "No matching courses found for this intake.",
+    dtNotes: "Notes",
     disclaimerTitle: "How to Use",
     downloadEmptyWarn: "No subjects selected. Please select at least one subject before downloading.",
     downloadTitle: "Download Timetable",
@@ -200,6 +202,7 @@ const DICT = {
     intakeSuggestBtn: "Cadang Jadual",
     intakePlaceholder: "-- Pilih ambilan anda --",
     intakeNoneFound: "Tiada kursus yang sepadan ditemui untuk ambilan ini.",
+    dtNotes: "Nota",
     disclaimerTitle: "Cara Penggunaan",
     downloadEmptyWarn: "Tiada subjek dipilih. Sila pilih sekurang-kurangnya satu subjek sebelum muat turun.",
     downloadTitle: "Muat Turun Jadual",
@@ -530,6 +533,9 @@ function renderSelArea() {
           <span class="sel-code" style="color:${col}">${code}</span>${tagHtml}
         </span>
         <span style="display:flex;align-items:center;gap:8px">
+          <span class="${subjectNotes[code] && subjectNotes[code].trim() ? 'btn-notes active' : 'btn-notes'}" onclick="event.stopPropagation(); openCourseDetailModal('${code}')" title="${currentLang === 'ms' ? 'Nota' : 'Notes'}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </span>
           <span class="credit-badge">${credits} ${DICT[currentLang].credit || (currentLang === 'ms' ? 'kredit' : 'credits')}</span>
           <span class="sel-remove" onclick="removeSelected('${code}')">×</span>
         </span>
@@ -649,6 +655,13 @@ function openCourseDetailModal(code) {
           <span class="cd-chip" id="cd-sec"></span>
           <span class="cd-chip" id="cd-cred"></span>
         </div>
+        <div class="cd-notes-wrap">
+          <div class="cd-notes-hdr">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            <span id="cd-notes-label"></span>
+          </div>
+          <textarea class="cd-notes-input" id="cd-notes-input" placeholder="..."></textarea>
+        </div>
         <div class="cd-body" id="cd-body"></div>
       </div>
     `;
@@ -670,6 +683,16 @@ function openCourseDetailModal(code) {
   overlay.querySelector('#cd-name').textContent = course.name || '';
   overlay.querySelector('#cd-sec').textContent = `${currentLang === 'ms' ? 'Seksyen' : 'Section'}: ${chosenSec || '-'}`;
   overlay.querySelector('#cd-cred').textContent = `${getCredits(code)} ${currentLang === 'ms' ? 'kredit' : 'credits'}`;
+  overlay.querySelector('#cd-notes-label').textContent = currentLang === 'ms' ? 'Nota' : 'Notes';
+  
+  const notesInput = overlay.querySelector('#cd-notes-input');
+  if (notesInput) {
+    notesInput.value = subjectNotes[code] || '';
+    notesInput.oninput = () => {
+      subjectNotes[code] = notesInput.value;
+      localStorage.setItem('uthm-tg-notes', JSON.stringify(subjectNotes));
+    };
+  }
 
   const mkItem = (s) => {
     const st = String(s.time_start || '');
@@ -773,6 +796,8 @@ function doReset() {
   for (let key in selected) delete selected[key];
   for (let key in colorMap) delete colorMap[key];
   for (let key in customColors) delete customColors[key];
+  for (let key in subjectNotes) delete subjectNotes[key];
+  localStorage.removeItem('uthm-tg-notes');
   colorIdx = 0;
   const srch = document.getElementById('srch');
   if (srch) srch.value = '';
@@ -1862,6 +1887,16 @@ function showDetailModal(el) {
     } else {
       actionsWrap.style.display = 'none';
     }
+  }
+  
+  // Handle Notes
+  const notesArea = document.getElementById('detail-notes');
+  if (notesArea) {
+    notesArea.value = subjectNotes[e.code] || '';
+    notesArea.oninput = () => {
+      subjectNotes[e.code] = notesArea.value;
+      localStorage.setItem('uthm-tg-notes', JSON.stringify(subjectNotes));
+    };
   }
 
   document.getElementById('detail-modal').classList.add('show');
