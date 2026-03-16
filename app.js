@@ -29,7 +29,7 @@ let viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
 let layoutOrientation = localStorage.getItem('uthm-tg-orientation') || 'days-top';
 
 // Build info (shown in the on-load update popup)
-const APP_BUILD_VERSION = 27;
+const APP_BUILD_VERSION = 30;
 
 // Latest update payload (from `updates.js`)
 let latestUpdate = null;
@@ -101,6 +101,7 @@ const DICT = {
     submitSuccess: "Terima kasih! Feedback has been sent.",
     submitFail: "Error sending feedback. Please try again later.",
     intakePanelTitle: "Suggest by Intake",
+    intakeNewBadge: "New",
     intakeSuggestBtn: "Suggest Timetable",
     intakePlaceholder: "-- Select your intake --",
     intakeNoneFound: "No matching courses found for this intake.",
@@ -116,6 +117,9 @@ const DICT = {
     downloadPngBtn: "Download PNG",
     downloadXlsxBtn: "Download XLSX",
     downloadPdfBtn: "Download PDF",
+    emptyNoSubjectTitle: "No subjects selected",
+    emptyNoSubjectDesc: "Pick subjects from the list and choose a section.",
+    conflictLabel: "Time conflict",
     removeBtn: "Remove Subject",
     intakeSelectTitle: "Select Subjects for {intake}",
     totalCredits: "Total Selected Credits:",
@@ -134,7 +138,7 @@ const DICT = {
     semester: "Sem 2 | Sesi 2025/2026",
     subjectList: "Senarai Subjek",
     searchPh: "Cari kod atau nama...",
-    subjectSection: "Subjek & Section",
+    subjectSection: "Subjek & Seksyen",
     credit: "kredit",
     resetBtn: "Set Semula",
     timetableTitle: "Jadual Waktu",
@@ -192,6 +196,7 @@ const DICT = {
     submitSuccess: "Terima kasih! Maklum balas anda telah dihantar.",
     submitFail: "Ralat menghantar maklum balas. Sila cuba sebentar lagi.",
     intakePanelTitle: "Cadangan Mengikut Ambilan",
+    intakeNewBadge: "Baru",
     intakeSuggestBtn: "Cadang Jadual",
     intakePlaceholder: "-- Pilih ambilan anda --",
     intakeNoneFound: "Tiada kursus yang sepadan ditemui untuk ambilan ini.",
@@ -207,6 +212,9 @@ const DICT = {
     downloadPngBtn: "Muat Turun PNG",
     downloadXlsxBtn: "Muat Turun XLSX",
     downloadPdfBtn: "Muat Turun PDF",
+    emptyNoSubjectTitle: "Tiada Subjek Dipilih",
+    emptyNoSubjectDesc: "Pilih subjek dari senarai dan tetapkan seksyen.",
+    conflictLabel: "Konflik Masa",
     removeBtn: "Buang Subjek",
     intakeSelectTitle: "Pilih Subjek untuk {intake}",
     totalCredits: "Jumlah Kredit Dipilih:",
@@ -346,6 +354,7 @@ function init() {
   document.getElementById('cnt-all').textContent = filtered.length;
   renderTimetable();
   buildIntakeList();
+  _setupSelectedCourseDetails();
   showUpdatePopup();
 }
 
@@ -490,7 +499,7 @@ function renderSelArea() {
   const cred = totalCredits();
   const credEl = document.getElementById('cnt-credits');
   if (credEl) {
-    credEl.textContent = cred + ' kredit';
+    credEl.textContent = `${cred} ${DICT[currentLang].credit || (currentLang === 'ms' ? 'kredit' : 'credits')}`;
     credEl.style.color = cred > 20 ? '#f87171' : cred >= 12 ? '#34d399' : '#fcd34d';
   }
   area.innerHTML = '';
@@ -508,6 +517,10 @@ function renderSelArea() {
     }).join('');
     const block = document.createElement('div');
     block.className = 'sel-course-block';
+    block.dataset.code = code;
+    block.tabIndex = 0;
+    block.setAttribute('role', 'button');
+    block.setAttribute('aria-label', `${code} — ${c.name}`);
     block.style.borderLeft = `3px solid ${col}`; block.style.paddingLeft = '14px';
     const colorLabel = currentLang === 'ms' ? 'Warna' : 'Color';
     block.innerHTML = `
@@ -517,7 +530,7 @@ function renderSelArea() {
           <span class="sel-code" style="color:${col}">${code}</span>${tagHtml}
         </span>
         <span style="display:flex;align-items:center;gap:8px">
-          <span class="credit-badge">${credits} kredit</span>
+          <span class="credit-badge">${credits} ${DICT[currentLang].credit || (currentLang === 'ms' ? 'kredit' : 'credits')}</span>
           <span class="sel-remove" onclick="removeSelected('${code}')">×</span>
         </span>
       </div>
@@ -542,6 +555,173 @@ function renderSelArea() {
   }
 }
 
+function _setupSelectedCourseDetails() {
+  const area = document.getElementById('sel-area');
+  if (!area || area.dataset.courseDetailBound === '1') return;
+  area.dataset.courseDetailBound = '1';
+
+  const shouldIgnore = (target) =>
+    !!target.closest('.sec-pill, .sel-remove, .color-swatch-btn');
+
+  area.addEventListener('click', (e) => {
+    const block = e.target.closest('.sel-course-block');
+    if (!block) return;
+    if (shouldIgnore(e.target)) return;
+    const code = block.dataset.code;
+    if (!code) return;
+    openCourseDetailModal(code);
+  });
+
+  area.addEventListener('keydown', (e) => {
+    const block = e.target.closest && e.target.closest('.sel-course-block');
+    if (!block) return;
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    const code = block.dataset.code;
+    if (!code) return;
+    openCourseDetailModal(code);
+  });
+}
+
+function openCourseDetailModal(code) {
+  const course = (typeof COURSES !== 'undefined') ? COURSES[code] : null;
+  if (!course) return;
+  const chosenSec = selected[code] || (sortSections(Object.keys(course.sections || {}))[0] || '');
+  const slots = (course.sections && course.sections[chosenSec]) ? course.sections[chosenSec] : [];
+  const t = DICT[currentLang] || DICT.ms;
+
+  const typeLabel = (ty) => {
+    if (ty === 'Lecture') return currentLang === 'ms' ? 'Kuliah' : 'Lecture';
+    if (ty === 'Lab/Amali') return currentLang === 'ms' ? 'Amali' : 'Lab';
+    return currentLang === 'ms' ? 'Tutorial' : 'Tutorial';
+  };
+
+  const endTime = (start, dur) => {
+    const s = String(start || '').replace('.', ':');
+    const si = TIME_SLOTS.findIndex(x => x.startsWith(s));
+    const d = Math.max(1, Math.round(Number(dur) || 1));
+    const ei = si >= 0 ? Math.min(TIME_SLOTS.length - 1, si + d - 1) : -1;
+    if (ei < 0) return '';
+    return TIME_SLOTS[ei].split(' - ')[1].replace(' (eve)', '');
+  };
+
+  const venueShort = (v) => String(v || '-').replace('I-', '');
+  const lectShort = (l) => String(l || '-').replace('I-', '');
+
+  const dayIdx = (day) => {
+    const i = DAYS.indexOf(day);
+    return i === -1 ? 99 : i;
+  };
+  const timeIdx = (start) => {
+    const s = String(start || '').replace('.', ':');
+    const i = TIME_SLOTS.findIndex(x => x.startsWith(s));
+    return i === -1 ? 999 : i;
+  };
+
+  const grouped = { Lecture: [], 'Lab/Amali': [], Tutorial: [] };
+  (slots || []).forEach(s => {
+    (grouped[s.type] || (grouped[s.type] = [])).push(s);
+  });
+
+  for (const k of Object.keys(grouped)) {
+    grouped[k].sort((a, b) => {
+      const da = dayIdx(a.day); const db = dayIdx(b.day);
+      if (da !== db) return da - db;
+      return timeIdx(a.time_start) - timeIdx(b.time_start);
+    });
+  }
+
+  let overlay = document.getElementById('course-detail-modal');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'course-detail-modal';
+    overlay.innerHTML = `
+      <div class="modal-box course-detail-box" role="dialog" aria-modal="true" aria-labelledby="cd-title">
+        <div class="cd-hdr">
+          <div class="cd-hdr-left">
+            <div class="cd-code" id="cd-code"></div>
+            <div class="cd-name" id="cd-name"></div>
+          </div>
+          <button class="btn-sm cd-close" id="cd-close" type="button">✕</button>
+        </div>
+        <div class="cd-sub">
+          <span class="cd-chip" id="cd-sec"></span>
+          <span class="cd-chip" id="cd-cred"></span>
+        </div>
+        <div class="cd-body" id="cd-body"></div>
+      </div>
+    `;
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCourseDetailModal(); });
+    document.addEventListener('keydown', (e) => {
+      const m = document.getElementById('course-detail-modal');
+      if (!m || !m.classList.contains('open')) return;
+      if (e.key === 'Escape') closeCourseDetailModal();
+    });
+    document.body.appendChild(overlay);
+  }
+
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+
+  const titleText = `${code}`;
+  overlay.querySelector('#cd-code').textContent = titleText;
+  overlay.querySelector('#cd-name').textContent = course.name || '';
+  overlay.querySelector('#cd-sec').textContent = `${currentLang === 'ms' ? 'Seksyen' : 'Section'}: ${chosenSec || '-'}`;
+  overlay.querySelector('#cd-cred').textContent = `${getCredits(code)} ${currentLang === 'ms' ? 'kredit' : 'credits'}`;
+
+  const mkItem = (s) => {
+    const st = String(s.time_start || '');
+    const en = endTime(st, s.duration);
+    const timeStr = `${t.days[s.day] || s.day} • ${format12Hour(st)}${en ? ' – ' + format12Hour(en) : ''}`;
+    const intakes = (s.intakes && s.intakes.length) ? s.intakes.join(' | ') : '';
+    const badge = String((s.section || '').split(' ')[1] || '').trim();
+    return `
+      <div class="cd-item">
+        <div class="cd-item-top">
+          <div class="cd-type">${esc(typeLabel(s.type))}${badge ? ` <span class="cd-badge">${esc(badge)}</span>` : ''}</div>
+          <div class="cd-time">${esc(timeStr)}</div>
+        </div>
+        <div class="cd-item-kv">
+          <div>${currentLang === 'ms' ? 'Lokasi' : 'Venue'}</div><div><b>${esc(venueShort(s.venue))}</b></div>
+          <div>${currentLang === 'ms' ? 'Pensyarah' : 'Lecturer'}</div><div><b>${esc(lectShort(s.lecturer))}</b></div>
+        </div>
+        ${intakes ? `<div class="cd-intakes">${esc(intakes)}</div>` : ''}
+      </div>
+    `;
+  };
+
+  const bodyParts = [];
+  const order = ['Lecture', 'Lab/Amali', 'Tutorial'];
+  order.forEach(ty => {
+    const arr = grouped[ty] || [];
+    if (!arr.length) return;
+    bodyParts.push(`
+      <div class="cd-group">
+        <div class="cd-group-title">${esc(typeLabel(ty))}</div>
+        <div class="cd-group-items">${arr.map(mkItem).join('')}</div>
+      </div>
+    `);
+  });
+
+  if (!bodyParts.length) {
+    bodyParts.push(`<div class="update-empty">${currentLang === 'ms' ? 'Tiada jadual untuk seksyen ini.' : 'No schedule for this section.'}</div>`);
+  }
+
+  overlay.querySelector('#cd-body').innerHTML = bodyParts.join('');
+  overlay.querySelector('#cd-close').onclick = closeCourseDetailModal;
+
+  requestAnimationFrame(() => overlay.classList.add('open'));
+  const closeBtn = overlay.querySelector('#cd-close');
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeCourseDetailModal() {
+  const overlay = document.getElementById('course-detail-modal');
+  if (overlay) overlay.classList.remove('open');
+}
+
 /* ════ RESET MODAL ════ */
 function resetAll() {
   const isMalay = currentLang === 'ms';
@@ -557,16 +737,16 @@ function resetAll() {
     overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.id = 'reset-modal';
-    overlay.innerHTML = `
-      <div class="modal-box" role="dialog" aria-modal="true">
-        <div class="modal-icon">🗑</div>
-        <div class="modal-title"   id="modal-title"></div>
-        <div class="modal-desc"    id="modal-desc"></div>
-        <div class="modal-actions">
-          <button class="modal-btn cancel"  id="modal-cancel"></button>
-          <button class="modal-btn confirm" id="modal-confirm"></button>
-        </div>
-      </div>`;
+	    overlay.innerHTML = `
+	      <div class="modal-box" role="dialog" aria-modal="true">
+	        <div class="modal-icon">🗑</div>
+	        <div class="modal-title"   id="modal-title"></div>
+	        <div class="modal-desc"    id="modal-desc"></div>
+	        <div class="modal-actions">
+	          <button class="modal-btn confirm" id="modal-confirm"></button>
+	          <button class="modal-btn cancel"  id="modal-cancel"></button>
+	        </div>
+	      </div>`;
     overlay.addEventListener('click', e => { if (e.target === overlay) closeResetModal(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeResetModal(); });
     document.body.appendChild(overlay);
@@ -649,17 +829,25 @@ function checkConflicts() {
 /* ════ REALTIME TIMETABLE ════ */
 function renderTimetable() {
   const body = document.getElementById('tt-body');
+  const t = DICT[currentLang] || DICT.ms;
   if (Object.keys(selected).length === 0) {
-    body.innerHTML = `<div class="empty"><div class="empty-ico">📋</div><h3>Tiada Subjek Dipilih</h3><p>Pilih subjek dari senarai dan tetapkan section</p></div>`;
-    document.getElementById('tt-title').textContent = 'Jadual Waktu';
+    body.innerHTML = `<div class="empty"><div class="empty-ico">📋</div><h3>${t.emptyNoSubjectTitle || (currentLang === 'ms' ? 'Tiada Subjek Dipilih' : 'No subjects selected')}</h3><p>${t.emptyNoSubjectDesc || (currentLang === 'ms' ? 'Pilih subjek dari senarai dan tetapkan seksyen.' : 'Pick subjects from the list and choose a section.')}</p></div>`;
+    document.getElementById('tt-title').textContent = t.timetableTitle || (currentLang === 'ms' ? 'Jadual Waktu' : 'Timetable');
     document.getElementById('conflict-strip').style.display = 'none';
     return;
   }
 
   const conflicts = checkConflicts();
-  document.getElementById('tt-title').textContent = `Jadual — ${Object.keys(selected).length} Subjek`;
+  const n = Object.keys(selected).length;
+  const prefix = currentLang === 'ms' ? 'Jadual' : 'Timetable';
+  const subjWord = currentLang === 'ms' ? 'Subjek' : (n === 1 ? 'Subject' : 'Subjects');
+  document.getElementById('tt-title').textContent = `${prefix} — ${n} ${subjWord}`;
   const strip = document.getElementById('conflict-strip');
-  if (conflicts.length) { strip.style.display = 'block'; strip.innerHTML = `⚠ <strong>Konflik Masa:</strong> ${conflicts.join(' · ')}`; }
+  if (conflicts.length) {
+    const label = t.conflictLabel || (currentLang === 'ms' ? 'Konflik Masa' : 'Time conflict');
+    strip.style.display = 'block';
+    strip.innerHTML = `⚠ <strong>${label}:</strong> ${conflicts.join(' · ')}`;
+  }
   else strip.style.display = 'none';
 
   // Build grid data (slots organized directly by day)
@@ -1554,16 +1742,16 @@ function deleteTimetable(id) {
     overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.id = 'delete-timetable-modal';
-    overlay.innerHTML = `
-      <div class="modal-box" role="dialog" aria-modal="true">
-        <div class="modal-icon">🗑</div>
-        <div class="modal-title"  id="del-modal-title"></div>
-        <div class="modal-desc"   id="del-modal-desc"></div>
-        <div class="modal-actions">
-          <button class="modal-btn cancel"  id="del-modal-cancel"></button>
-          <button class="modal-btn confirm danger" id="del-modal-confirm"></button>
-        </div>
-      </div>`;
+	    overlay.innerHTML = `
+	      <div class="modal-box" role="dialog" aria-modal="true">
+	        <div class="modal-icon">🗑</div>
+	        <div class="modal-title"  id="del-modal-title"></div>
+	        <div class="modal-desc"   id="del-modal-desc"></div>
+	        <div class="modal-actions">
+	          <button class="modal-btn confirm danger" id="del-modal-confirm"></button>
+	          <button class="modal-btn cancel"  id="del-modal-cancel"></button>
+	        </div>
+	      </div>`;
     overlay.addEventListener('click', e => { if (e.target === overlay) closeDeleteModal(); });
     document.addEventListener('keydown', function delEsc(e) {
       if (e.key === 'Escape') closeDeleteModal();
