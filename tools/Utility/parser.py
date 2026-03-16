@@ -884,3 +884,21 @@ if __name__ == "__main__":
         f.write("window.LATEST_UPDATE = ")
         f.write(json.dumps(updates, ensure_ascii=False, indent=2))
         f.write(";\n")
+
+    # Cache-bust `data.js` / `updates.js` includes in `index.html` so browsers
+    # won't keep stale data after a new parse run (GitHub Pages/mobile caches).
+    try:
+        index_path = os.path.join(REPO_ROOT, "index.html")
+        if os.path.exists(index_path):
+            with open(index_path, "r", encoding="utf-8") as f:
+                html = f.read()
+
+            bumped = html
+            bumped = re.sub(r'(data/data\.js\?v=)([^"\'<>]+)', rf'\g<1>{latest_ver}', bumped)
+            bumped = re.sub(r'(data/updates\.js\?v=)([^"\'<>]+)', rf'\g<1>{latest_ver}', bumped)
+
+            if bumped != html:
+                with open(index_path, "w", encoding="utf-8") as f:
+                    f.write(bumped)
+    except Exception:
+        pass
