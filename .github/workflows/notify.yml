@@ -1,5 +1,9 @@
 name: Notify Timetable Updates (OneSignal)
 
+env:
+  # Opt into Node.js 24 for JS actions early (Node.js 20 deprecation warning).
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 on:
   push:
     branches: [ "main", "master" ]
@@ -23,9 +27,6 @@ on:
 jobs:
   onesignal:
     runs-on: ubuntu-latest
-    env:
-      # Opt into Node.js 24 for JS actions early (Node.js 20 deprecation warning).
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
