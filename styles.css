@@ -3413,3 +3413,49 @@ html[data-theme="light"] #btn-theme .icon-moon {
 .intake-item-code { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: var(--accent); }
 .intake-item-name { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .intake-item-credits { font-size: 11px; font-weight: 700; color: var(--muted2); }
+
+/* ════ RENAME DRAFTS ════ */
+.saved-name.editing {
+  display: none;
+}
+
+.rename-input {
+  background: var(--s1);
+  border: 1.5px solid var(--accent);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  width: 100%;
+  padding: 4px 8px;
+  border-radius: 8px;
+  outline: none;
+  margin-bottom: 4px;
+  display: none;
+}
+
+.rename-input.active {
+  display: block;
+}
+
+.btn-rename {
+  background: transparent;
+  color: var(--muted);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-rename:hover {
+  background: var(--s2);
+  border-color: var(--muted2);
+  color: var(--text);
+  transform: translateY(-1px);
+}

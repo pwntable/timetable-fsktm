@@ -1655,11 +1655,21 @@ function renderSavedList() {
 
     html += `<div class="saved-card" onclick="loadTimetable('${s.id}')">
       <div style="flex:1;min-width:0;padding-right:10px">
-        <div class="saved-name">${s.name}</div>
+        <div class="saved-name" id="name-${s.id}">${s.name}</div>
+        <input type="text" class="rename-input" id="input-${s.id}" value="${s.name}" 
+               onclick="event.stopPropagation()"
+               onkeydown="if(event.key==='Enter') finishRename('${s.id}'); if(event.key==='Escape') cancelRename('${s.id}')"
+               onblur="finishRename('${s.id}')">
         <div class="saved-meta">${subjs} ${t.stats.subj} • ${dateStr}</div>
       </div>
       <div class="saved-actions">
-        <button class="btn-edit" onclick="event.stopPropagation(); loadTimetable('${s.id}')" title="Edit">Edit</button>
+        <button class="btn-rename" onclick="event.stopPropagation(); startRename('${s.id}')" title="Rename">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </button>
+        <button class="btn-edit" onclick="event.stopPropagation(); loadTimetable('${s.id}')" title="Edit">${currentLang === 'ms' ? 'Pilih' : 'Select'}</button>
         <button class="btn-del" onclick="event.stopPropagation(); deleteTimetable('${s.id}')" title="${t.delBtn}">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
@@ -1667,6 +1677,40 @@ function renderSavedList() {
     </div>`;
   }
   area.innerHTML = html;
+}
+
+function startRename(id) {
+  const nameEl = document.getElementById(`name-${id}`);
+  const inputEl = document.getElementById(`input-${id}`);
+  if (!nameEl || !inputEl) return;
+  nameEl.classList.add('editing');
+  inputEl.classList.add('active');
+  inputEl.focus();
+  inputEl.select();
+}
+
+function cancelRename(id) {
+  const nameEl = document.getElementById(`name-${id}`);
+  const inputEl = document.getElementById(`input-${id}`);
+  if (!nameEl || !inputEl) return;
+  const originalName = savedTimetables.find(t => t.id === id)?.name || '';
+  inputEl.value = originalName;
+  nameEl.classList.remove('editing');
+  inputEl.classList.remove('active');
+}
+
+function finishRename(id) {
+  const inputEl = document.getElementById(`input-${id}`);
+  if (!inputEl || !inputEl.classList.contains('active')) return;
+  const newName = inputEl.value.trim();
+  if (newName) {
+    const draft = savedTimetables.find(t => t.id === id);
+    if (draft) {
+      draft.name = newName;
+      localStorage.setItem('uthm-tg-saved', JSON.stringify(savedTimetables));
+    }
+  }
+  renderSavedList();
 }
 
 function promptSaveTimetable() {
