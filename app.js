@@ -30,7 +30,7 @@ let viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
 let layoutOrientation = localStorage.getItem('uthm-tg-orientation') || 'days-top';
 
 // Build info (shown in the on-load update popup)
-const APP_BUILD_VERSION = 30;
+const APP_BUILD_VERSION = 31;
 
 // Latest update payload (from `updates.js`)
 let latestUpdate = null;
@@ -1369,11 +1369,30 @@ function promptPushNotifications() {
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function (OneSignal) {
       try {
-        if (OneSignal && OneSignal.Slidedown && typeof OneSignal.Slidedown.promptPush === 'function') {
-          await OneSignal.Slidedown.promptPush();
+        // iOS: Push only works for installed web apps ("Add to Home Screen").
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
+        const isStandalone = !!(navigator.standalone || window.matchMedia?.('(display-mode: standalone)')?.matches);
+        if (isIOS && !isStandalone) {
+          showToast(currentLang === 'ms'
+            ? 'iPhone/iPad: Untuk notifikasi, tambah ke Home Screen dahulu (Share → Add to Home Screen).'
+            : 'iPhone/iPad: To enable notifications, add this site to Home Screen first.');
+        }
+
+        // Prefer direct permission request (works well when our own modal is open).
+        if (OneSignal?.Notifications?.requestPermission) {
+          showToast(currentLang === 'ms' ? 'Membuka kebenaran notifikasi…' : 'Opening notification permission…', 2200);
+          await OneSignal.Notifications.requestPermission();
           return;
         }
-        if (OneSignal && typeof OneSignal.registerForPushNotifications === 'function') {
+
+        // Fallbacks (SDK variants)
+        if (OneSignal?.Slidedown?.promptPush) {
+          showToast(currentLang === 'ms' ? 'Membuka notifikasi…' : 'Opening notifications…', 2200);
+          await OneSignal.Slidedown.promptPush({ force: true });
+          return;
+        }
+        if (OneSignal?.registerForPushNotifications) {
+          showToast(currentLang === 'ms' ? 'Membuka notifikasi…' : 'Opening notifications…', 2200);
           await OneSignal.registerForPushNotifications();
           return;
         }
