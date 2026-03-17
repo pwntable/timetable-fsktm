@@ -1498,17 +1498,30 @@ function showUpdatePopup() {
   function codeListHTML(arr, marker = '') {
     if (!arr || !arr.length) return `<div class="update-empty">—</div>`;
     const prefix = marker ? marker + ' ' : '';
-    const shown = arr.slice(0, 24).map(c => `<span class="update-code">${prefix + fmtKey(c)}</span>`).join(' ');
-    return `<div class="update-inline">${shown}${arr.length > 24 ? ` <span class="update-more">… +${arr.length - 24}</span>` : ''}</div>`;
+    const rows = arr.map(c => {
+      const name = getCourseName(c);
+      return `
+        <div class="update-item-top">${prefix}${fmtKey(c)}</div>
+        ${name ? `<div class="update-course-name">${name}</div>` : ''}
+      `.trim();
+    });
+    const shown = rows.slice(0, 40).map(r => `<div class="update-item">${r}</div>`).join('');
+    return `<div class="update-items">${shown}${rows.length > 40 ? `<div class="update-more">… +${rows.length - 40}</div>` : ''}</div>`;
   }
 
   function sectionsListHTML(obj, marker = '') {
     const rows = [];
+    const prefix = marker ? marker + ' ' : '';
     for (const [code, secs] of Object.entries(obj || {})) {
-      rows.push(`${marker ? marker + ' ' : ''}${fmtKey(code)}: ${(secs || []).map(s => fmtKey(s)).join(' ')}`);
+      const name = getCourseName(code);
+      rows.push(`
+        <div class="update-item-top">${prefix}${fmtKey(code)}: ${(secs || []).map(s => fmtKey(s)).join(' ')}</div>
+        ${name ? `<div class="update-course-name">${name}</div>` : ''}
+      `.trim());
     }
     if (!rows.length) return `<div class="update-empty">—</div>`;
-    return `<div class="update-items">${rows.slice(0, 40).map(r => `<div class="update-item">${r}</div>`).join('')}${rows.length > 40 ? `<div class="update-more">… +${rows.length - 40}</div>` : ''}</div>`;
+    const shown = rows.slice(0, 40).map(r => `<div class="update-item">${r}</div>`).join('');
+    return `<div class="update-items">${shown}${rows.length > 40 ? `<div class="update-more">… +${rows.length - 40}</div>` : ''}</div>`;
   }
 
   function detailOnlyListHTML(obj, marker = '') {
