@@ -133,7 +133,19 @@ const DICT = {
     discClose: "Close",
     printBtn: "Print / Download",
     viewTable: "Table",
-    viewCards: "Cards"
+    viewCards: "Cards",
+    autoFixBtn: "Auto-Fix Timetable",
+    solvingLabel: "Finding best schedule...",
+    noSolutionFound: "No conflict-free schedule found for all selected subjects.",
+    removalSuggestion: "We suggest removing: {subjects}",
+    autoFixSuccess: "Timetable reconfigured successfully!",
+    resModalTitle: "Conflict Resolution",
+    resModalDesc: "To resolve conflicts, the following subjects are suggested for removal:",
+    btnDeleteAll: "Delete All",
+    btnFindAlt: "Find Alternative",
+    btnApply: "Apply Changes",
+    altModalTitle: "Alternative Suggestions",
+    closeBtn: "Close",
   },
   ms: {
     subtitle: "Pilih subjek & section — jadual dijana serta-merta",
@@ -229,7 +241,19 @@ const DICT = {
     discClose: "Tutup",
     printBtn: "Cetak / Muat Turun",
     viewTable: "Jadual",
-    viewCards: "Kad"
+    viewCards: "Kad",
+    autoFixBtn: "Baiki Jadual Automatik",
+    solvingLabel: "Mencari jadual terbaik...",
+    noSolutionFound: "Tiada jadual tanpa konflik ditemui untuk semua subjek.",
+    removalSuggestion: "Kami cadangkan buang: {subjects}",
+    autoFixSuccess: "Jadual berjaya disusun semula!",
+    resModalTitle: "Penyelesaian Konflik",
+    resModalDesc: "Untuk menyelesaikan konflik, subjek berikut dicadangkan untuk dibuang:",
+    btnDeleteAll: "Buang Semua",
+    btnFindAlt: "Cari Alternatif",
+    btnApply: "Terapkan Perubahan",
+    altModalTitle: "Cadangan Alternatif",
+    closeBtn: "Tutup",
   }
 };
 
@@ -849,6 +873,362 @@ function checkConflicts() {
     }
   }
   return conflicts;
+}
+
+/** 
+ * ════ SMART RESOLVER (AUTO-CONFIGURE) ════ 
+ * Backtracking algorithm to find a conflict-free combination of sections.
+ */
+
+function solveRecursive(courseCodes, index, currentMapping) {
+  if (index === courseCodes.length) return currentMapping;
+
+  const code = courseCodes[index];
+  const course = COURSES[code];
+  const sections = sortSections(Object.keys(course.sections || {}));
+
+  // Prioritize intake-matched sections if we can find them
+  const intakeMatched = sections.filter(sec => {
+    const slots = course.sections[sec] || [];
+    const sel = document.getElementById('intake-select');
+    const chosen = sel ? sel.value : '';
+    return slots.some(slot =>
+      (slot.intakes || []).some(intakeStr =>
+        intakeStr.split(' | ').some(part => part.trim() === chosen)
+      )
+    );
+  });
+
+  // Reorder sections: intakeMatched first, then others
+  const orderedSections = [...new Set([...intakeMatched, ...sections])];
+
+  for (const sec of orderedSections) {
+    if (!hasConflictWithCurrent(code, sec, currentMapping)) {
+      currentMapping[code] = sec;
+      const result = solveRecursive(courseCodes, index + 1, currentMapping);
+      if (result) return result;
+      delete currentMapping[code];
+    }
+  }
+
+  return null;
+}
+
+function hasConflictWithCurrent(targetCode, targetSec, mapping) {
+  const targetSlots = COURSES[targetCode].sections[targetSec] || [];
+  const targetKeys = new Set(targetSlots.flatMap(s => getOccupiedSlots(s)));
+
+  for (const [code, sec] of Object.entries(mapping)) {
+    if (code === targetCode) continue;
+    for (const slot of (COURSES[code].sections[sec] || [])) {
+      for (const k of getOccupiedSlots(slot)) {
+        if (targetKeys.has(k)) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function findBestConfiguration(courseCodes) {
+  return solveRecursive(courseCodes, 0, {});
+}
+
+function suggestResolutionOptions(courseCodes, maxOptions = 3) {
+  const options = [];
+  const minRemovedSets = []; // To keep track of minimal sets found
+
+  // Try removing 1, then 2, then 3 courses...
+  for (let r = 1; r <= 3 && options.length < maxOptions; r++) {
+    const combinations = getCombinations(courseCodes, courseCodes.length - r);
+    
+    for (const subCourseCodes of combinations) {
+      if (options.length >= maxOptions) break;
+      
+      const removed = courseCodes.filter(c => !subCourseCodes.includes(c));
+      const removedSet = new Set(removed);
+      
+      // Check if this set is a superset of something we already found
+      // (e.g. if {A} is a solution, {A, B} is redundant)
+      let isSuperset = false;
+      for (const existingSet of minRemovedSets) {
+        let containsAll = true;
+        for (const item of existingSet) {
+          if (!removedSet.has(item)) { containsAll = false; break; }
+        }
+        if (containsAll) { isSuperset = true; break; }
+      }
+      if (isSuperset) continue;
+
+      const solution = findBestConfiguration(subCourseCodes);
+      if (solution) {
+        options.push({ solution, removed });
+        minRemovedSets.push(new Set(removed));
+      }
+    }
+  }
+  return options;
+}
+
+function getCombinations(arr, k) {
+  const results = [];
+  function helper(start, current) {
+    if (current.length === k) {
+      results.push([...current]);
+      return;
+    }
+    for (let i = start; i < arr.length; i++) {
+      current.push(arr[i]);
+      helper(i + 1, current);
+      current.pop();
+    }
+  }
+  helper(0, []);
+  return results;
+}
+
+async function smartResolve() {
+  const codes = Object.keys(selected);
+  if (codes.length === 0) return;
+
+  const btn = document.querySelector('.btn-autofix');
+  const t = DICT[currentLang];
+  
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<div class="spinner"></div> <span>${t.solvingLabel}</span>`;
+  }
+
+  showToast(t.solvingLabel, 2000);
+
+  try {
+    // Small delay to allow UI to show toast/spinner
+    await new Promise(r => setTimeout(r, 300));
+
+    console.time('smartResolve');
+    console.log('[AutoFix] Starting solver for:', codes);
+
+    let result = findBestConfiguration(codes);
+    let removed = [];
+
+    if (!result) {
+      console.log('[AutoFix] No perfect solution, searching for multi-options...');
+      const suggestions = suggestResolutionOptions(codes);
+      if (suggestions && suggestions.length > 0) {
+        showResolutionModal(suggestions);
+      } else {
+        showToast(t.noSolutionFound, 4000);
+      }
+    } else {
+      // Perfect match
+      for (const code of codes) {
+        selected[code] = result[code];
+      }
+      renderList(filtered);
+      renderSelArea();
+      renderTimetable();
+      showToast(t.autoFixSuccess, 3000);
+    }
+  } catch (err) {
+    console.error('[AutoFix] Error during resolution:', err);
+    showToast("An unexpected error occurred.", 4000);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<span style="font-size:14px">✨</span> <span data-i18n="autoFixBtn">${t.autoFixBtn}</span>`;
+    }
+  }
+}
+
+let pendingSuggestions = [];
+let selectedSuggestionIdx = 0;
+
+function showResolutionModal(suggestions) {
+  console.log('[AutoFix] showResolutionModal started', { suggestions });
+  pendingSuggestions = suggestions;
+  selectedSuggestionIdx = 0;
+  
+  const optionsContainer = document.getElementById('res-options-container');
+  if (optionsContainer) {
+    optionsContainer.innerHTML = '';
+    suggestions.forEach((s, idx) => {
+      const btn = document.createElement('button');
+      btn.className = `btn-sm res-option-chip ${idx === 0 ? 'active' : ''}`;
+      btn.style.padding = '6px 12px';
+      btn.style.borderRadius = '20px';
+      btn.style.fontSize = '11px';
+      btn.style.cursor = 'pointer';
+      btn.style.transition = 'all 0.2s';
+      
+      // Styling for chips
+      const updateChipStyle = (isActive) => {
+        btn.style.background = isActive ? 'var(--accent)' : 'var(--s2)';
+        btn.style.color = isActive ? 'white' : 'var(--muted2)';
+        btn.style.border = isActive ? 'none' : '1px solid var(--border)';
+      };
+      updateChipStyle(idx === 0);
+
+      const dropCount = s.removed.length;
+      btn.innerText = `Option ${idx + 1} (${dropCount} drop${dropCount > 1 ? 's' : ''})`;
+      
+      btn.onclick = () => {
+        selectedSuggestionIdx = idx;
+        document.querySelectorAll('.res-option-chip').forEach((b, i) => {
+           const isSelf = i === idx;
+           b.style.background = isSelf ? 'var(--accent)' : 'var(--s2)';
+           b.style.color = isSelf ? 'white' : 'var(--muted2)';
+           b.style.border = isSelf ? 'none' : '1px solid var(--border)';
+        });
+        renderResolutionOption(idx);
+      };
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  renderResolutionOption(0);
+
+  const modal = document.getElementById('resolution-modal');
+  if (modal) {
+    modal.classList.add('show');
+    console.log('[AutoFix] Added .show to #resolution-modal');
+  } else {
+    console.error('[AutoFix] Element #resolution-modal not found!');
+  }
+}
+
+function renderResolutionOption(idx) {
+  const suggestion = pendingSuggestions[idx];
+  if (!suggestion) return;
+
+  const list = document.getElementById('res-removed-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  const t = DICT[currentLang];
+  suggestion.removed.forEach(code => {
+    const course = COURSES[code];
+    const div = document.createElement('div');
+    div.className = 'res-item';
+    div.style.borderRadius = '12px';
+    div.style.border = '1px solid var(--border)';
+    div.style.padding = '12px';
+    div.style.marginBottom = '8px';
+    div.style.background = 'var(--s2)';
+    div.innerHTML = `
+      <div class="res-item-info" style="display:flex;flex-direction:column;gap:4px">
+        <div class="res-item-code" style="font-weight:700;color:var(--accent);font-size:13px">${code}</div>
+        <div class="res-item-name" style="font-size:12px;color:var(--text)">${course ? course.name : 'Unknown Subject'}</div>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn-sm" onclick="handleFindAlternative('${code}')" style="background:var(--s1);color:var(--accent);border-color:var(--accent);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer">
+          ${t.btnFindAlt}
+        </button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function closeResolutionModal() {
+  document.getElementById('resolution-modal').classList.remove('show');
+  pendingSuggestions = [];
+}
+
+function applyResolution() {
+  const suggestion = pendingSuggestions[selectedSuggestionIdx];
+  if (!suggestion) return;
+  const { solution, removed } = suggestion;
+
+  // Apply changes
+  const oldCodes = Object.keys(selected);
+  for (const code of oldCodes) {
+    if (solution[code]) {
+      selected[code] = solution[code];
+    } else {
+      delete selected[code];
+      delete colorMap[code];
+      delete customColors[code];
+    }
+  }
+
+  renderList(filtered);
+  renderSelArea();
+  renderTimetable();
+  
+  closeResolutionModal();
+  showToast(DICT[currentLang].autoFixSuccess, 3000);
+}
+
+function handleFindAlternative(targetCode) {
+  const alternatives = findAlternatives(targetCode);
+  showAlternativeModal(targetCode, alternatives);
+}
+
+function findAlternatives(targetCode) {
+  const currentCodes = Object.keys(pendingResolution.solution);
+  const targetCredits = getCredits(targetCode);
+  const alts = [];
+
+  for (const [code, course] of Object.entries(COURSES)) {
+    if (currentCodes.includes(code)) continue;
+    if (code === targetCode) continue;
+
+    // Filter by similar credits or just show available ones that fit
+    // For now, let's just find any course that fits the existing schedule
+    const solution = findBestConfiguration([...currentCodes, code]);
+    if (solution) {
+      alts.push(code);
+    }
+  }
+  return alts;
+}
+
+function showAlternativeModal(sourceCode, alternatives) {
+  const list = document.getElementById('alt-course-list');
+  list.innerHTML = '';
+  const desc = document.getElementById('alt-modal-desc');
+  desc.textContent = `Alternatif untuk ${sourceCode} (${COURSES[sourceCode].name})`;
+
+  if (alternatives.length === 0) {
+    list.innerHTML = `<div class="empty" style="padding:20px;color:var(--muted)">Tiada alternatif yang sesuai ditemui.</div>`;
+  } else {
+    alternatives.forEach(code => {
+      const course = COURSES[code];
+      const div = document.createElement('div');
+      div.className = 'intake-item';
+      div.onclick = () => addAlternativeCourse(code);
+      div.innerHTML = `
+        <div class="intake-item-info">
+          <div class="intake-item-code">${code}</div>
+          <div class="intake-item-name">${course.name}</div>
+        </div>
+        <div class="intake-item-credits">${getCredits(code)} CR</div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  document.getElementById('alternative-modal').classList.add('show');
+}
+
+function closeAlternativeModal() {
+  document.getElementById('alternative-modal').classList.remove('show');
+}
+
+function addAlternativeCourse(code) {
+  // Add to selected and re-run solver
+  const currentCodes = Object.keys(pendingResolution.solution);
+  const newCodes = [...currentCodes, code];
+  
+  const solution = findBestConfiguration(newCodes);
+  if (solution) {
+    // Update pending resolution
+    pendingResolution.solution = solution;
+    // Remove from 'removed' list if it was a suggestion? 
+    // Actually, we just need to update the UI/State.
+    // Let's just apply it immediately for simplicity or refresh the resolution modal.
+    closeAlternativeModal();
+    applyResolution(); 
+  }
 }
 
 /* ════ REALTIME TIMETABLE ════ */

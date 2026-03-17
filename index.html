@@ -138,6 +138,11 @@
           <div class="sel-area" id="sel-area"></div>
           <div class="sidebar-foot" id="sidebar-foot">
             <div class="conflict-hint" id="conflict-hint"></div>
+            <div class="actions-row" style="display:flex;gap:8px;width:100%;margin-bottom:8px">
+              <button type="button" class="btn-autofix" onclick="smartResolve()" style="flex:1">
+                <span style="font-size:14px">✨</span> <span data-i18n="autoFixBtn">Baiki Jadual Automatik</span>
+              </button>
+            </div>
             <div class="actions-row" style="display:flex;gap:8px;width:100%;margin-bottom:12px">
               <button type="button" class="btn-reset" onclick="resetAll()" style="flex:1"><span data-i18n="resetBtn">Set
                   Semula</span></button>
@@ -581,6 +586,43 @@
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFLICT RESOLUTION MODAL -->
+  <div class="modal" id="resolution-modal" onclick="if(event.target===this) closeResolutionModal()">
+    <div class="modal-content" style="max-width:450px;padding:24px">
+      <h3 id="res-modal-title" style="font-family:'Syne',sans-serif;font-size:18px;margin-bottom:12px" data-i18n="resModalTitle">Penyelesaian Konflik</h3>
+      <p id="res-modal-desc" style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.5" data-i18n="resModalDesc">Untuk menyelesaikan konflik, subjek berikut dicadangkan untuk dibuang:</p>
+      
+      <div id="res-options-container" style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap"></div>
+       <div id="res-removed-list" style="margin-bottom:24px;display:flex;flex-direction:column;gap:10px">
+        <!-- Injected by JS -->
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:flex-end">
+        <button class="btn-sm" onclick="applyResolution()" style="background:var(--accent);color:white;border:none" data-i18n="btnApply">Terapkan Perubahan</button>
+        <button class="btn-sm" onclick="closeResolutionModal()" style="border-color:var(--border2);color:var(--muted2);background:transparent" data-i18n="cancelBtn">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALTERNATIVE COURSE MODAL -->
+  <div class="modal" id="alternative-modal" onclick="if(event.target===this) closeAlternativeModal()">
+    <div class="modal-content" style="max-width:500px;padding:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 id="alt-modal-title" style="font-family:'Syne',sans-serif;font-size:18px;margin:0" data-i18n="altModalTitle">Cadangan Alternatif</h3>
+        <button class="btn-sm" onclick="closeAlternativeModal()" style="padding:4px 8px;border:none;background:var(--s2);color:var(--muted);font-size:12px;cursor:pointer;border-radius:6px">✕</button>
+      </div>
+      <p id="alt-modal-desc" style="font-size:12px;color:var(--muted);margin-bottom:16px"></p>
+      
+      <div id="alt-course-list" class="clist" style="max-height:300px; border:1px solid var(--border); border-radius:10px; background:var(--bg)">
+        <!-- Injected by JS -->
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:flex-end">
+        <button class="btn-sm" onclick="closeAlternativeModal()" style="border-color:var(--border2);background:transparent;color:var(--muted)" data-i18n="closeBtn">Tutup</button>
       </div>
     </div>
   </div>
