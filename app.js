@@ -2248,24 +2248,66 @@ function showDetailModal(el) {
   const e = JSON.parse(decodeURIComponent(el.dataset.info));
   const t = DICT[currentLang];
 
-  document.getElementById('detail-code').textContent = e.code;
-  const name = (COURSES[e.code] && COURSES[e.code].name) ? COURSES[e.code].name : '';
-  document.getElementById('detail-name').textContent = name;
+  // Handle Highlights
+  let isNewSlot = false;
+  let isCourseNameUpd = false;
+  let chgLect = false;
+  let chgVenue = false;
+  let chgTime = false;
 
-  document.getElementById('detail-sec').textContent = e.sec;
+  if (latestUpdate && latestUpdate.changes) {
+    const code = e.code;
+    const sec = e.sec;
+    const c = latestUpdate.changes;
+
+    if (c.courses && c.courses.added && c.courses.added.includes(code)) isNewSlot = true;
+    if (c.sections && c.sections.added && c.sections.added[code] && c.sections.added[code].includes(sec)) isNewSlot = true;
+    if (!isNewSlot && c.slots && c.slots.structural && c.slots.structural.added && c.slots.structural.added[code] && c.slots.structural.added[code][sec]) {
+      const added = c.slots.structural.added[code][sec];
+      if (added.some(s => s[1] === e.type && s[2] === e.day && String(s[3]).replace('.', ':') === String(e.time_start).replace('.', ':'))) {
+        isNewSlot = true;
+      }
+    }
+    if (c.names && c.names.changed && c.names.changed.some(n => n.code === code)) isCourseNameUpd = true;
+
+    if (!isNewSlot && c.slots && c.slots.detail_only_changed && c.slots.detail_only_changed[code] && c.slots.detail_only_changed[code][sec]) {
+      const detailSlots = c.slots.detail_only_changed[code][sec];
+      const match = detailSlots.find(d => {
+        const s = Array.isArray(d) ? d : (d.slot || []);
+        return s[1] === e.type && s[2] === e.day && String(s[3]).replace('.', ':') === String(e.time_start).replace('.', ':');
+      });
+      if (match && match.changes) {
+        if (match.changes.lecturer) chgLect = true;
+        if (match.changes.venue) chgVenue = true;
+        if (match.changes.rows || match.changes.intakes || (!match.changes.lecturer && !match.changes.venue)) chgTime = true;
+      }
+    }
+  }
+
+  const getBadge = (type) => {
+    if (type === 'new') return `<span style="background:#10b981;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:6px;display:inline-block;line-height:1;vertical-align:middle;font-weight:600">${currentLang === 'ms' ? 'Baru' : 'New'}</span>`;
+    if (type === 'upd') return `<span style="background:#f59e0b;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:6px;display:inline-block;line-height:1;vertical-align:middle;font-weight:600">${currentLang === 'ms' ? 'Dikemaskini' : 'Updated'}</span>`;
+    return '';
+  };
+
+  document.getElementById('detail-code').innerHTML = e.code + (isNewSlot ? getBadge('new') : '');
+  const name = (COURSES[e.code] && COURSES[e.code].name) ? COURSES[e.code].name : '';
+  document.getElementById('detail-name').innerHTML = name + (isCourseNameUpd ? getBadge('upd') : '');
+
+  document.getElementById('detail-sec').innerHTML = e.sec;
 
   const typeFull = e.type === 'Lecture' ? (currentLang === 'ms' ? 'Kuliah' : 'Lecture')
     : e.type === 'Lab/Amali' ? (currentLang === 'ms' ? 'Amali' : 'Lab')
       : (currentLang === 'ms' ? 'Tutorial' : 'Tutorial');
-  document.getElementById('detail-type').textContent = typeFull;
+  document.getElementById('detail-type').innerHTML = typeFull;
 
   const tStart = e.time_start || '';
   const tEnd = e.time_end || '';
   const timeStr = `${t.days[e.day]} • ${format12Hour(tStart)}${tEnd ? ' – ' + format12Hour(tEnd) : ''}`;
-  document.getElementById('detail-time').textContent = timeStr;
+  document.getElementById('detail-time').innerHTML = timeStr + (chgTime ? getBadge('upd') : '');
 
-  document.getElementById('detail-venue').textContent = (e.venue || '-').replace('I-', '');
-  document.getElementById('detail-lecturer').textContent = (e.lecturer || '-').replace('I-', '');
+  document.getElementById('detail-venue').innerHTML = (e.venue || '-').replace('I-', '') + (chgVenue ? getBadge('upd') : '');
+  document.getElementById('detail-lecturer').innerHTML = (e.lecturer || '-').replace('I-', '') + (chgLect ? getBadge('upd') : '');
 
   // Handle Remove Button
   const actionsWrap = document.getElementById('detail-actions');
