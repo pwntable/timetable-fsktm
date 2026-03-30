@@ -2254,6 +2254,7 @@ function showDetailModal(el) {
   let chgLect = false;
   let chgVenue = false;
   let chgTime = false;
+  let chgIntakes = false;
 
   if (latestUpdate && latestUpdate.changes) {
     const code = e.code;
@@ -2279,7 +2280,8 @@ function showDetailModal(el) {
       if (match && match.changes) {
         if (match.changes.lecturer) chgLect = true;
         if (match.changes.venue) chgVenue = true;
-        if (match.changes.rows || match.changes.intakes || (!match.changes.lecturer && !match.changes.venue)) chgTime = true;
+        if (match.changes.intakes) chgIntakes = true;
+        if (match.changes.rows || (!match.changes.lecturer && !match.changes.venue && !match.changes.intakes)) chgTime = true;
       }
     }
   }
@@ -2308,6 +2310,19 @@ function showDetailModal(el) {
 
   document.getElementById('detail-venue').innerHTML = (e.venue || '-').replace('I-', '') + (chgVenue ? getBadge('upd') : '');
   document.getElementById('detail-lecturer').innerHTML = (e.lecturer || '-').replace('I-', '') + (chgLect ? getBadge('upd') : '');
+
+  const escHtmlLocal = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const intakesVal = (e.intakes && Array.isArray(e.intakes)) ? e.intakes.join(' | ') : (e.intakes || '');
+  const intakesRow = document.getElementById('detail-intakes-row');
+  if (intakesRow) {
+    if (intakesVal) {
+      intakesRow.style.display = 'flex';
+      document.getElementById('detail-intakes').innerHTML = escHtmlLocal(intakesVal) + (chgIntakes ? getBadge('upd') : '');
+    } else {
+      intakesRow.style.display = 'none';
+      document.getElementById('detail-intakes').innerHTML = '';
+    }
+  }
 
   // Handle Remove Button
   const actionsWrap = document.getElementById('detail-actions');
