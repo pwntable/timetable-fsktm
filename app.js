@@ -1871,8 +1871,8 @@ function showUpdatePopup() {
       }
     }
     if (!rows.length) return `<div class="update-empty">—</div>`;
-    const shown = rows.slice(0, 60).map(r => `<div class="update-item">${r}</div>`).join('');
-    return `<div class="update-items">${shown}${rows.length > 60 ? `<div class="update-more">… +${rows.length - 60}</div>` : ''}</div>`;
+    const shown = rows.map(r => `<div class="update-item">${r}</div>`).join('');
+    return `<div class="update-items">${shown}</div>`;
   }
 
   function codeListHTML(arr, marker = '') {
@@ -1885,8 +1885,8 @@ function showUpdatePopup() {
         ${name ? `<div class="update-course-name">${name}</div>` : ''}
       `.trim();
     });
-    const shown = rows.slice(0, 40).map(r => `<div class="update-item">${r}</div>`).join('');
-    return `<div class="update-items">${shown}${rows.length > 40 ? `<div class="update-more">… +${rows.length - 40}</div>` : ''}</div>`;
+    const shown = rows.map(r => `<div class="update-item">${r}</div>`).join('');
+    return `<div class="update-items">${shown}</div>`;
   }
 
   function sectionsListHTML(obj, marker = '') {
@@ -1900,8 +1900,8 @@ function showUpdatePopup() {
       `.trim());
     }
     if (!rows.length) return `<div class="update-empty">—</div>`;
-    const shown = rows.slice(0, 40).map(r => `<div class="update-item">${r}</div>`).join('');
-    return `<div class="update-items">${shown}${rows.length > 40 ? `<div class="update-more">… +${rows.length - 40}</div>` : ''}</div>`;
+    const shown = rows.map(r => `<div class="update-item">${r}</div>`).join('');
+    return `<div class="update-items">${shown}</div>`;
   }
 
   function detailOnlyListHTML(obj, marker = '') {
@@ -1937,8 +1937,8 @@ function showUpdatePopup() {
       }
     }
     if (!rows.length) return `<div class="update-empty">—</div>`;
-    const shown = rows.slice(0, 60).map(r => `<div class="update-item">${r}</div>`).join('');
-    return `<div class="update-items">${shown}${rows.length > 60 ? `<div class="update-more">… +${rows.length - 60}</div>` : ''}</div>`;
+    const shown = rows.map(r => `<div class="update-item">${r}</div>`).join('');
+    return `<div class="update-items">${shown}</div>`;
   }
 
   const hasAnyChange =
@@ -1994,7 +1994,7 @@ function showUpdatePopup() {
       ${namesChangedArr.length || slotDetailChangedCount ? `
         <section class="update-section is-changed">
           <div class="update-section-title">🟠 ${changedHdr}</div>
-          ${namesChangedArr.length ? `<div class="update-block"><div class="update-block-title">${currentLang === 'ms' ? 'Nama kursus' : 'Course names'}</div><div class="update-items">${namesChangedArr.slice(0, 15).map(x => `<div class="update-item">${fmtKey(x.code)}: ${String(x.old || '').toUpperCase()} → ${String(x.new || '').toUpperCase()}</div>`).join('')}${namesChangedArr.length > 15 ? `<div class="update-more">… +${namesChangedArr.length - 15}</div>` : ''}</div></div>` : ''}
+          ${namesChangedArr.length ? `<div class="update-block"><div class="update-block-title">${currentLang === 'ms' ? 'Nama kursus' : 'Course names'}</div><div class="update-items">${namesChangedArr.map(x => `<div class="update-item">${fmtKey(x.code)}: ${String(x.old || '').toUpperCase()} → ${String(x.new || '').toUpperCase()}</div>`).join('')}</div></div>` : ''}
           ${slotDetailChangedCount ? `<div class="update-block"><div class="update-block-title">${currentLang === 'ms' ? 'Butiran kelas' : 'Class details'}</div>${detailOnlyListHTML(detailChanged, '🟠')}</div>` : ''}
         </section>
       ` : ''}
