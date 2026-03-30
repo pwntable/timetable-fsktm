@@ -1,5 +1,4 @@
-/* Auto-generated. Do not edit by hand. */
-window.LATEST_UPDATE = {
+{
   "generatedAt": "2026-03-30T12:35:23",
   "timetable": {
     "latestId": "30032026",
@@ -189,4 +188,4 @@ window.LATEST_UPDATE = {
       }
     }
   }
-};
+}
