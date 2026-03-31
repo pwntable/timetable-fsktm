@@ -1,0 +1,631 @@
+{
+  "base": "by_course_31032026.pdf",
+  "sources": [
+    "by_course_31032026.pdf",
+    "by_lecturer_31032026.pdf",
+    "by_room_31032026.pdf",
+    "by_batch_31032026.pdf"
+  ],
+  "enriched": {
+    "venue": 0,
+    "lecturer": 0,
+    "intakes": 0
+  },
+  "unmatched_slots": {
+    "by_lecturer_31032026.pdf": 0,
+    "by_room_31032026.pdf": 0,
+    "by_batch_31032026.pdf": 0
+  },
+  "disagreements": {
+    "by_lecturer_31032026.pdf": 7,
+    "by_room_31032026.pdf": 7,
+    "by_batch_31032026.pdf": 27
+  },
+  "unmatched_samples": {
+    "by_lecturer_31032026.pdf": [],
+    "by_room_31032026.pdf": [],
+    "by_batch_31032026.pdf": []
+  },
+  "disagreement_samples": {
+    "by_lecturer_31032026.pdf": [
+      {
+        "code": "BIC21303",
+        "section": "S5",
+        "type": "Lab/Amali",
+        "day": "Monday",
+        "source_time_start": "12:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC10403",
+        "section": "S7",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "12:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC10403",
+        "section": "S8",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "12:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC21404",
+        "section": "S1",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIC21404",
+        "section": "S2",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIW33703",
+        "section": "S6",
+        "type": "Lecture",
+        "day": "Wednesday",
+        "source_time_start": "11:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "10:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIW33703",
+        "section": "S5",
+        "type": "Lecture",
+        "day": "Wednesday",
+        "source_time_start": "11:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "10:00",
+            2
+          ]
+        ]
+      }
+    ],
+    "by_room_31032026.pdf": [
+      {
+        "code": "BIC10403",
+        "section": "S7",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "12:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC10403",
+        "section": "S8",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "12:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIW33703",
+        "section": "S5",
+        "type": "Lecture",
+        "day": "Wednesday",
+        "source_time_start": "11:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "10:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIW33703",
+        "section": "S6",
+        "type": "Lecture",
+        "day": "Wednesday",
+        "source_time_start": "11:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "10:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC21303",
+        "section": "S5",
+        "type": "Lab/Amali",
+        "day": "Monday",
+        "source_time_start": "12:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC21404",
+        "section": "S2",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIC21404",
+        "section": "S1",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      }
+    ],
+    "by_batch_31032026.pdf": [
+      {
+        "code": "BIC10403",
+        "section": "S7",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "12:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC10403",
+        "section": "S8",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "12:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC10403",
+        "section": "S1",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC10403",
+        "section": "S2",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIS33203",
+        "section": "S10",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "02:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "04:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIS33203",
+        "section": "S17",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "02:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "04:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIS33203",
+        "section": "S2",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "02:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "04:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIT10303",
+        "section": "S1",
+        "type": "Lecture",
+        "day": "Thursday",
+        "source_time_start": "10:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIW33503",
+        "section": "S5",
+        "type": "Lecture",
+        "day": "Thursday",
+        "source_time_start": "08:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "08:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC21404",
+        "section": "S9",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "08:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIC21404",
+        "section": "S1",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "08:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIC21404",
+        "section": "S1",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIC21404",
+        "section": "S2",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "08:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIC21404",
+        "section": "S2",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIC21303",
+        "section": "S5",
+        "type": "Lab/Amali",
+        "day": "Monday",
+        "source_time_start": "12:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "11:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC10404",
+        "section": "S9",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "01:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "02:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIC10404",
+        "section": "S9",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "02:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "02:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIS20303",
+        "section": "S9",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "12:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIW33703",
+        "section": "S13",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "02:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "04:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIW33703",
+        "section": "S6",
+        "type": "Lecture",
+        "day": "Wednesday",
+        "source_time_start": "11:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "10:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIW33703",
+        "section": "S5",
+        "type": "Lecture",
+        "day": "Wednesday",
+        "source_time_start": "11:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "10:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC20904",
+        "section": "S1",
+        "type": "Lecture",
+        "day": "Monday",
+        "source_time_start": "08:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "08:00",
+            3
+          ]
+        ]
+      },
+      {
+        "code": "BIS30903",
+        "section": "S1",
+        "type": "Lecture",
+        "day": "Monday",
+        "source_time_start": "02:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "02:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIS30903",
+        "section": "S1",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "08:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "10:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIS30703",
+        "section": "S1",
+        "type": "Lecture",
+        "day": "Tuesday",
+        "source_time_start": "08:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "10:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIS30703",
+        "section": "S1",
+        "type": "Lab/Amali",
+        "day": "Tuesday",
+        "source_time_start": "10:00",
+        "source_duration": 2,
+        "base_candidates": [
+          [
+            "12:00",
+            2
+          ]
+        ]
+      },
+      {
+        "code": "BIC20803",
+        "section": "S5",
+        "type": "Lab/Amali",
+        "day": "Thursday",
+        "source_time_start": "08:00",
+        "source_duration": 3,
+        "base_candidates": [
+          [
+            "10:00",
+            2
+          ]
+        ]
+      }
+    ]
+  },
+  "missing_courses_in_base": {
+    "by_lecturer_31032026.pdf": 0,
+    "by_room_31032026.pdf": 0,
+    "by_batch_31032026.pdf": 0
+  },
+  "missing_sections_in_base": {
+    "by_lecturer_31032026.pdf": 0,
+    "by_room_31032026.pdf": 0,
+    "by_batch_31032026.pdf": 0
+  },
+  "missing_courses_samples": {
+    "by_lecturer_31032026.pdf": [],
+    "by_room_31032026.pdf": [],
+    "by_batch_31032026.pdf": []
+  },
+  "missing_sections_samples": {
+    "by_lecturer_31032026.pdf": [],
+    "by_room_31032026.pdf": [],
+    "by_batch_31032026.pdf": []
+  }
+}
