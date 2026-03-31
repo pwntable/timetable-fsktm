@@ -418,8 +418,8 @@ function renderList(codes) {
     const item = document.createElement('div');
     item.className = `citem${isSel ? ' sel' : ''}${noSec ? ' no-sec' : ''}`;
     const tag = getCourseUpdateTag(code);
-    const tagHtml = tag ? ` <span class="pill ${tag.cls}">${tag.label}</span>` : '';
-    item.innerHTML = `<div class="cbox"></div><div class="cinfo"><div class="ccode">${code}</div><div class="cname">${c.name}${tagHtml}</div></div><div class="csec-count">${noSec ? '—' : secCount > 1 ? secCount + ' sec' : '1 sec'}</div>`;
+    const tagHtml = tag ? `<span class="pill ${tag.cls}">${tag.label}</span>` : '';
+    item.innerHTML = `<div class="cbox"></div><div class="cinfo"><div class="ccode" style="display:flex;align-items:center;gap:6px">${code}${tagHtml}</div><div class="cname">${c.name}</div></div><div class="csec-count">${noSec ? '—' : secCount > 1 ? secCount + ' sec' : '1 sec'}</div>`;
     if (!noSec) item.onclick = () => toggleCourse(code);
     el.appendChild(item);
   });
@@ -1662,6 +1662,7 @@ function initLatestUpdate() {
   const removedCourses = new Set((changes.courses && changes.courses.removed) || []);
 
   const changedCourses = new Set();
+  const intakesChangedCourses = new Set();
   const slotAdded = new Set();
   const slotChanged = new Set();
 
@@ -1698,6 +1699,7 @@ function initLatestUpdate() {
   }
   for (const [code, secs] of Object.entries(dOnly)) {
     let hasMajorChangeInCourse = false;
+    let hasIntakesOnlyChange = false;
     for (const [sec, keys] of Object.entries(secs || {})) {
       (keys || []).forEach(k => {
         const a = _slotArr(k);
@@ -1709,21 +1711,26 @@ function initLatestUpdate() {
         if (!isOnlyIntakes) {
           slotChanged.add([code, a[0], a[1], a[2], a[3], _normDur(a[4])].join('|'));
           hasMajorChangeInCourse = true;
+        } else {
+          hasIntakesOnlyChange = true;
         }
       });
     }
     if (hasMajorChangeInCourse) {
       changedCourses.add(code);
+    } else if (hasIntakesOnlyChange) {
+      intakesChangedCourses.add(code);
     }
   }
 
-  updateIndex = { addedCourses, removedCourses, changedCourses, slotAdded, slotChanged };
+  updateIndex = { addedCourses, removedCourses, changedCourses, intakesChangedCourses, slotAdded, slotChanged };
 }
 
 function getCourseUpdateTag(code) {
   if (!updateIndex) return null;
   if (updateIndex.addedCourses.has(code)) return { cls: 'tag-new', label: currentLang === 'ms' ? 'BARU' : 'NEW' };
   if (updateIndex.changedCourses.has(code)) return { cls: 'tag-upd', label: currentLang === 'ms' ? 'KEMAS KINI' : 'UPDATED' };
+  if (updateIndex.intakesChangedCourses && updateIndex.intakesChangedCourses.has(code)) return { cls: 'tag-amb', label: currentLang === 'ms' ? 'AMBILAN' : 'INTAKES' };
   return null;
 }
 

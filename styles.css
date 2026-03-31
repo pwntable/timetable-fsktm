@@ -3066,6 +3066,11 @@ html[data-theme="light"] #btn-theme .icon-moon {
   color: #fbbf24;
 }
 
+.pill.tag-amb {
+  background: rgba(99, 102, 241, .14);
+  color: #818cf8;
+}
+
 .slot.update-new,
 .slot-card.update-new {
   outline: 1.5px solid rgba(52, 211, 153, 0.85);
