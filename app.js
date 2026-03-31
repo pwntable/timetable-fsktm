@@ -1697,13 +1697,23 @@ function initLatestUpdate() {
     }
   }
   for (const [code, secs] of Object.entries(dOnly)) {
-    changedCourses.add(code);
+    let hasMajorChangeInCourse = false;
     for (const [sec, keys] of Object.entries(secs || {})) {
       (keys || []).forEach(k => {
         const a = _slotArr(k);
         if (!a) return;
-        slotChanged.add([code, a[0], a[1], a[2], a[3], _normDur(a[4])].join('|'));
+        
+        const c = k.changes || {};
+        const isOnlyIntakes = c.intakes && Object.keys(c).length === 1;
+        
+        if (!isOnlyIntakes) {
+          slotChanged.add([code, a[0], a[1], a[2], a[3], _normDur(a[4])].join('|'));
+          hasMajorChangeInCourse = true;
+        }
       });
+    }
+    if (hasMajorChangeInCourse) {
+      changedCourses.add(code);
     }
   }
 
