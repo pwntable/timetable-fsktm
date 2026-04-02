@@ -1,0 +1,50 @@
+fetch_drive.py — run started at 2026-04-02 10:26:21
+Drive Folder ID : 1TLZ0NklKZqmgy2UCmkgTLTSVHFgbyNpY
+Output Dir      : tools/PDF
+------------------------------------------------------------
+
+STEP 1: Listing root Drive folder …
+  → Fetching folder: https://drive.google.com/drive/folders/1TLZ0NklKZqmgy2UCmkgTLTSVHFgbyNpY
+  Found 1 file(s), 11 subfolder(s)
+
+STEP 2: Versioned layout — selecting best subfolder …
+    • 01042026 - LATEST  (id=1mmaTqfO9yVLCzvLLlJKrkYkXhFaVkL6T?hl=en)
+    • 09032026  (id=1zU-dMNPOKw3crAzmcE1i-EH04HtuEXWp?hl=en)
+    • 11032026  (id=1ZzFxxHfWcycaoF3_MnhXzdcLubUzPjJ4?hl=en)
+    • 12032026  (id=1_pmLwkw3Eu6W7I4aBiWoeIzzOYHWAc0X?hl=en)
+    • 14032026  (id=1-lGqvkDtSC1tb9W9Vw6P8SsYrgg0zUZf?hl=en)
+    • 15032026  (id=1vG0Vv0VJ9DFiDc0tX171X_bNwQfEvbMF?hl=en)
+    • 16032026  (id=1VDcosqe3qZX6OlEEu7-78zD2y_fXrY1B?hl=en)
+    • 17032026  (id=1doYmAjSF9R63TyiAteBcXJSu1jing-eu?hl=en)
+    • 19032026  (id=1S48eGA7h-mZwB_gBWvUZ0zvXfBtVE1_f?hl=en)
+    • 30032026  (id=1eUr1VYJateJsaofQLT5j3UMqws7zjr5X?hl=en)
+    • 31032026  (id=1WgUwMToIynmuA9WKPjGNoE_Bt6RfJRK8?hl=en)
+
+  ✅ 'LATEST' keyword → '01042026 - LATEST'
+
+STEP 2b: Listing subfolder '01042026 - LATEST' …
+  → Fetching folder: https://drive.google.com/drive/folders/1mmaTqfO9yVLCzvLLlJKrkYkXhFaVkL6T?hl=en
+
+STEP 3: Archiving old PDFs to oldPDF directory …
+    📦 Archived: by_batch_31032026_3.pdf → oldPDF/02042026
+    📦 Archived: by_room_31032026_3.pdf → oldPDF/02042026
+    📦 Archived: by_lecturer_31032026_3.pdf → oldPDF/02042026
+    📦 Archived: by_course_31032026_3.pdf → oldPDF/02042026
+
+STEP 4: 4 PDF(s) queued for download
+    • by_batch_01042026.pdf
+    • by_course_01042026.pdf
+    • by_lecturer_01042026.pdf
+    • by_room_01042026.pdf
+
+    ⬇️  by_batch_01042026.pdf …
+    ✅ Saved → tools/PDF/by_batch_01042026.pdf  (239 KB)
+    ⬇️  by_course_01042026.pdf …
+    ✅ Saved → tools/PDF/by_course_01042026.pdf  (621 KB)
+    ⬇️  by_lecturer_01042026.pdf …
+    ✅ Saved → tools/PDF/by_lecturer_01042026.pdf  (492 KB)
+    ⬇️  by_room_01042026.pdf …
+    ✅ Saved → tools/PDF/by_room_01042026.pdf  (267 KB)
+
+────────────────────────────────────────────────────────────
+✅ Done — 4 PDF(s) downloaded to 'tools/PDF'
