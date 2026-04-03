@@ -1,0 +1,23 @@
+{
+  "name": "UTHM Timetable Generator",
+  "short_name": "UTHM TT",
+  "start_url": "/timetable-fsktm/",
+  "scope": "/timetable-fsktm/",
+  "display": "standalone",
+  "background_color": "#E8E9EB",
+  "theme_color": "#F06543",
+  "icons": [
+    {
+      "src": "/timetable-fsktm/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/timetable-fsktm/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
